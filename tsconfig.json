@@ -5,6 +5,7 @@
     { "path": "./tools/tsconfig.server.json" },
     { "path": "./tools/tsconfig.shared.json" },
     { "path": "./tools/tsconfig.vite.json" },
-    { "path": "./tools/tsconfig.engine.json" }
+    { "path": "./tools/tsconfig.engine.json" },
+    { "path": "./tools/tsconfig.engine-tests.json" }
   ]
 }

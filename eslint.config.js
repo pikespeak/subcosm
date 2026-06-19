@@ -74,7 +74,12 @@ export default defineConfig([
       ecmaVersion: 2023,
       globals: globals.browser,
       parserOptions: {
-        project: ['./tools/tsconfig.engine.json'],
+        // Engine SOURCE project + the engine-TESTS project (the latter owns the
+        // *.test.ts files, which the source project excludes).
+        project: [
+          './tools/tsconfig.engine.json',
+          './tools/tsconfig.engine-tests.json',
+        ],
         tsconfigRootDir: import.meta.dirname,
       },
     },
@@ -92,6 +97,16 @@ export default defineConfig([
           object: 'Math',
           property: 'random',
           message: 'error.engine.determinism.noMathRandom',
+        },
+      ],
+      // Leading-underscore params/vars are intentionally unused (Phase-2 render
+      // stub signatures must keep their typed param names for documentation).
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        {
+          argsIgnorePattern: '^_',
+          varsIgnorePattern: '^_',
+          caughtErrorsIgnorePattern: '^_',
         },
       ],
     },

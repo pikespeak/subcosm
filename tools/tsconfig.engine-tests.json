@@ -1,0 +1,18 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "lib": ["ES2023"],
+
+    // Type-checks the engine tests + the shared fixtures module. rootDir spans
+    // the repo root because test files (../src/engine/**/*.test.ts) import the
+    // shared fixtures from ../tests/fixtures.ts. Emit (composite requires it) is
+    // declarations only, parked under dist/types/engine-tests — NEVER inside the
+    // source tree (src/engine/, tests/) and never consumed at runtime.
+    "outDir": "../dist/types/engine-tests",
+    "tsBuildInfoFile": "../dist/types/engine-tests/tsconfig.tsbuildinfo",
+    "rootDir": ".."
+  },
+  "include": ["../src/engine/**/*.test.ts", "../tests/**/*"],
+  "exclude": [],
+  "references": [{ "path": "./tsconfig.engine.json" }]
+}
