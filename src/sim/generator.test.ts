@@ -78,10 +78,11 @@ describe('generateDayVectors story beats (SIM-01)', () => {
     expect(dramaDays.length).toBe(1);
   });
 
-  test('contains exactly one AMA day (a few large topThreads clusters)', () => {
-    // An AMA produces a handful of very large threads.
+  test('contains exactly one AMA day (a few huge topThreads clusters)', () => {
+    // An AMA produces a handful of HUGE threads that dwarf every other day —
+    // distinct from the drama spike (whose largest thread is far smaller).
     const amaDays = days.filter(
-      (d) => d.topThreads.length >= 1 && d.topThreads.length <= 5 && Math.max(...d.topThreads) >= 300,
+      (d) => d.topThreads.length >= 1 && d.topThreads.length <= 5 && Math.max(...d.topThreads) >= 1000,
     );
     expect(amaDays.length).toBe(1);
   });
