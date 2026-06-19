@@ -1,0 +1,16 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "lib": ["ES2023"],
+
+    // Type-checks the styles tests (the styles SOURCE project excludes *.test.ts).
+    // Emit (composite requires it) is declarations only, parked under
+    // dist/types/styles-tests — never inside the source tree, never run.
+    "outDir": "../dist/types/styles-tests",
+    "tsBuildInfoFile": "../dist/types/styles-tests/tsconfig.tsbuildinfo",
+    "rootDir": ".."
+  },
+  "include": ["../src/styles/**/*.test.ts"],
+  "exclude": [],
+  "references": [{ "path": "./tsconfig.styles.json" }]
+}

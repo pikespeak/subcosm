@@ -123,7 +123,11 @@ export default defineConfig([
       ecmaVersion: 2023,
       globals: globals.browser,
       parserOptions: {
-        project: ['./tools/tsconfig.styles.json', './tools/tsconfig.sim.json'],
+        project: [
+          './tools/tsconfig.styles.json',
+          './tools/tsconfig.styles-tests.json',
+          './tools/tsconfig.sim.json',
+        ],
         tsconfigRootDir: import.meta.dirname,
       },
     },
