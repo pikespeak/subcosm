@@ -48,7 +48,11 @@ function goalText(goal: Genome['dailyGoal']): string {
     case 'conflictBelow':
       return `Goal: tame conflict ${dir} ${goal.threshold}`;
     case 'reachSymmetry':
-      return `Goal: reach ${goal.targetParam} symmetry ${dir} ${goal.threshold}`;
+      // `targetParam` already carries the param noun (e.g. "symmetry"); the verb
+      // "reach … above/below N" supplies the rest. Don't append a literal
+      // "symmetry" word — for the crystalline genome that doubled it into
+      // "reach symmetry symmetry".
+      return `Goal: reach ${goal.targetParam} ${dir} ${goal.threshold}`;
     case 'igniteRareGene':
       return `Goal: ignite a rare ${goal.targetParam}`;
     case 'starThreshold':
@@ -198,5 +202,15 @@ export class Hud {
       this.el.goal.textContent = '';
       this.el.goal.hidden = true;
     }
+  }
+
+  /**
+   * Tear down the HUD DOM. The dev page rebuilds the whole render stack on every
+   * preset switch / regenerate / seed change; without this the old `.hud` panel
+   * stayed appended to the host and a fresh one stacked on top of it. Removing
+   * the root node guarantees exactly ONE HUD panel exists at any time.
+   */
+  destroy(): void {
+    this.el.root.remove();
   }
 }

@@ -135,11 +135,32 @@ function boot(): void {
     return true;
   };
 
+  // Tear down the PREVIOUS render stack completely before building a new one.
+  // Called on every re-render trigger (preset switch, Regenerate, seed commit).
+  // Without this, each rebuild leaked: the old `.hud` DOM panel stacked under a
+  // fresh one (three "DAY 30" panels after calm→chaotic→crystalline), and the
+  // old Phaser game (its update loop + the native `wheel` listener attached in
+  // input.ts + the Phaser POINTER_* handlers) kept running alongside the new one.
+  //   - HUD: dev-page chrome → torn down here via Hud.destroy().
+  //   - Paint/camera/game/loop/listeners: the engine `render()` destroy handle
+  //     (ENG-04) is the single teardown seam → painter.destroy() → game.destroy().
+  //     game.destroy fires the Scene SHUTDOWN/DESTROY events that input.ts hooks
+  //     to remove its native `wheel` listener (no leaked listeners after teardown).
+  // Null the references so a later trigger can't double-destroy a stale handle.
+  const teardown = (): void => {
+    hud?.destroy();
+    hud = null;
+    handle?.destroy(); // → PhaserPainter.destroy() → game.destroy(true)
+    handle = null;
+    painter = null;
+    game = null;
+  };
+
   // Build (or rebuild) the whole render stack for the current seed + preset. A
   // preset change can swap the STYLE too, so we tear the game down and re-render
   // rather than threading a style through the (style-fixed) render handle.
   const buildUniverse = (): void => {
-    handle?.destroy(); // destroys the Phaser game via painter.destroy()
+    teardown(); // exactly one HUD + one Phaser game/loop survives a rebuild
     const { genome, style } = PRESETS[preset];
     const days = frontierFirst(currentSeed);
 
