@@ -13,6 +13,7 @@ import * as Phaser from 'phaser';
 import type { Painter } from '../../engine/render';
 import type { Scene as CosmosSceneData, StyleTemplate } from '../../engine/contracts';
 import { CosmosScene, type CosmosSceneInit } from './CosmosScene';
+import type { CameraController } from './camera';
 
 const SCENE_KEY = 'Cosmos';
 
@@ -39,9 +40,24 @@ export class PhaserPainter implements Painter {
     // Frontier rAF animation + bake-on-freeze land in plan 03.
   }
 
-  /** Plan 04: move the camera focus to a given shell/day (CAM-01). */
-  focus(_day: number): void {
-    // Camera scrub/zoom lands in plan 04.
+  /**
+   * Move the camera focus to a given shell/day (CAM-01). Delegates to the
+   * CosmosScene's CameraController — camera-only, never re-synthesizes. This is
+   * the seam `RenderHandle.scrub(day)` drives.
+   */
+  focus(day: number): void {
+    const scene = this.game.scene.getScene(SCENE_KEY) as CosmosScene | null;
+    scene?.getController()?.scrub(day);
+  }
+
+  /**
+   * Expose the live CameraController so the dev page can wire the DOM slider +
+   * HUD to the SAME view state the in-canvas gestures drive (slider/click sync,
+   * D-01). Returns null until the Scene has booted.
+   */
+  getController(): CameraController | null {
+    const scene = this.game.scene.getScene(SCENE_KEY) as CosmosScene | null;
+    return scene?.getController() ?? null;
   }
 
   /** Plan 05: re-mount after a re-synthesis (new data / genome / steering). */

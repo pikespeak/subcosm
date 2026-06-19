@@ -25,6 +25,8 @@ import {
   type PaintResult,
 } from './paint';
 import { prefersReducedMotion, watchReducedMotion } from './reduced-motion';
+import { CameraController } from './camera';
+import { attachInput } from './input';
 
 export interface CosmosSceneInit {
   scene: CosmosSceneData;
@@ -39,9 +41,20 @@ export class CosmosScene extends Phaser.Scene {
   private paintResult: PaintResult | null = null;
   private animate = true;
   private stopWatchingMotion: (() => void) | null = null;
+  /** Independent view-state controller (CAM-01) — created in create(). */
+  private controller: CameraController | null = null;
 
   constructor() {
     super('Cosmos');
+  }
+
+  /**
+   * The CameraController exposed so the dev-page chrome (slider, HUD) drives the
+   * SAME view state the in-canvas gestures do — slider/click stay in sync (D-01).
+   * Available after create(); null before the Scene has booted.
+   */
+  getController(): CameraController | null {
+    return this.controller;
   }
 
   /** Phaser passes the data object from `scene.start('Cosmos', data)`. */
@@ -61,10 +74,19 @@ export class CosmosScene extends Phaser.Scene {
 
     this.layout(this.scale.width, this.scale.height);
 
+    // CAM-01/CAM-02: build the independent view-state controller over the main
+    // camera and wire the input gestures (wheel + hand-rolled pinch + click) to
+    // it. The controller reads the Scene's shell radii but never mutates it.
+    this.controller = new CameraController(cam, this.cosmos);
+    this.controller.setCenter(this.frame.cx, this.frame.cy);
+    attachInput(this, this.controller, this.cosmos, () => this.frame);
+
     this.scale.on('resize', (size: Phaser.Structs.Size) => {
       this.cameras.resize(size.width, size.height);
       this.children.removeAll(true);
       this.layout(size.width, size.height);
+      // Re-center the view state on the new viewport (camera-only — no Scene write).
+      this.controller?.setCenter(this.frame.cx, this.frame.cy);
     });
 
     // React live to a prefers-reduced-motion change (PNT-04): re-decide and
@@ -97,6 +119,10 @@ export class CosmosScene extends Phaser.Scene {
    * when `this.animate` is false (reduced-motion: the static frame already drawn).
    */
   override update(time: number): void {
+    // Ease the camera toward its view-state target EVERY frame, even under
+    // reduced-motion: this is user-initiated navigation (scrub/zoom/focus), not
+    // ambient cosmos animation, so PNT-04 does not suppress it (CAM-02).
+    this.controller?.update();
     if (!this.animate || !this.paintResult) return;
     const speed = this.style.motion.speed;
     // Pulsing ignite (mock l.227: 0.55 + 0.45*sin) and star twinkle (mock l.234).
