@@ -65,14 +65,14 @@ Decimal phases appear between their surrounding integers in numeric order.
   5. The camera/coordinate model is verified (design review, not implementation) to not preclude an outer zoom tier for a future multiverse — no hardcoded assumptions that would make adding a galaxy-level zoom impossible
   6. `prefers-reduced-motion` produces a static render with no animation or strobe; `npm test` and `npm run build` both pass green
 
-**Plans**: 1/5 plans executed
+**Plans**: 2/5 plans executed
 **UI hint**: yes
 
 Plans:
 **Wave 1**
 
 - [x] 02-01-PLAN.md — Wave-0 setup (styles/sim build coverage + separate dev-page Vite entry + Painter seam + glow/bake primitives) + thinnest end-to-end Scene→Phaser render slice
-- [ ] 02-02-PLAN.md — The data simulator: scripted 30-day beats + generateDayVectors with the single DayVectorSchema.parse() boundary, seed-deterministic (TDD)
+- [x] 02-02-PLAN.md — The data simulator: scripted 30-day beats + generateDayVectors with the single DayVectorSchema.parse() boundary, seed-deterministic (TDD)
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
@@ -139,7 +139,7 @@ Plans:
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Engine Foundation | 3/3 | Complete    | 2026-06-19 |
-| 2. Visual Engine + Simulator | 1/5 | In Progress|  |
+| 2. Visual Engine + Simulator | 2/5 | In Progress|  |
 | 3. Devvit Scaffold + Data Layer | 0/TBD | Not started | - |
 | 4. Live Game | 0/TBD | Not started | - |
 | 5. Submit | 0/TBD | Not started | - |

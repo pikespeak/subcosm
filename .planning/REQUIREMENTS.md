@@ -52,9 +52,9 @@
 
 #### Data Simulator (SIM)
 
-- [ ] **SIM-01**: `generateDayVectors(config)` produces realistic `DayVector[]` — growth, busy/quiet, one drama spike, one AMA day, plus cold-start day-1.
-- [ ] **SIM-02**: The simulator calls `DayVectorSchema.parse()` at its output boundary (only validation point before the engine).
-- [ ] **SIM-03**: A **regenerate** control produces a new universe from a new seed; the same seed reproduces an identical universe.
+- [x] **SIM-01**: `generateDayVectors(config)` produces realistic `DayVector[]` — growth, busy/quiet, one drama spike, one AMA day, plus cold-start day-1.
+- [x] **SIM-02**: The simulator calls `DayVectorSchema.parse()` at its output boundary (only validation point before the engine).
+- [x] **SIM-03**: A **regenerate** control produces a new universe from a new seed; the same seed reproduces an identical universe.
 
 #### Quality & Verification (QA)
 
@@ -164,9 +164,9 @@
 | CAM-04 | Phase 2: Visual Engine + Simulator | Pending |
 | STR-01 | Phase 2: Visual Engine + Simulator | Pending |
 | STR-02 | Phase 2: Visual Engine + Simulator | Pending |
-| SIM-01 | Phase 2: Visual Engine + Simulator | Pending |
-| SIM-02 | Phase 2: Visual Engine + Simulator | Pending |
-| SIM-03 | Phase 2: Visual Engine + Simulator | Pending |
+| SIM-01 | Phase 2: Visual Engine + Simulator | Complete |
+| SIM-02 | Phase 2: Visual Engine + Simulator | Complete |
+| SIM-03 | Phase 2: Visual Engine + Simulator | Complete |
 | QA-01 | Phase 2: Visual Engine + Simulator | Complete |
 | QA-02 | Phase 2: Visual Engine + Simulator | Complete |
 | QA-03 | Phase 2: Visual Engine + Simulator | Complete |
