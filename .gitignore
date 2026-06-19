@@ -1,0 +1,18 @@
+# dependencies / build
+node_modules/
+dist/
+*.tsbuildinfo
+
+# research fetch cache (GSD)
+.planning/research/.cache/
+
+# context-os runtime state (added with context-os integration)
+docs/summaries/
+docs/archive/
+output/
+
+# OS / editor
+.DS_Store
+*.swp
+.vscode/
+.idea/

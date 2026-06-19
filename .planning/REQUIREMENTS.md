@@ -1,0 +1,117 @@
+# Subcosm — Requirements
+
+**Scope:** Full hackathon submission — engine → simulator → Devvit integration → **published playable post** → polish, by **2026-07-15, 18:00 PDT (deadline)**. Built in phases; **Phase group A (engine + simulator) is built first, with no Devvit wiring**, then B (Devvit + live game), then C (submission + polish).
+**Source:** `docs/subcosm-requirements.md` (§4–§7) + `.planning/research/SUMMARY.md` + Devpost rules (`docs/devpost-submission.md`).
+**Core value:** The community's real activity becomes a beautiful, legible, deterministic universe — one engine, provably different worlds from different data + config.
+
+---
+
+## v1 Requirements — the submittable product
+
+### A. Engine + Simulator (no Devvit) — built first
+
+#### Contracts & Engine Seam (ENG)
+- [ ] **ENG-01**: All four contracts (DayVector, Scene, Genome, StyleTemplate) are **Zod schemas**; every TS type is `z.infer` of its schema (no hand-written interfaces for contract shapes).
+- [ ] **ENG-02**: Synthesis is fully decoupled from paint — synthesis imports no style code, paint reads no raw DayVector. `Scene` is the only seam.
+- [ ] **ENG-03**: `src/engine/` has zero Devvit imports and is pure + unit-testable; an ESLint rule bans `Math.random()` and Devvit imports inside `src/engine/`.
+- [ ] **ENG-04**: A single `render(dayVectors, genome, style)` entry orchestrates synthesis → paint → camera and exposes scrub / nudge / regenerate / destroy.
+
+#### Config-Driven Template Engine (TPL)
+- [ ] **TPL-01**: A new or altered `Genome` (behaviour/params) or `StyleTemplate` (design/skin) is **pure data** — zero engine-code changes. Both are injected into `render(...)`.
+- [ ] **TPL-02**: `Genome` carries per-community knobs as data (Signal→Param weight matrix, ranges, volatility, inheritance, `steerGain`, rare-event table, allowed genes, day-boundary, chosen style); `StyleTemplate` carries design as data (substrate, palette, line, fill, texture, gene→primitive, postFX, motion, type).
+- [ ] **TPL-03**: The harness ships **≥2 selectable Genome presets** (e.g. "Calm" vs "Chaotic", same Techno style, different params); switching presets visibly changes the universe from the **same** `DayVector[]`.
+- [ ] **TPL-04**: One style per community is genome-driven; the engine never assumes a single hard-coded look.
+
+#### Deterministic Synthesis (SYN)
+- [ ] **SYN-01**: Given `DayVector + seed + genomeVersion`, synthesis is deterministic via seeded mulberry32 (one closure per DayVector, fixed consumption order).
+- [ ] **SYN-02**: Two synthesis calls with identical inputs produce a byte-identical Scene (determinism test).
+- [ ] **SYN-03**: Synthesis ports the mock's `genShell()` logic, mapping DayVector fields to shell elements at visual parity with the mock.
+- [ ] **SYN-04**: Changing the data visibly changes the universe (sparse vs dense shells, red conflict turbulence, bright AMA clusters).
+
+#### Techno Paint (PNT)
+- [ ] **PNT-01**: A Techno Canvas2D paint module renders a Scene at visual parity with `docs/subcosm-universe-mock.html` (genesis core, concentric shells, nebula, frontier ignite, vignette); visual reference `docs/subcosm.png`.
+- [ ] **PNT-02**: All Techno look constants come from a `StyleTemplate` data object, not hard-coded in paint.
+- [ ] **PNT-03**: Mobile-perf foundations from day one: gradients pre-cached outside the rAF loop, `devicePixelRatio` capped at 2.0, frozen shells bake-cached (only the frontier re-renders per frame).
+- [ ] **PNT-04**: Paint honors `prefers-reduced-motion` — static render, no strobe/ignite.
+
+#### Camera & Navigation (CAM)
+- [ ] **CAM-01**: Camera holds independent view state (zoom / focus / scrub / intro) and never mutates the Scene.
+- [ ] **CAM-02**: A depth scrubber flies through time; focusing a shell zooms it; depth maps to date.
+- [ ] **CAM-03**: A per-shell readout shows date / era / theme / stars / comments / contributors / conflict (legibility — mandatory, never removed).
+- [ ] **CAM-04**: The camera/coordinate model is kept embeddable so a future outer zoom tier (multiverse → galaxy) is not designed out (design-review item, no implementation).
+
+#### Steering / Front Nudges (STR)
+- [ ] **STR-01**: Nudge controls (branch / symmetry / hue) re-synthesize the live frontier visibly.
+- [ ] **STR-02**: Nudges bias the **mean** of the affected parameter only; the result is still diced around it.
+
+#### Data Simulator (SIM)
+- [ ] **SIM-01**: `generateDayVectors(config)` produces realistic `DayVector[]` — growth, busy/quiet, one drama spike, one AMA day, plus cold-start day-1.
+- [ ] **SIM-02**: The simulator calls `DayVectorSchema.parse()` at its output boundary (only validation point before the engine).
+- [ ] **SIM-03**: A **regenerate** control produces a new universe from a new seed; the same seed reproduces an identical universe.
+
+#### Quality & Verification (QA)
+- [ ] **QA-01**: A dev page (Vite) renders the simulated universe with scrubber, nudge buttons, regenerate, seed field, and a **genome-preset selector**.
+- [ ] **QA-02**: `npm test` (Vitest) passes — determinism + schema-validity tests; `npm run build` + `tsc --noEmit` green.
+- [ ] **QA-03**: Zod `.parse()` only at boundaries, never inside synthesis/paint/the frame loop.
+
+### B. Devvit Integration & Live Game (Reddit wiring)
+
+#### Devvit Data Layer (DEV)
+- [ ] **DEV-01**: A Devvit Web app scaffolds and hosts the engine as the post webroot (interactive post). Verify current template + CLI at scaffold (`devvit new`).
+- [ ] **DEV-02**: Event triggers (post/comment create, etc.) increment Redis daily counters; unique contributors via SET, top threads via ZSET. (No vote trigger exists — see DEV-03.)
+- [ ] **DEV-03**: A **conflict composite** is derived at tick time from comment-rate / reply-depth proxies + a score snapshot (no streaming vote deltas).
+- [ ] **DEV-04**: A scheduler **tick** freezes the frontier, runs the genome transform → writes a Ring record (DayVector + seed, including `genomeVersion`), resets counters, opens the next frontier. An **hourly UTC sweeper** finds due communities via IANA timezone with `hash(subId)%60` jitter (DST-safe).
+- [ ] **DEV-05**: Ring records are indexed by an explicit `ringCount` in `organism:{sub}` (Redis has no key scan); no images stored — only ~25 scalars + seed per ring.
+- [ ] **DEV-06**: A mod configures the **Genome** at install via Devvit settings (preset + style); the chosen style/genome drives that community's universe end-to-end.
+
+#### Live Front & Reveal (LIVE)
+- [ ] **LIVE-01**: The live frontier fills during the day and renders nudges in near-real-time (realtime channel names use `-`, no colons); nudges aggregate into a Redis steer hash.
+- [ ] **LIVE-02**: At the tick the frontier **freezes irreversibly** and a pinned **reveal/update post** is created ("what your universe became overnight").
+- [ ] **LIVE-03**: Client and server render identically from the same Ring record (determinism holds across the seam).
+
+### C. Submission & Polish (required to enter)
+
+- [ ] **SUB-01**: App is **published** with an app listing on developer.reddit.com.
+- [ ] **SUB-02**: A **public demo post** on a subreddit runs the game, self-explanatory and playable (judging is primarily based on this).
+- [ ] **SUB-03**: Mobile experience is polished (target ~60fps in the post viewport; bonus points).
+- [ ] **SUB-04**: Onboarding makes the loop legible at a glance; cold-start day looks intentional, not broken-empty.
+- [ ] **SUB-05**: Compliant with Devvit Rules; aesthetics read self-authored (not AI-slop / generic neon fractal).
+- [ ] **SUB-06**: Devpost write-up complete (`docs/devpost-submission.md`), media gallery + links filled.
+
+### Definition of Done (submittable)
+- A community (or the simulator) produces a universe that accumulates daily, reveals overnight, and reads legibly on mobile.
+- Published app listing + public playable demo post exist; same Ring data → identical render client/server.
+- Engine pure (no Devvit, no `Math.random`); build + tests green; no temporary broken states.
+
+---
+
+## Stretch (only if time allows; clearly separated)
+
+- **STRETCH-Styles**: Comic + Pixel StyleTemplates (each = one data file, zero engine changes).
+- **STRETCH-Genome**: full Signal→Param weight matrix exercised, rare-event mutation table, presets UI.
+- **STRETCH-Phaser**: fbm/WebGL shader paint layer for the "Best Use of Phaser" prize — gated on WebGL availability inside the Devvit webroot iframe (verify early).
+- **STRETCH-ModeB**: read a host community's real top-post/comments as the theme source (NLP + moderation).
+
+## Out of Scope (with reasoning)
+
+- **Connected multiverse** (subreddits as galaxies, opt-in links, ST quadrants) — separate post-MVP milestone; forward constraint only (keep Scene/Camera embeddable). Open questions deferred.
+- **Post-level zoom** (star → real post) — scope + privacy.
+- **Per-user styling** — violates invariant I-4 (one shared organism per community).
+- **Literal infinite-fractal / Mandelbrot deep-zoom** — never; LOD shells, not unbounded math.
+
+---
+
+## Constraints
+
+- **Deadline:** 2026-07-15, 18:00 PDT — hard. ~26 days from kickoff, solo, ~10–15 h/week.
+- **Submission requires** a published app listing **and** a public playable demo post; judged primarily on community play via the demo link. No repo/video required (video optional, not provided).
+- **Platform:** Devvit Web, mobile-first, runs in the Reddit post viewport; Reddit hosts everything (no own server/DB) — Redis, scheduler, realtime, triggers, settings are Devvit primitives.
+- All hard rules from `docs/subcosm-requirements.md` (determinism, no stored images, legibility, reduced-motion, steering biases mean) and the Zod single-source-of-truth standard hold throughout.
+
+---
+
+## Traceability
+
+<!-- Filled by the roadmapper: REQ-ID → Phase. -->
+
+(pending roadmap)

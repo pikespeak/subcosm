@@ -152,8 +152,8 @@ redditgame-v1/
 │   └── sim/
 │       └── generator.test.ts
 ├── docs/
-│   ├── mandelbrut-requirements.md
-│   └── mandelbrut-universe-mock.html
+│   ├── subcosm-requirements.md
+│   └── subcosm-universe-mock.html
 └── vite.config.ts
 ```
 
@@ -386,7 +386,7 @@ Deliverable: `synthesize(fixtureDays, defaultGenome)` returns a valid `Scene`. T
 
 Port the mock's `frame()` rendering function into `src/engine/paint/techno.ts`. It takes a `Scene + StyleTemplate + CanvasRenderingContext2D`. Implement `bakeCache.ts`. Wire a minimal Vite HTML page that calls `render()` with hardcoded fixture days.
 
-Deliverable: Visual output matches `docs/mandelbrut-universe-mock.html` pixel-approximately.
+Deliverable: Visual output matches `docs/subcosm-universe-mock.html` pixel-approximately.
 
 ### Step 4: Camera (Day 3–4)
 
@@ -525,8 +525,8 @@ The bake cache is per-client (in the browser), not shared. Server-side preview (
 
 ## Sources
 
-- Project spec: `docs/mandelbrut-requirements.md` §6 (contracts), §7 (architecture), §5 (NFRs) — HIGH confidence (primary source)
-- Existing implementation: `docs/mandelbrut-universe-mock.html` — HIGH confidence (ground truth for synthesis logic to port)
+- Project spec: `docs/subcosm-requirements.md` §6 (contracts), §7 (architecture), §5 (NFRs) — HIGH confidence (primary source)
+- Existing implementation: `docs/subcosm-universe-mock.html` — HIGH confidence (ground truth for synthesis logic to port)
 - Functional Core, Imperative Shell pattern: [Kenneth Lange](https://kennethlange.com/functional-core-imperative-shell/), [Destroy All Software](https://www.destroyallsoftware.com/screencasts/catalog/functional-core-imperative-shell) — LOW confidence (web, corroborates well-known pattern)
 - Mulberry32 PRNG: [Emanuele Feronato](https://emanueleferonato.com/2026/01/08/understanding-how-to-use-mulberry32-to-achieve-deterministic-randomness-in-javascript/), [4rknova blog](https://www.4rknova.com/blog/2026/03/01/mulberry32-rng) — LOW confidence (web)
 - Canvas2D OffscreenCanvas bake cache: [MDN Optimizing Canvas](https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API/Tutorial/Optimizing_canvas), [web.dev OffscreenCanvas](https://web.dev/articles/offscreen-canvas) — LOW confidence (web)
@@ -536,5 +536,5 @@ The bake cache is per-client (in the browser), not shared. Server-side preview (
 
 ---
 
-*Architecture research for: Mandelbrut — collaborative persistent Reddit game*
+*Architecture research for: Subcosm — collaborative persistent Reddit game*
 *Researched: 2026-06-19*

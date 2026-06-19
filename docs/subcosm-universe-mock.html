@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Subcosm — Universum</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{--ink:#eceaf5;--muted:#8b86a8;--hair:rgba(150,130,220,.14);--aqua:#34e0d0;--hot:#ff8a3d}
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%}
+  body{background:radial-gradient(1200px 700px at 50% -10%,#161033 0%,#06040e 60%),#05040b;color:var(--ink);
+    font-family:"Space Grotesk",system-ui,sans-serif;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    min-height:100%;padding:24px 12px;-webkit-font-smoothing:antialiased}
+  .phone{width:100%;max-width:392px;background:linear-gradient(180deg,#0c0a16,#0a0812);border:1px solid rgba(150,130,220,.18);
+    border-radius:30px;padding:10px;box-shadow:0 40px 120px -30px rgba(120,60,255,.4)}
+  .screen{background:#04030a;border-radius:22px;overflow:hidden;border:1px solid var(--hair)}
+  .head{display:flex;align-items:center;gap:9px;padding:12px 13px 8px}
+  .ava{width:28px;height:28px;border-radius:50%;flex:none;background:radial-gradient(circle,#fff7e6 0%,#ff8a3d 20%,#d946ef 50%,#6366f1 76%,#04030a 100%)}
+  .sub{font-weight:600;font-size:13px}
+  .by{font-size:11px;color:var(--muted);margin-top:1px}
+  .title{padding:0 14px 10px;font-size:15px;font-weight:600;line-height:1.3}
+  .title b{color:#ffd08a;font-weight:700}
+
+  .stage{position:relative;background:#030208}
+  canvas{display:block;width:100%;height:362px;touch-action:none}
+  .readout{position:absolute;top:11px;left:11px;font-family:"Space Mono",monospace;font-size:10px;line-height:1.55;letter-spacing:.3px;
+    color:var(--muted);background:rgba(5,4,12,.6);backdrop-filter:blur(3px);border:1px solid var(--hair);border-radius:9px;padding:8px 10px;max-width:66%;pointer-events:none}
+  .readout .d{color:var(--ink);font-weight:700;font-size:11.5px;letter-spacing:.5px}
+  .readout .k{color:#6a6388}
+  .readout .th{color:#ffd08a}
+  .badge{display:inline-block;font-size:8px;font-weight:700;letter-spacing:.6px;color:#04030a;background:var(--hot);border-radius:4px;padding:1px 5px;margin-left:5px;vertical-align:middle}
+  .cbar{display:inline-block;color:#ff5a6e;letter-spacing:-1px}
+  .hint{position:absolute;right:11px;bottom:10px;font-family:"Space Mono",monospace;font-size:9px;color:#5b5478;text-align:right;line-height:1.4;pointer-events:none}
+
+  .panel{padding:12px 14px 14px}
+  .scrub-row{display:flex;align-items:center;gap:9px;margin-bottom:2px}
+  .end{font-family:"Space Mono",monospace;font-size:8.5px;letter-spacing:.5px;color:var(--muted);white-space:nowrap}
+  input[type=range]{-webkit-appearance:none;appearance:none;flex:1;height:3px;border-radius:3px;background:linear-gradient(90deg,#ff8a3d,#d946ef 42%,#6366f1 74%,#fff7e6);outline:none;cursor:pointer}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:15px;height:15px;border-radius:50%;background:#fff;border:2px solid #04030a;box-shadow:0 0 10px 1px rgba(255,255,255,.5);cursor:pointer}
+  input[type=range]::-moz-range-thumb{width:15px;height:15px;border-radius:50%;background:#fff;border:2px solid #04030a;cursor:pointer}
+
+  .flabel{font-size:10.5px;color:var(--muted);margin:13px 0 7px}
+  .frow{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
+  .fbtn{background:linear-gradient(180deg,#1c1636,#15102a);border:1px solid var(--hair);border-radius:11px;color:var(--ink);
+    padding:10px 5px 8px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;font-family:inherit;font-size:11.5px;font-weight:600;transition:transform .08s,border-color .15s}
+  .fbtn:active{transform:translateY(1px) scale(.985)}
+  .fbtn small{font-family:"Space Mono",monospace;font-size:8px;color:var(--muted);font-weight:400}
+  .glyph{font-size:15px;line-height:1}
+
+  .cool{display:flex;align-items:center;gap:9px;margin-top:13px}
+  .meter{flex:1;height:7px;border-radius:6px;background:rgba(255,255,255,.06);overflow:hidden}
+  .mfill{height:100%;width:64%;background:linear-gradient(90deg,#ff5a2d,#ff8a3d,#ffd08a);box-shadow:0 0 12px -1px rgba(255,138,61,.7);transition:width .35s}
+  .cool-t{font-family:"Space Mono",monospace;font-size:9px;color:#ffd08a;white-space:nowrap;letter-spacing:.3px}
+
+  .live{margin-top:12px;border-top:1px solid var(--hair);padding-top:10px}
+  .lline{font-size:11px;color:var(--muted);display:flex;align-items:center;gap:6px;padding:2px 0;opacity:0;transform:translateY(3px);animation:rise .35s ease forwards}
+  .lline .pip{width:6px;height:6px;border-radius:50%;flex:none}
+  .lline u{color:var(--ink);text-decoration:none;font-weight:600}
+  @keyframes rise{to{opacity:1;transform:none}}
+  .cap{text-align:center;font-family:"Space Mono",monospace;font-size:9.5px;color:#5b5478;margin-top:14px;max-width:366px;line-height:1.55}
+  @media (prefers-reduced-motion:reduce){.lline{animation:none;opacity:1;transform:none}}
+</style>
+</head>
+<body>
+  <div class="phone">
+    <div class="screen">
+      <div class="head"><div class="ava"></div><div><div class="sub">r/Subcosm</div><div class="by">u/oliver · 6h</div></div></div>
+      <div class="title">Tag 47 · <b>Das Universum der Community</b></div>
+
+      <div class="stage">
+        <canvas id="c"></canvas>
+        <div class="readout">
+          <div class="d" id="r-d">TAG 47<span class="badge">FRONT</span></div>
+          <div><span class="k">datum</span> <span id="r-date">19.06.</span> · <span class="k">ära</span> <span id="r-era">die große Flut</span></div>
+          <div><span class="k">thema</span> <span class="th" id="r-th">„the great flood"</span></div>
+          <div id="r-stat"><span class="k">sterne</span> 320 · <span class="k">komm.</span> 4,1k · <span class="k">leute</span> 280</div>
+          <div><span class="k">konflikt</span> <span class="cbar" id="r-conf">▮▮▮▯▯</span></div>
+        </div>
+        <div class="hint">◀ scrubbe nach außen<br>= zurück in der Zeit</div>
+      </div>
+
+      <div class="panel">
+        <div class="scrub-row">
+          <span class="end">HEUTE</span>
+          <input type="range" id="scrub" min="0" max="13" value="0" step="1" aria-label="durch die Zeit fliegen">
+          <span class="end">URKNALL</span>
+        </div>
+
+        <div class="flabel">Forme die heutige Front:</div>
+        <div class="frow">
+          <button class="fbtn" data-f="branch"><span class="glyph">❋</span> Streuung <small>+ wild</small></button>
+          <button class="fbtn" data-f="sym"><span class="glyph">✷</span> Arme <small>+ Struktur</small></button>
+          <button class="fbtn" data-f="hue"><span class="glyph">◐</span> Farbton <small>shift</small></button>
+        </div>
+
+        <div class="cool">
+          <div class="meter"><div class="mfill" id="meter"></div></div>
+          <div class="cool-t">verfestigt in <span id="cd">04:11:58</span></div>
+        </div>
+
+        <div class="live" id="live"></div>
+      </div>
+    </div>
+  </div>
+  <div class="cap">jede Schale = ein Tag, aus seiner Aktivität gebaut · Kern = der erste Post · derselbe Kosmos trägt jeden Style-Skin</div>
+
+<script>
+(() => {
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const canvas=document.getElementById('c'); const ctx=canvas.getContext('2d');
+
+  // ---- per-day activity (outer->inner = newest->oldest) ----
+  const eras=[
+    {day:47,date:'19.06.',era:'die große Flut', th:'„the great flood"', hue:188,posts:320,comm:'4,1k',people:280,top:540, conflict:.5},
+    {day:44,date:'16.06.',era:'Mod-Wahl-Chaos', th:'„election night"',  hue:255,posts:410,comm:'6,2k',people:350,top:980, conflict:.85},
+    {day:40,date:'12.06.',era:'der Meme-Krieg',  th:'„format wars"',     hue:300,posts:380,comm:'3,3k',people:300,top:420, conflict:.6},
+    {day:36,date:'08.06.',era:'das große AMA',   th:'„ask me anything"', hue:45, posts:210,comm:'5,2k',people:240,top:1500,conflict:.2},
+    {day:32,date:'04.06.',era:'die Migration',   th:'„the exodus"',      hue:172,posts:300,comm:'2,9k',people:260,top:610, conflict:.4},
+    {day:28,date:'31.05.',era:'Drama-Woche',     th:'„the callout"',     hue:350,posts:290,comm:'5,0k',people:250,top:800, conflict:.92},
+    {day:24,date:'27.05.',era:'stille Tage',     th:'„summer lull"',     hue:92, posts:60, comm:'300', people:70, top:120, conflict:.15},
+    {day:20,date:'23.05.',era:'Namensdebatte',   th:'„the rename"',      hue:275,posts:230,comm:'2,2k',people:210,top:560, conflict:.55},
+    {day:16,date:'19.05.',era:'erste 1.000',     th:'„1k milestone"',    hue:158,posts:340,comm:'3,6k',people:320,top:700, conflict:.25},
+    {day:12,date:'15.05.',era:'das Erwachen',    th:'„lurkers rise"',    hue:205,posts:190,comm:'1,8k',people:170,top:330, conflict:.3},
+    {day:8, date:'11.05.',era:'Regel-Umbruch',   th:'„rules v2"',        hue:30, posts:180,comm:'1,5k',people:150,top:480, conflict:.5},
+    {day:5, date:'08.05.',era:'die erste Fehde', th:'„first feud"',      hue:330,posts:120,comm:'980', people:95, top:520, conflict:.7},
+    {day:2, date:'05.05.',era:'die Siedler',     th:'„early settlers"',  hue:215,posts:90, comm:'440', people:60, top:210, conflict:.3},
+    {day:1, date:'04.05.',era:'URKNALL',         th:'„the first post"',  hue:48, posts:1,  comm:'12',  people:8,  top:12,  conflict:0, genesis:true},
+  ];
+
+  // ---- seeded rng ----
+  function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+  let todayHue=0,todaySym=0,todayBranch=0;
+
+  function starCount(p){return Math.max(5,Math.min(112,Math.round(p*0.30)));}
+
+  // build a shell's stars (normalized: ang, rj in [-1,1], size, bright, big, redshift)
+  function genShell(i){
+    const e=eras[i]; const isToday=i===0;
+    if(e.genesis) return [];
+    const salt=isToday?(todaySym*131+Math.round(todayHue)*7):0;
+    const rng=mulberry32((i*9973+7)^salt);
+    const n=starCount(e.posts);
+    const arms=isToday?(1+todaySym):(e.conflict>.7?1:(e.posts>300?3:2));
+    const spread=isToday?(0.20+todayBranch*1.8):(0.18+e.conflict*0.55);
+    const clumps=Math.max(1,Math.round(1+e.conflict*5));
+    const nbig=Math.max(0,Math.min(6,Math.round(e.top/280)));
+    const arr=[];
+    for(let s=0;s<n;s++){
+      // base angle: distribute over arms, with conflict-driven clumping
+      let a;
+      if(arms>1){ a=(Math.floor(rng()*arms)/arms)*Math.PI*2 + (rng()-0.5)*(1.1/arms)*Math.PI*2; }
+      else { const c=Math.floor(rng()*clumps)/clumps; a=c*Math.PI*2 + (rng()-0.5)*(2*Math.PI)*lerp(0.5,0.12,e.conflict); }
+      const rj=(rng()*2-1)*spread;                  // radial jitter within band
+      const bright=0.4+rng()*0.6;
+      const redshift = rng()<e.conflict*0.5 ? 1:0;   // angry red sparks
+      arr.push({a,rj,size:0.7+bright*1.6,bright,big:s<nbig,red:redshift,tw:rng()*6.28});
+    }
+    return arr;
+  }
+  function lerp(a,b,t){return a+(b-a)*t;}
+
+  let shells=eras.map((_,i)=>genShell(i));
+
+  // ---- view ----
+  let focus=0, zoom=reduce?1:0, intro=reduce?1:0;
+  let W=0,H=0,minD=0,radii=[],band=0;
+  const bgStars=Array.from({length:90},()=>({x:Math.random(),y:Math.random(),a:Math.random()*0.5+0.05,r:Math.random()*1.0+0.2}));
+
+  function resize(){
+    const dpr=Math.min(window.devicePixelRatio||1,2);
+    const r=canvas.getBoundingClientRect(); W=r.width;H=r.height;
+    canvas.width=Math.round(W*dpr);canvas.height=Math.round(H*dpr);
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    minD=Math.min(W,H);
+    const Rmax=minD*0.47;
+    radii=eras.map((_,i)=>Rmax*Math.pow(0.85,i));
+    band=Rmax*0.075;
+  }
+  window.addEventListener('resize',resize);
+
+  function frame(now){
+    const fr=radii[focus]||1;
+    let target=focus===0?1:Math.min((minD*0.34)/fr,7);
+    if(reduce){zoom=target;intro=1;} else {zoom+=(target-zoom)*0.09;intro+=(1-intro)*0.06;}
+    const cx=W/2,cy=H/2;
+    const rot=reduce?0:now*0.000018;
+
+    // background
+    const bg=ctx.createRadialGradient(cx,cy,0,cx,cy,minD*0.95);
+    bg.addColorStop(0,'#0a0818');bg.addColorStop(.6,'#05040d');bg.addColorStop(1,'#030208');
+    ctx.fillStyle=bg;ctx.fillRect(0,0,W,H);
+    ctx.save();ctx.globalCompositeOperation='lighter';
+    for(const s of bgStars){ctx.fillStyle=`rgba(170,160,225,${s.a*0.5})`;ctx.beginPath();ctx.arc(s.x*W,s.y*H,s.r,0,7);ctx.fill();}
+
+    // faint orbital guide rings (time shells)
+    for(let i=0;i<eras.length-1;i++){
+      const R=radii[i]*zoom*intro; if(R<2||R>minD*2)continue;
+      ctx.strokeStyle=`hsla(${eras[i].hue},60%,60%,${0.05*intro})`;ctx.lineWidth=1;
+      ctx.beginPath();ctx.arc(cx,cy,R,0,7);ctx.stroke();
+    }
+
+    // shells of stars (outer -> inner)
+    for(let i=0;i<eras.length-1;i++){
+      const e=eras[i]; const R=radii[i]*zoom*intro; if(R<1.5)continue;
+      const isToday=i===0;
+      const sh=shells[i]; const bw=band*zoom*intro;
+      const dens=Math.min(1,e.posts/400);
+      const alpha=(focus===0?1:(i===focus?1:0.32))*intro;
+
+      // nebula clouds along the shell
+      const nClouds=Math.round(2+dens*4);
+      for(let c=0;c<nClouds;c++){
+        const ca=(c/nClouds)*Math.PI*2+rot*1.3+i;
+        const cxn=cx+Math.cos(ca)*R, cyn=cy+Math.sin(ca)*R;
+        const cr=bw*2.4+R*0.05;
+        const ng=ctx.createRadialGradient(cxn,cyn,0,cxn,cyn,cr);
+        ng.addColorStop(0,`hsla(${e.hue},80%,60%,${0.10*alpha*dens})`);
+        ng.addColorStop(1,`hsla(${e.hue},80%,60%,0)`);
+        ctx.fillStyle=ng;ctx.beginPath();ctx.arc(cxn,cyn,cr,0,7);ctx.fill();
+      }
+
+      // stars
+      const szScale=Math.min(2.4,Math.sqrt(zoom*intro));
+      const ignite = isToday&&!reduce ? (0.55+0.45*Math.sin(now*0.0022)) : 1;
+      for(const st of sh){
+        const rr=R+st.rj*bw;
+        const a=st.a+rot;
+        const x=cx+Math.cos(a)*rr, y=cy+Math.sin(a)*rr;
+        let hue=e.hue+(isToday?todayHue:0);
+        if(st.red) hue=lerp(hue,360,0.7);
+        let tw=reduce?1:(0.72+0.28*Math.sin(now*0.004+st.tw));
+        let sz=st.size*szScale*tw*(isToday?ignite:1);
+        const lite=st.big?80:64;
+        // glow
+        if(st.big){
+          const gg=ctx.createRadialGradient(x,y,0,x,y,sz*4.5);
+          gg.addColorStop(0,`hsla(${hue},90%,${lite}%,${0.5*alpha})`);
+          gg.addColorStop(1,`hsla(${hue},90%,${lite}%,0)`);
+          ctx.fillStyle=gg;ctx.beginPath();ctx.arc(x,y,sz*4.5,0,7);ctx.fill();
+        }
+        ctx.fillStyle=`hsla(${hue},92%,${Math.min(lite+12,90)}%,${(st.big?0.95:0.8)*alpha*tw})`;
+        ctx.beginPath();ctx.arc(x,y,sz*(st.big?1.7:1),0,7);ctx.fill();
+      }
+
+      // today's active frontier edge
+      if(isToday){
+        ctx.strokeStyle=`hsla(26,100%,62%,${0.22*alpha*(reduce?1:ignite)})`;ctx.lineWidth=Math.max(2,bw*0.5);
+        ctx.beginPath();ctx.arc(cx,cy,R,0,7);ctx.stroke();
+      }
+    }
+
+    // genesis core (the big bang / first post)
+    const gr=Math.max(6,radii[radii.length-1]*zoom*intro*1.4);
+    const tw=reduce?.85:(0.7+0.25*(Math.sin(now*0.003)+1)/2);
+    const gg=ctx.createRadialGradient(cx,cy,0,cx,cy,gr*4);
+    gg.addColorStop(0,`hsla(48,100%,96%,${0.95*tw*intro})`);
+    gg.addColorStop(.4,`hsla(40,100%,72%,${0.32*tw*intro})`);
+    gg.addColorStop(1,'hsla(40,100%,60%,0)');
+    ctx.fillStyle=gg;ctx.beginPath();ctx.arc(cx,cy,gr*4,0,7);ctx.fill();
+    ctx.fillStyle=`hsla(50,100%,92%,${tw*intro})`;ctx.beginPath();ctx.arc(cx,cy,gr*0.55,0,7);ctx.fill();
+    ctx.restore();
+
+    // vignette
+    const vg=ctx.createRadialGradient(cx,cy,minD*0.34,cx,cy,minD*0.8);
+    vg.addColorStop(0,'rgba(0,0,0,0)');vg.addColorStop(1,'rgba(0,0,0,.5)');
+    ctx.fillStyle=vg;ctx.fillRect(0,0,W,H);
+
+    requestAnimationFrame(frame);
+  }
+
+  // ---- readout ----
+  function confBar(c){const f=Math.round(c*5);return '▮'.repeat(f)+'▯'.repeat(5-f);}
+  function readout(){
+    const e=eras[focus];
+    document.getElementById('r-d').innerHTML='TAG '+e.day+(focus===0?'<span class="badge">FRONT</span>':(e.genesis?'<span class="badge" style="background:#ffd08a">URKNALL</span>':''));
+    document.getElementById('r-date').textContent=e.date;
+    document.getElementById('r-era').textContent=e.era;
+    document.getElementById('r-th').textContent=e.th;
+    document.getElementById('r-stat').innerHTML=`<span class="k">sterne</span> ${e.posts} · <span class="k">komm.</span> ${e.comm} · <span class="k">leute</span> ${e.people}`;
+    document.getElementById('r-conf').textContent=confBar(e.conflict);
+  }
+  document.getElementById('scrub').addEventListener('input',ev=>{focus=+ev.target.value;readout();});
+
+  // ---- feed (shapes today's frontier) ----
+  const names=['kai','mira','jonas','lena','theo','ada','nils','sora','finn','romy','ben','yuki'];
+  const verb={branch:'Streuung',sym:'Arme',hue:'Farbton'};const pip={branch:'#a3e635',sym:'#22d3ee',hue:'#d946ef'};
+  let heat=64;const liveEl=document.getElementById('live');
+  function addLine(name,f,you){const d=document.createElement('div');d.className='lline';d.innerHTML=`<span class="pip" style="background:${pip[f]}"></span><u>${you?'du':'u/'+name}</u>&nbsp;→&nbsp;${verb[f]}`;liveEl.prepend(d);while(liveEl.children.length>3)liveEl.lastChild.remove();}
+  function bump(){heat=Math.min(97,heat+1.5);document.getElementById('meter').style.width=heat+'%';}
+  document.getElementById('meter').style.width=heat+'%';
+  document.querySelectorAll('.fbtn').forEach(b=>b.addEventListener('click',()=>{
+    const f=b.dataset.f;
+    if(f==='branch')todayBranch=Math.min(1,todayBranch+0.16);
+    if(f==='sym')todaySym=Math.min(6,todaySym+1);
+    if(f==='hue')todayHue=(todayHue+24)%360;
+    shells[0]=genShell(0);                 // re-synthesize the frontier live
+    focus=0;document.getElementById('scrub').value=0;readout();bump();addLine('',f,true);
+  }));
+  if(!reduce)setInterval(()=>{const f=['branch','sym','hue'][Math.floor(Math.random()*3)];addLine(names[Math.floor(Math.random()*names.length)],f,false);if(Math.random()<.5)bump();},3600);
+
+  function tick(){const n=new Date();const end=new Date(Date.UTC(n.getUTCFullYear(),n.getUTCMonth(),n.getUTCDate()+1,0,0,0));let s=Math.max(0,Math.floor((end-n)/1000));document.getElementById('cd').textContent=`${String(Math.floor(s/3600)).padStart(2,'0')}:${String(Math.floor(s%3600/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}`;}
+  setInterval(tick,1000);tick();
+  addLine(names[3],'sym',false);addLine(names[7],'hue',false);
+
+  resize();readout();requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>

@@ -1,8 +1,10 @@
 # Subcosm
 
 > **Elevator pitch:** Your subreddit grows its own cosmos from its daily activity. Each day adds a shell of stars — zoom in to travel back through your community's whole history, and watch what it becomes overnight.
+>
+> **Tagline:** *a universe grown from your community.*
 
-*(The working spec and renderer mock under `docs/` use the earlier codename "Mandelbrut".)*
+**Brand (provisional):** logo at `docs/subcosm.png` — a glowing warm-white genesis star (long cross-flare) over a cyan↔magenta nebula on a black void, with scattered multi-hue stars and "SUBCOSM" in a light, wide sans-serif. Confirms the Techno / bioluminescent style direction; matches the mock's palette and serves as the visual reference for the Techno `StyleTemplate` (genesis-core glow, additive neon, star hues).
 
 ## What This Is
 
@@ -19,7 +21,7 @@ The community's real activity becomes a beautiful, **legible, deterministic** un
 - **Customer**: Reddit communities (mods install; members shape the universe). Judges of the Reddit "Games with a Hook" Devvit challenge.
 - **Revenue model**: None in scope (payments are post-hackathon).
 - **Success metric**: A complete arc (genesis → mature shells) visible in the judging window, running smoothly in the mobile post viewport, looking self-authored (not AI slop).
-- **Strategy notes**: Deadline 15 July 2026. Target prizes: Best App with a Hook ($15k), Best Use of Phaser ($5k), Best Retention ($3k), Best User Contributions ($3k). Full spec: `docs/mandelbrut-requirements.md`.
+- **Strategy notes**: Deadline 15 July 2026. Target prizes: Best App with a Hook ($15k), Best Use of Phaser ($5k), Best Retention ($3k), Best User Contributions ($3k). Full spec: `docs/subcosm-requirements.md`.
 
 ## Requirements
 
@@ -29,33 +31,27 @@ The community's real activity becomes a beautiful, **legible, deterministic** un
 
 ### Active
 
-<!-- THIS MILESTONE = Week 1: pure engine + data simulator. NO Devvit/Reddit wiring. -->
+<!-- Full hackathon submission scope, built in phase-groups. Detailed REQ-IDs in REQUIREMENTS.md. Phase-group A is built first (no Devvit). -->
 
-- [ ] Typed **Scene seam**: synthesis (`DayVector + Genome → Scene`) fully decoupled from paint (`Scene + StyleTemplate → pixels`); synthesis never knows styles, paint never touches raw data (requirements §6/§7).
-- [ ] **Zod schemas are the single source of truth** for all four contracts (DayVector, Scene, Genome, StyleTemplate); types inferred via `z.infer`; `.parse()` at boundaries, `.safeParse()` in UI.
-- [ ] **Deterministic seeded synthesis** ported from the mock — same `DayVector + seed + genomeVersion` → identical Scene.
-- [ ] **Techno style** paint (Canvas2D) at visual parity with `docs/mandelbrut-universe-mock.html` (genesis core, concentric shells, frontier ignite, nebula, vignette).
-- [ ] **Camera**: zoom / depth-scrub / focus view-state.
-- [ ] **Depth scrubber + per-shell readout** (date / era / theme / stars / comments / contributors / conflict) — legibility is mandatory.
-- [ ] **Front nudges** (branch / symmetry / hue) re-synthesize the live frontier visibly; steering biases the mean only.
-- [ ] **Data simulator** generating realistic `DayVector[]` — growth trend, busy/quiet days, one drama spike, one AMA-style few-but-huge-threads day — with a **regenerate** control.
-- [ ] **Verify**: changing simulated data visibly changes the universe; same seed → identical render; `prefers-reduced-motion` static; build + tests green.
+- [ ] **A — Engine + simulator (built first, no Devvit):** typed Scene seam; Zod-schema contracts (`z.infer`, parse at boundaries); deterministic seeded synthesis at mock parity; Techno Canvas2D paint; camera + depth scrubber + legibility readout; front nudges; data simulator; **≥2 genome presets** proving the config-driven template engine.
+- [ ] **B — Devvit integration + live game:** Devvit Web webroot; triggers → redis daily aggregation; conflict composite (no vote trigger); scheduler tick + hourly UTC sweeper; genome transform → frozen ring records; live frontier + nudges + overnight freeze + pinned reveal post; genome/style set at install via settings.
+- [ ] **C — Submission + polish (required to enter):** published app listing on developer.reddit.com; public, self-explanatory, playable **demo post**; mobile polish (~60fps); cold-start/onboarding legibility; Devvit-rules + non-AI-slop; Devpost write-up.
+- [ ] Throughout: determinism, no stored images, legibility, reduced-motion, steering-biases-mean; build + tests green.
 
 ### Out of Scope
 
-<!-- This milestone's boundaries. Later milestones move these to Active. -->
+<!-- Boundaries for the hackathon submission. Stretch = only if time allows. -->
 
-- Devvit/Reddit wiring (event triggers, redis aggregation, scheduler tick + sweeper, realtime, settings/genome install) — **Week 2+**.
-- Full Genome **Signal→Param weight matrix** — typed now, exercised Week 2+ (Week 1 ports the mock's heuristics behind the seam).
-- **Comic & Pixel** styles — Week 3 (Techno first; skin-as-data already supports them).
-- Rare-event mutations, fbm/WebGL shader layer, Phaser — later visual upgrades (Canvas2D ships first).
-- Mode B (real host-community theme extraction), post-level zoom (star→real post), "top of all time" backfill — stretch.
-- **Connected multiverse / "Reddit universe"** — multiple community universes (each subreddit = a galaxy) linked into a larger navigable cosmos you can graphically travel between, Star-Trek-quadrant style (a quadrant = a curated region spanning a subset of Reddit). **Opt-in only: no default link** — an owner manually establishes a connection, or grants permission for their universe to join another. A distinct **post-MVP milestone**, not this one (see Context "North-star vision" + Key Decisions). Week-1 camera/scene contracts must not preclude an outer multiverse zoom tier.
+- **Stretch (only if time):** Comic & Pixel styles, full Signal→Param weight matrix + rare events, Phaser/fbm WebGL shader layer (Best-Use-of-Phaser, gated on WebGL in the webroot iframe), Mode B (real host-community theme extraction). Clearly separated in REQUIREMENTS.md.
+- **Connected multiverse / "Reddit universe"** — multiple community universes (each subreddit = a galaxy) linked into a larger navigable cosmos, Star-Trek-quadrant style; **opt-in only, no default link**. A distinct **post-MVP milestone** (see Context "North-star vision" + Key Decisions). Camera/scene contracts must not preclude an outer multiverse zoom tier.
+- Post-level zoom (star→real post) — scope + privacy.
+- Per-user styling — violates invariant I-4 (one shared organism per community).
+- "Top of all time" backfill of ancient shells — stretch.
 - Literal infinite-fractal / Mandelbrot deep-zoom — **never** (LOD shells, not unbounded math).
 
 ## Context
 
-- **Spec**: `docs/mandelbrut-requirements.md` (§6 contracts, §7 architecture). **Renderer to port**: `docs/mandelbrut-universe-mock.html`. Condensed engineering brief preserved at `docs/context/mandelbrut-spec.md` (was the original root CLAUDE.md).
+- **Spec**: `docs/subcosm-requirements.md` (§6 contracts, §7 architecture). **Renderer to port**: `docs/subcosm-universe-mock.html`. Condensed engineering brief preserved at `docs/context/subcosm-spec.md` (was the original root CLAUDE.md).
 - **Platform target**: Devvit Web (Reddit Interactive Posts), mobile-first, runs inside the post viewport. Devvit wiring is deliberately deferred — the simulator decouples visual/engine progress from platform risk.
 - **Week-1 tooling**: standalone **Vite + TypeScript (strict) + Vitest + Zod** harness. `src/engine/` has **zero Devvit imports** (pure, unit-testable); `src/sim/` generates the `DayVector[]` whose schema IS the real collector's future contract.
 - **Working environment**: integrates **Claude Context OS v4** (session/handoff discipline — `templates/`, `docs/context/`, `docs/summaries/`, `.claude/commands/`) and a repo-wide **Zod + Plan-Mode standard** embedded at the top of root `CLAUDE.md` (mirrored to `agents.md` via symlink). GSD owns `.planning/`; context-os owns `CLAUDE.md`.

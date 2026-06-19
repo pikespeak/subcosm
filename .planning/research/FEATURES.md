@@ -42,7 +42,7 @@ Features the hackathon judges and Reddit community will assume exist. Missing an
 
 ### Differentiators (Competitive Advantage)
 
-Features that set Mandelbrut apart from every other Devvit game in the hackathon. These are where the product wins prizes.
+Features that set Subcosm apart from every other Devvit game in the hackathon. These are where the product wins prizes.
 
 | Feature | Value Proposition | Complexity | Phase | Notes |
 |---------|-------------------|------------|-------|-------|
@@ -50,7 +50,7 @@ Features that set Mandelbrut apart from every other Devvit game in the hackathon
 | **Conflict turbulence (red signal)** | Drama and conflict become a visible, beautiful, red turbulence layer. This is the most viscerally "Reddit" feature — Redditors recognize conflict as endemic to the platform, and making it part of the art gives it meaning instead of just frustration. | HIGH | [W1 engine, W2 real data] | Conflict is a composite proxy (FR-P4): comment-to-upvote ratio, reply depth, velocity spikes. The engine maps `conflict → 0..1` → branch/roughness/red turbulence. Must tune against real data in W2. |
 | **Overnight mutation / rare events** | Occasionally a shell mutates overnight: palette flips, an "outbreak" pattern, a "dead ring." These are rare (low probability in rareTable) but create stories — "remember when our universe went dark for a day?" — that drive return engagement. | MEDIUM | [W3] | Driven by `rareTable` in Genome (FR-G5). The engine needs a mutation-application step. Rarity is the value: if it happens every day it's noise. |
 | **Per-community style skin (genome at install)** | Mods choose a visual identity at install. r/gaming looks different from r/knitting even though the same engine renders both. This is the "self-authored artifact" quality the spec prizes. | HIGH | [W2 install, W3 skins] | Techno ships W1. Comic + Pixel are W3. The skin-as-data architecture means adding styles later costs no engine changes. |
-| **Biographical depth ("our history")** | Unlike r/place (spatial, one canvas), Mandelbrut is temporal: you can scrub back through a community's entire history. A 3-month-old subreddit has 90 rings, each readable. This accumulation is the "hook" the competition rewards. | MEDIUM | [W1 engine, W2+ data] | The depth scrubber already serves this in W1 with simulated data. Real history comes with W2+ Redis rings. |
+| **Biographical depth ("our history")** | Unlike r/place (spatial, one canvas), Subcosm is temporal: you can scrub back through a community's entire history. A 3-month-old subreddit has 90 rings, each readable. This accumulation is the "hook" the competition rewards. | MEDIUM | [W1 engine, W2+ data] | The depth scrubber already serves this in W1 with simulated data. Real history comes with W2+ Redis rings. |
 | **Simulator-as-dev-tool (W1 deliverable)** | The data simulator is both a development tool and a proof: "any data renders." It lets the engine be demoed without Reddit wiring. The regenerate control + variant scenarios (AMA day, drama spike, quiet weekend) prove the data→optics mapping. | MEDIUM | [W1] | The simulator's output schema IS the DayVector contract the real collector will fill. This is the derisking strategy for W1. |
 | **Theme-sourced visual identity** | The `dominantTheme` in DayVector feeds into the shell's era/label. Mode A uses a community vote; Mode B reads the real top post. This makes each shell uniquely branded by what the community talked about that day — no other game in this category does this. | MEDIUM | [W2 Mode A, Stretch Mode B] | Mode A (curated vote in game sub) ships. Mode B (real host community top post) is a stretch (R-8 moderation risk). |
 | **Seeded universe shareable / auditable** | Because the universe is deterministically reproducible from ~25 scalars + seed, any ring can be independently reproduced and verified. This is the "fossil" property of the spec (I-3). | LOW | [W1] | This is a consequence of determinism, not extra work. Its value is trust: the community knows the art is theirs, not server-generated black-box output. |
@@ -63,7 +63,7 @@ Features that seem appealing, natural, or commonly requested in this genre, but 
 
 | Feature | Why It Seems Appealing | Why It's Actually Harmful | What to Do Instead |
 |---------|----------------------|--------------------------|-------------------|
-| **Literal infinite-fractal / Mandelbrot deep-zoom** | The name "Mandelbrut" suggests it; judges might expect it from a game with that name | True Mandelbrot computation is mathematically unbounded. It kills mobile perf, breaks the LOD model, destroys legibility (you lose track of where you are), and requires shader math that won't ship on time. The name is a pun, not a mandate. | LOD shells: zoom reveals individual elements (stars, clusters) within a ring's fixed radius, not recursive zooming into infinite mathematical structure. Out of Scope, explicitly (PROJECT.md). |
+| **Literal infinite-fractal / Mandelbrot deep-zoom** | The name "Subcosm" suggests it; judges might expect it from a game with that name | True Mandelbrot computation is mathematically unbounded. It kills mobile perf, breaks the LOD model, destroys legibility (you lose track of where you are), and requires shader math that won't ship on time. The name is a pun, not a mandate. | LOD shells: zoom reveals individual elements (stars, clusters) within a ring's fixed radius, not recursive zooming into infinite mathematical structure. Out of Scope, explicitly (PROJECT.md). |
 | **Free-form activity dashboard / analytics panel** | Devs often want to show the numbers behind the art (posts per day trend, contributor leaderboard, upvote charts) | This turns the game into a Reddit Analytics tool. It kills the "fossil organism" identity (I-3). A dashboard is not a game. Users don't return to dashboards; they return to living things. | The depth scrubber readout (date + theme + stats per shell) provides all the data legibility needed. Stats serve the art, not the other way around. |
 | **Per-user styling / custom skins** | Players naturally want personalization; "let me change the color" seems harmless | Per-user styles break the shared artifact. The whole point is ONE community universe. If everyone sees a different skin, there is no shared experience. Invariant I-4 forbids this. | One style per community, set at install by the mod (genome). Style is community identity, not personal preference. |
 | **Real-time activity ticker / live comment stream** | Reddit users are used to live feeds; showing the frontier growing in real-time looks exciting | A raw activity feed transforms the game into a news scroller. The magic is that individual actions are aggregated into art — the aggregate is what's beautiful, not the firehose. Per-post level detail breaks the abstraction. | Live frontier animation shows the shell growing (new stars igniting) without revealing individual posts. The aggregate wins. |
@@ -234,7 +234,7 @@ Features that require Reddit platform integration.
 
 ## Comparable Reference Points
 
-| Feature | r/place | Idle games | Devvit examples (r/honk, r/DailyGuess) | Mandelbrut |
+| Feature | r/place | Idle games | Devvit examples (r/honk, r/DailyGuess) | Subcosm |
 |---------|---------|------------|----------------------------------------|------------|
 | Shared canvas / artifact | One canvas, all users | No | No | One universe per community |
 | Individual agency | Place one pixel / 5 min | Tap/upgrade | Guess/vote per day | Nudge frontier mean (branch/sym/hue) |
@@ -247,9 +247,9 @@ Features that require Reddit platform integration.
 
 ## Sources
 
-- Primary: `docs/mandelbrut-requirements.md` (all functional requirements, invariants, scope table)
+- Primary: `docs/subcosm-requirements.md` (all functional requirements, invariants, scope table)
 - Primary: `.planning/PROJECT.md` (decisions, constraints, milestone structure)
-- Reference: `docs/mandelbrut-universe-mock.html` (visual target for W1)
+- Reference: `docs/subcosm-universe-mock.html` (visual target for W1)
 - Comparable: r/place design analysis — rate limiting, collaboration forcing function, territorial dynamics
 - Comparable: Reddit hackathon criteria (redditgameswithahook.devpost.com) — "hook-y", polish, Reddit-y, retention
 - Comparable: Idle game retention patterns — overnight accumulation, offline rewards, compounding loops
@@ -257,5 +257,5 @@ Features that require Reddit platform integration.
 
 ---
 
-*Feature research for: Mandelbrut — collaborative persistent generative-art community game (Devvit)*
+*Feature research for: Subcosm — collaborative persistent generative-art community game (Devvit)*
 *Researched: 2026-06-19*

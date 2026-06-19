@@ -141,7 +141,7 @@ const channel = useChannel({ name: 'frontier', onMessage: (msg) => { ... } });
 channel.send({ type: 'nudge', field: 'branch', delta: 0.16 });
 ```
 
-For web-view posts (the architecture Mandelbrut uses), the pattern is `postMessage`-based messaging between the Devvit host frame and the webroot iframe, not `useChannel` directly. Verify the exact web-view messaging API at scaffold time.
+For web-view posts (the architecture Subcosm uses), the pattern is `postMessage`-based messaging between the Devvit host frame and the webroot iframe, not `useChannel` directly. Verify the exact web-view messaging API at scaffold time.
 
 ### Settings Schema (Genome at install)
 
@@ -251,5 +251,5 @@ Settings are read via `context.settings.get('style')` inside triggers and schedu
 
 ---
 
-*Stack research for: Mandelbrut (Reddit Devvit procedural universe game)*
+*Stack research for: Subcosm (Reddit Devvit procedural universe game)*
 *Researched: 2026-06-19*

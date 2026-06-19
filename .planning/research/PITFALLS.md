@@ -366,8 +366,8 @@ Channel name constraints are documented in a single parenthetical in the Devvit 
 - Canvas2D perf: `developer.mozilla.org/en-US/docs/Web/API/Canvas_API/Tutorial/Optimizing_canvas`, `web.dev/articles/offscreen-canvas` (LOW confidence via websearch)
 - Zod performance: `github.com/colinhacks/zod/issues/5310`, `numeric.substack.com/p/how-we-doubled-zod-performance-to` (LOW confidence)
 - Seeded RNG: `emanueleferonato.com/2026/01/08/understanding-how-to-use-mulberry32-to-achieve-deterministic-randomness-in-javascript/` (LOW confidence)
-- Project requirements §5 NFRs, §11 open decisions, §13 risks: `docs/mandelbrut-requirements.md` (HIGH confidence — primary source)
+- Project requirements §5 NFRs, §11 open decisions, §13 risks: `docs/subcosm-requirements.md` (HIGH confidence — primary source)
 
 ---
-*Pitfalls research for: Mandelbrut — deterministic procedural-art Devvit game*
+*Pitfalls research for: Subcosm — deterministic procedural-art Devvit game*
 *Researched: 2026-06-19*

@@ -1,6 +1,6 @@
 # Project Research Summary
 
-**Project:** Mandelbrut — collaborative persistent Reddit game (Devvit Web)
+**Project:** Subcosm — collaborative persistent Reddit game (Devvit Web)
 **Domain:** Procedural generative-art community game on Reddit Interactive Posts
 **Researched:** 2026-06-19
 **Confidence:** MEDIUM overall (Week-1 stack HIGH; Devvit platform LOW — verify at scaffold)
@@ -9,7 +9,7 @@
 
 ## Executive Summary
 
-Mandelbrut is a deterministic procedural-art game where a Reddit community's daily activity synthesizes into a concentric-shell "universe" accumulating one ring per day. The expert approach is a clean three-layer engine — Synthesis (DayVector + Genome → Scene), Paint (Scene + StyleTemplate → pixels), Camera (view state only) — decoupled by four Zod-schema contracts. The engine is pure and platform-agnostic; Devvit (triggers, scheduler, redis, realtime) only attaches at Week 2. Week 1 delivers the standalone Vite harness plus data simulator, proving any DayVector[] renders as a legible, visually compelling universe.
+Subcosm is a deterministic procedural-art game where a Reddit community's daily activity synthesizes into a concentric-shell "universe" accumulating one ring per day. The expert approach is a clean three-layer engine — Synthesis (DayVector + Genome → Scene), Paint (Scene + StyleTemplate → pixels), Camera (view state only) — decoupled by four Zod-schema contracts. The engine is pure and platform-agnostic; Devvit (triggers, scheduler, redis, realtime) only attaches at Week 2. Week 1 delivers the standalone Vite harness plus data simulator, proving any DayVector[] renders as a legible, visually compelling universe.
 
 Build order is dependency-strict: Zod contracts first (root of all types), then seeded RNG + synthesis skeleton, then Techno style paint at visual parity with the mock, then camera + depth scrubber, then simulator with realistic variance. Every step is independently testable before the next begins. The simulator's output schema IS the DayVector contract the real Devvit collector will fill — no schema drift is possible.
 
@@ -161,6 +161,6 @@ Standard patterns (research already sufficient):
 - `.planning/research/FEATURES.md` — feature landscape (table stakes / differentiators / anti-features)
 - `.planning/research/ARCHITECTURE.md` — component boundaries, data flow, build order, cache/LOD patterns
 - `.planning/research/PITFALLS.md` — 12 phase-mapped pitfalls (determinism, Canvas2D perf, Zod, Devvit)
-- `docs/mandelbrut-requirements.md` + `docs/mandelbrut-universe-mock.html` — primary spec + renderer to port
+- `docs/subcosm-requirements.md` + `docs/subcosm-universe-mock.html` — primary spec + renderer to port
 
 *Research completed: 2026-06-19 | Ready for roadmap: yes*
