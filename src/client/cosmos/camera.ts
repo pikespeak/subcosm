@@ -9,8 +9,11 @@
 //
 // View-state single source of truth: the focused shell INDEX lives here. The DOM
 // slider, click-to-focus, wheel, and pinch all funnel through this controller, so
-// dragging the slider and clicking a shell stay in sync (CAM-02, D-01) — every
-// path calls `scrub`/`focusShell`, and a subscriber (HUD + slider) is notified.
+// every path stays in sync (CAM-02, D-01) and a subscriber (HUD + slider) is
+// notified. The mapping is BIDIRECTIONAL: slider-drag/click snap the zoom to a
+// shell (`scrub`/`focusShell` → `focusTo`), while continuous wheel/pinch zoom
+// runs the INVERSE map (`syncFocusToZoom`) to move the focused index — and thus
+// the slider thumb + HUD — to the nearest shell WITHOUT snapping the smooth zoom.
 //
 // =====================================================================
 // CAM-04 DESIGN-REVIEW NOTE — embeddability (multiverse outer zoom tier)
@@ -144,16 +147,63 @@ export class CameraController {
   }
 
   /**
+   * Invert the depth→zoom mapping: given a (continuous) zoom value, find the
+   * shell index whose `zoomTargetFor(index)` sits CLOSEST to it. This is what
+   * lets a free-form pinch/wheel zoom move the depth slider + HUD to the matching
+   * day (D-01) without snapping the smooth zoom — only the index is derived; the
+   * continuous `targetZoom` the user pinched to is left untouched.
+   *
+   * Tie-breaking matters: `zoomTargetFor` clamps every shell at or beyond the
+   * 1× (MIN_ZOOM) boundary to the SAME value, so a fully-zoomed-out view has many
+   * equally-close candidates. We resolve those ties to the LOWEST index (the
+   * frontier / "today"), which is the intuitive meaning of "zoomed all the way
+   * out". A strict `<` comparison keeps the first (lowest-index) winner.
+   */
+  private nearestIndexForZoom(zoom: number): number {
+    let bestIndex = 0;
+    let bestErr = Infinity;
+    for (let i = 0; i < this.shellCount; i++) {
+      const err = Math.abs(this.zoomTargetFor(i) - zoom);
+      if (err < bestErr) {
+        bestErr = err;
+        bestIndex = i;
+      }
+    }
+    return bestIndex;
+  }
+
+  /**
+   * Sync the focused shell index to the current continuous `targetZoom` and
+   * notify subscribers (slider + HUD) — the wheel/pinch counterpart to
+   * `focusTo`'s `emit()`. CRITICAL (D-01): this NEVER touches `targetZoom`, so it
+   * cannot snap the smooth zoom; it only moves `focusIndex` + emits when the
+   * derived index actually changes (no redundant emits / jitter).
+   */
+  private syncFocusToZoom(): void {
+    const idx = this.nearestIndexForZoom(this.targetZoom);
+    if (idx === this.focusIndex) return;
+    this.focusIndex = idx;
+    this.emit();
+  }
+
+  /**
    * zoom(delta) — nudge the zoom target by a relative delta (wheel + pinch).
    * Clamped to [MIN_ZOOM, MAX_ZOOM]. Pure view state — no Scene write (CAM-02).
+   * Also moves the focused index + emits so the slider/HUD follow (D-01), without
+   * snapping the continuous zoom (`syncFocusToZoom` leaves `targetZoom` alone).
    */
   zoom(delta: number): void {
     this.targetZoom = Phaser.Math.Clamp(this.targetZoom + delta, MIN_ZOOM, MAX_ZOOM);
+    this.syncFocusToZoom();
   }
 
-  /** Set an absolute zoom target (used by the hand-rolled pinch). */
+  /**
+   * Set an absolute zoom target (used by the hand-rolled pinch). Keeps the
+   * focused index + slider/HUD in sync (D-01) without snapping the smooth pinch.
+   */
   setZoom(value: number): void {
     this.targetZoom = Phaser.Math.Clamp(value, MIN_ZOOM, MAX_ZOOM);
+    this.syncFocusToZoom();
   }
 
   /** The current eased zoom target (pinch reads this as its baseline). */
