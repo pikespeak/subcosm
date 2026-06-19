@@ -18,6 +18,9 @@
     },
     {
       "path": "./tsconfig.styles.json"
+    },
+    {
+      "path": "./tsconfig.sim.json"
     }
   ]
 }

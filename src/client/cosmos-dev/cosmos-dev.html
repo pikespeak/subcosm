@@ -21,9 +21,10 @@
         <div class="canvas-hint">◀ scrub outward = back in time</div>
       </div>
 
-      <!-- Control panel: the depth scrub slider (TODAY ——— BIG BANG). -->
+      <!-- Control panel (UI-SPEC order): scrub · nudges · regenerate+seed · genome. -->
       <div class="panel">
-        <div class="scrub-row">
+        <!-- 1. Scrub row: TODAY ——slider—— BIG BANG -->
+        <div class="scrub-row ctl-group">
           <span class="end">TODAY</span>
           <input
             type="range"
@@ -35,6 +36,60 @@
             aria-label="Fly through time"
           />
           <span class="end">BIG BANG</span>
+        </div>
+
+        <!-- 2. Steering nudges: bias the live frontier mean (STR-01/STR-02). -->
+        <div class="ctl-group nudge-section">
+          <div class="ctl-label">Shape today's frontier</div>
+          <div class="nudge-grid">
+            <button type="button" class="fbtn" data-nudge="branch" aria-label="Scatter — add wild">
+              <span class="fbtn-glyph">❋</span>
+              <span class="fbtn-label">Scatter</span>
+              <span class="fbtn-sub">+ wild</span>
+            </button>
+            <button type="button" class="fbtn" data-nudge="symmetry" aria-label="Arms — add structure">
+              <span class="fbtn-glyph">✷</span>
+              <span class="fbtn-label">Arms</span>
+              <span class="fbtn-sub">+ structure</span>
+            </button>
+            <button type="button" class="fbtn" data-nudge="hue" aria-label="Hue — shift">
+              <span class="fbtn-glyph">◐</span>
+              <span class="fbtn-label">Hue</span>
+              <span class="fbtn-sub">shift</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- 3. Regenerate (new seed) + Seed field (same seed reproduces — SC-3). -->
+        <div class="ctl-group regen-row">
+          <button type="button" id="regenerate" class="btn-primary">
+            <span class="btn-primary-label">Regenerate</span>
+            <span class="btn-primary-sub">new seed</span>
+          </button>
+          <label class="seed-field">
+            <span class="ctl-label">Seed</span>
+            <input
+              type="text"
+              id="seed"
+              inputmode="numeric"
+              autocomplete="off"
+              spellcheck="false"
+              aria-label="Universe seed"
+            />
+          </label>
+        </div>
+        <div id="seed-note" class="seed-note" role="status" hidden></div>
+
+        <!-- 4. Genome preset selector: Calm / Chaotic / Crystalline (TPL-03/D-05). -->
+        <div class="ctl-group genome-row">
+          <label class="genome-field">
+            <span class="ctl-label">Genome</span>
+            <select id="genome" aria-label="Genome preset">
+              <option value="calm">Calm</option>
+              <option value="chaotic">Chaotic</option>
+              <option value="crystalline">Crystalline</option>
+            </select>
+          </label>
         </div>
       </div>
     </div>
