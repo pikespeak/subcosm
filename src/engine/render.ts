@@ -1,25 +1,50 @@
 // render — the single orchestration entry: synthesis → paint → camera (ENG-04).
 //
-// PHASE-1 STUB (RESEARCH Open Question 1 / Assumption A4 — RESOLVED): the typed
-// signature is final and synthesis is wired NOW, so Phase 2 paint + camera bolt
-// on behind the `Scene` seam with zero synthesis rework. The interactive handle
-// methods (`scrub`/`nudge`/`regenerate`/`destroy`) are DECLARED with their final
-// shape but throw `error.engine.render.notImplemented` — their bodies land in
-// Phase 2 alongside paint + camera. This is the agreed Phase-1 Definition of Done
-// for ENG-04 (not the full live render loop).
+// PHASE-2 PAINT SEAM: synthesis is wired and a `Painter` seam is now declared so
+// paint bolts on behind the `Scene` contract with zero synthesis rework. The
+// `Painter` is an INTERFACE declared here (types only) and injected by the
+// caller — the engine NEVER imports `phaser` or anything under `*/client/*`
+// (lint-enforced: eslint.config.js `no-restricted-imports`, QA-03/ENG-03). The
+// concrete Phaser implementation lives in `src/client/cosmos/PhaserPainter.ts`.
 //
-// Imports ONLY synthesis + contracts — no paint/style/Devvit code yet (ENG-02/03).
+// The interactive handle methods delegate to the injected Painter when present;
+// their full camera/steering behaviour lands in plans 04/05. When no Painter is
+// injected (e.g. headless engine tests), they throw `notImplemented`.
+//
+// Imports ONLY synthesis + contracts — no paint/style/Devvit code (ENG-02/03).
 import { synthesize } from './synthesis';
 import type { DayVector, Genome, Scene, StyleTemplate } from './contracts';
 
 /**
- * The handle returned by `render()`. In Phase 1 it exposes the synthesized
- * `Scene`; the interactive methods are typed stubs filled in Phase 2.
+ * Painter — the engine↔paint seam (types only; no rendering tech leaks here).
+ *
+ * The engine hands a style-agnostic `Scene` + the chosen `StyleTemplate` to a
+ * Painter and never reaches back into raw data. A Painter is injected into
+ * `render()`; the only concrete implementation is the Phaser one under
+ * `src/client/cosmos/`. Methods beyond `mount` are filled in plans 03–05.
+ */
+export interface Painter {
+  /** Paint a freshly synthesized Scene with the given style. */
+  mount(scene: Scene, style: StyleTemplate): void;
+  /** Plan 03: repaint only the live frontier shell (PNT-03 — everything else baked). */
+  repaintFrontier(frontier: Scene['shells'][number]): void;
+  /** Plan 04: move the camera focus to a given shell/day (CAM-01). */
+  focus(day: number): void;
+  /** Plan 05: re-mount after a re-synthesis (new data / genome / steering). */
+  remount(scene: Scene, style: StyleTemplate): void;
+  /** Tear down all paint/camera resources. */
+  destroy(): void;
+}
+
+/**
+ * The handle returned by `render()`. Exposes the synthesized `Scene` + the
+ * `StyleTemplate` paint uses, plus the interactive methods that delegate to the
+ * injected Painter.
  */
 export interface RenderHandle {
   /** The deterministic, style-agnostic Scene produced by synthesis. */
   readonly scene: Scene;
-  /** The StyleTemplate paint will use (held now, consumed in Phase 2). */
+  /** The StyleTemplate paint uses. */
   readonly style: StyleTemplate;
 
   /** Phase 2: move the camera focus to a given shell/day. */
@@ -35,37 +60,54 @@ export interface RenderHandle {
 const NOT_IMPLEMENTED = 'error.engine.render.notImplemented';
 
 /**
- * render — orchestrate a universe from community data, a Genome, and a Style.
+ * render — orchestrate a universe from community data, a Genome, a Style, and an
+ * (optional) Painter.
  *
- * Phase 1: synthesizes the Scene and returns a handle holding it; paint + camera
- * are deferred to Phase 2 (the methods throw until then).
+ * Synthesizes the Scene, and — when a Painter is injected — mounts it for paint.
+ * The returned handle's camera/steering methods delegate to that Painter
+ * (filled in plans 04/05); without a Painter (headless engine tests) they throw.
  *
- * @param days   validated DayVector[] (newest first).
- * @param genome per-community behaviour knobs (data).
- * @param style  the StyleTemplate (held for Phase-2 paint; synthesis ignores it).
+ * @param days    validated DayVector[] (newest first).
+ * @param genome  per-community behaviour knobs (data).
+ * @param style   the StyleTemplate paint maps Scene hues through.
+ * @param painter optional paint seam; when present, mount() is called with the
+ *                synthesized Scene. The engine never knows its concrete type.
  */
 export function render(
   days: DayVector[],
   genome: Genome,
   style: StyleTemplate,
+  painter?: Painter,
 ): RenderHandle {
-  const scene = synthesize(days, genome);
+  let scene = synthesize(days, genome);
+
+  if (painter) painter.mount(scene, style);
 
   return {
-    scene,
+    get scene(): Scene {
+      return scene;
+    },
     style,
-    // --- Phase 2 stubs (ASSUMED Phase-1 DoD per resolved Open Question 1) ---
-    scrub(_day: number): void {
-      throw new Error(NOT_IMPLEMENTED);
+
+    scrub(day: number): void {
+      if (!painter) throw new Error(NOT_IMPLEMENTED);
+      painter.focus(day);
     },
+
     nudge(_param: string, _amount: number): void {
+      // Plan 05 — steering nudges the frontier mean then re-synthesizes.
       throw new Error(NOT_IMPLEMENTED);
     },
-    regenerate(_days: DayVector[], _genome: Genome): void {
-      throw new Error(NOT_IMPLEMENTED);
+
+    regenerate(nextDays: DayVector[], nextGenome: Genome): void {
+      if (!painter) throw new Error(NOT_IMPLEMENTED);
+      scene = synthesize(nextDays, nextGenome);
+      painter.remount(scene, style);
     },
+
     destroy(): void {
-      throw new Error(NOT_IMPLEMENTED);
+      if (!painter) throw new Error(NOT_IMPLEMENTED);
+      painter.destroy();
     },
   };
 }

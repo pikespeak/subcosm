@@ -23,11 +23,8 @@ describe('techno StyleTemplate (PNT-02)', () => {
   test('palette ramp carries the cyan, magenta and warm-white stops', () => {
     const ramp = techno.palette.ramp.map((c) => c.toLowerCase());
     expect(ramp).toContain('#46e0d8'); // cyan
+    expect(ramp).toContain('#d946ef'); // magenta nebula counter-hue
     expect(ramp).toContain('#fff7e6'); // warm-white core
-    // a magenta-family stop is present (the nebula counter-hue)
-    expect(ramp.some((c) => /^#[ef][0-9a-f]2|^#e0|^#ff2|^#f0[0-9a-f]/.test(c) || c === '#ff4fd8')).toBe(
-      true,
-    );
   });
 
   test('motion is frontier-only (PNT-04 foundation)', () => {
