@@ -1,6 +1,16 @@
-/* cosmos-dev.css — minimal full-bleed dark stage for the dev harness.
- * Full chrome (HUD readout + control panel) lands in plan 05; this slice is just
- * the canvas stage so the end-to-end Scene->pixels render is visible. */
+/* cosmos-dev.css — the dev-harness chrome: full-bleed stage + always-visible HUD
+ * readout + depth scrub slider. Treatments lifted from the authored mock
+ * (docs/subcosm-universe-mock.html <style> block) per UI-SPEC (translucent-dark
+ * + backdrop blur, ≥4.5:1 contrast, gradient scrub track, 44px touch zone). */
+
+:root {
+  --ink: #eceaf5; /* text primary */
+  --muted: #8b86a8; /* field keys, end-labels */
+  --hot: #ff8a3d; /* ignite-orange accent (FRONTIER badge) */
+  --gold: #ffd08a; /* warm-gold accent (theme + goal + BIG BANG) */
+  --conflict: #ff5a6e; /* conflict meter glyphs only */
+  --hair: rgba(150, 130, 220, 0.14); /* hairline borders */
+}
 
 html,
 body {
@@ -8,26 +18,210 @@ body {
   padding: 0;
   height: 100%;
   background: #05040b; /* near-black space page (UI-SPEC dominant) */
-  color: #eceaf5;
+  color: var(--ink);
   font-family: 'Space Grotesk', system-ui, sans-serif;
   overflow: hidden;
 }
 
 #app {
+  display: flex;
+  flex-direction: column;
   width: 100%;
   height: 100vh;
   overflow: hidden;
 }
 
-/* The Phaser canvas container — full-bleed. touch-action:none so pinch/drag
- * drive the camera (plan 04), not the page (UI-SPEC Layout). */
+/* The Phaser canvas container — fills remaining height. touch-action:none so
+ * pinch/drag drive the camera (CAM-02), not the page (UI-SPEC Layout). */
 #cosmos-stage {
-  width: 100%;
-  height: 100%;
+  position: relative;
+  flex: 1;
+  min-height: 0;
   touch-action: none;
   background: #04030a;
 }
 
 #cosmos-stage canvas {
   display: block;
+}
+
+/* ---- HUD readout: ALWAYS visible, top-left over the canvas (D-02) ---------- *
+ * Translucent-dark + backdrop blur so it stays ≥4.5:1 legible against the
+ * brightest patch of canvas behind it (genesis core / AMA cluster) — the panel
+ * fill guarantees the ratio. pointer-events:none → never intercepts gestures. */
+#hud-host {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  max-width: 66%;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.hud {
+  font-family: 'Space Mono', monospace;
+  font-size: 14px;
+  line-height: 1.55;
+  letter-spacing: 0.3px;
+  color: var(--muted);
+  background: rgba(5, 4, 12, 0.78);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  border: 1px solid var(--hair);
+  border-radius: 10px;
+  padding: 12px 14px;
+}
+
+.hud-day {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.hud-day-num {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--ink);
+  letter-spacing: 0.5px;
+}
+
+.hud-badge {
+  display: inline-block;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.6px;
+  color: #04030a;
+  background: var(--hot);
+  border-radius: 4px;
+  padding: 2px 6px;
+}
+
+.hud-badge[data-kind='bigbang'] {
+  background: var(--gold);
+}
+
+.hud-line {
+  white-space: normal;
+}
+
+.hud-k {
+  color: var(--muted);
+  margin-right: 4px;
+}
+
+.hud-k:not(:first-child) {
+  margin-left: 10px;
+}
+
+.hud-v {
+  color: var(--ink);
+}
+
+/* theme = the one gold-accent data field (UI-SPEC). */
+.hud-theme {
+  color: var(--gold);
+}
+
+.hud-conf {
+  color: var(--conflict);
+  letter-spacing: -1px;
+}
+
+/* frontier-only gold goal line — the day's stakes, unmissable (GAME-01). */
+.hud-goal {
+  margin-top: 6px;
+  color: var(--gold);
+  font-weight: 700;
+}
+
+.hud-goal[hidden] {
+  display: none;
+}
+
+/* designed cold-start day-1 empty state (never an error — T-02-12). */
+.hud-empty {
+  margin-top: 6px;
+  color: var(--ink);
+}
+
+.hud-empty[hidden] {
+  display: none;
+}
+
+.hud-badge[hidden] {
+  display: none;
+}
+
+/* bottom-right canvas hint (muted, non-interactive). */
+.canvas-hint {
+  position: absolute;
+  right: 16px;
+  bottom: 12px;
+  font-family: 'Space Mono', monospace;
+  font-size: 12px;
+  color: #5b5478;
+  text-align: right;
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* ---- control panel: the depth scrub slider ------------------------------- */
+.panel {
+  padding: 16px;
+  background: linear-gradient(180deg, #0c0a16, #0a0812);
+  border-top: 1px solid var(--hair);
+}
+
+.scrub-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  /* 44px vertical touch zone on the slider row (UI-SPEC touch-target floor). */
+  min-height: 44px;
+}
+
+.end {
+  font-family: 'Space Mono', monospace;
+  font-size: 12px;
+  letter-spacing: 0.5px;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+/* gradient scrub track: warm frontier → indigo deep-time (UI-SPEC accent #5). */
+input[type='range'] {
+  -webkit-appearance: none;
+  appearance: none;
+  flex: 1;
+  height: 3px;
+  border-radius: 3px;
+  background: linear-gradient(90deg, #ff8a3d, #d946ef 42%, #6366f1 74%, #fff7e6);
+  outline: none;
+  cursor: pointer;
+  /* pad the hit area to 44px without growing the visual hairline. */
+  padding: 20px 0;
+  background-clip: content-box;
+}
+
+input[type='range']::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #fff;
+  border: 2px solid #04030a;
+  box-shadow: 0 0 10px 1px rgba(255, 255, 255, 0.5);
+  cursor: pointer;
+}
+
+input[type='range']::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #fff;
+  border: 2px solid #04030a;
+  cursor: pointer;
 }

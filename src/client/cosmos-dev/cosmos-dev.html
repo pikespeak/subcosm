@@ -3,13 +3,40 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600&family=Space+Mono:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
     <link rel="stylesheet" href="cosmos-dev.css" />
     <title>Subcosm — Cosmos Dev</title>
   </head>
 
   <body>
     <div id="app">
-      <div id="cosmos-stage"></div>
+      <!-- Full-bleed canvas stage; the HUD overlay is mounted into #hud-host by hud.ts. -->
+      <div id="cosmos-stage">
+        <div id="hud-host"></div>
+        <div class="canvas-hint">◀ scrub outward = back in time</div>
+      </div>
+
+      <!-- Control panel: the depth scrub slider (TODAY ——— BIG BANG). -->
+      <div class="panel">
+        <div class="scrub-row">
+          <span class="end">TODAY</span>
+          <input
+            type="range"
+            id="scrub"
+            min="0"
+            max="0"
+            value="0"
+            step="1"
+            aria-label="Fly through time"
+          />
+          <span class="end">BIG BANG</span>
+        </div>
+      </div>
     </div>
     <script type="module" src="main.ts"></script>
   </body>
