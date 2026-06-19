@@ -21,7 +21,7 @@
 
 - [x] **TPL-01**: A new or altered `Genome` (behaviour/params) or `StyleTemplate` (design/skin) is **pure data** — zero engine-code changes. Both are injected into `render(...)`.
 - [x] **TPL-02**: `Genome` carries per-community knobs as data (Signal→Param weight matrix, ranges, volatility, inheritance, `steerGain`, rare-event table, allowed genes, day-boundary, chosen style); `StyleTemplate` carries design as data (substrate, palette, line, fill, texture, gene→primitive, postFX, motion, type).
-- [ ] **TPL-03**: The harness ships **≥2 selectable Genome presets** (e.g. "Calm" vs "Chaotic", same Techno style, different params); switching presets visibly changes the universe from the **same** `DayVector[]`.
+- [x] **TPL-03**: The harness ships **≥2 selectable Genome presets** (e.g. "Calm" vs "Chaotic", same Techno style, different params); switching presets visibly changes the universe from the **same** `DayVector[]`.
 - [x] **TPL-04**: One style per community is genome-driven; the engine never assumes a single hard-coded look.
 
 #### Deterministic Synthesis (SYN)
@@ -146,7 +146,7 @@
 | ENG-04 | Phase 1: Engine Foundation | Complete |
 | TPL-01 | Phase 1: Engine Foundation | Complete |
 | TPL-02 | Phase 1: Engine Foundation | Complete |
-| TPL-03 | Phase 1: Engine Foundation | Pending |
+| TPL-03 | Phase 1: Engine Foundation | Complete |
 | TPL-04 | Phase 1: Engine Foundation | Complete |
 | SYN-01 | Phase 1: Engine Foundation | Complete |
 | SYN-02 | Phase 1: Engine Foundation | Complete |
