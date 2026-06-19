@@ -127,6 +127,7 @@ export default defineConfig([
           './tools/tsconfig.styles.json',
           './tools/tsconfig.styles-tests.json',
           './tools/tsconfig.sim.json',
+          './tools/tsconfig.sim-tests.json',
         ],
         tsconfigRootDir: import.meta.dirname,
       },

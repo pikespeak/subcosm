@@ -1,0 +1,17 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "lib": ["ES2023"],
+
+    // Type-checks the sim tests (the sim SOURCE project excludes *.test.ts).
+    // Emit (composite requires it) is declarations only, parked under
+    // dist/types/sim-tests — never inside the source tree, never run.
+    // Mirrors tsconfig.styles-tests.json (build-topology consistency).
+    "outDir": "../dist/types/sim-tests",
+    "tsBuildInfoFile": "../dist/types/sim-tests/tsconfig.tsbuildinfo",
+    "rootDir": ".."
+  },
+  "include": ["../src/sim/**/*.test.ts"],
+  "exclude": [],
+  "references": [{ "path": "./tsconfig.sim.json" }]
+}

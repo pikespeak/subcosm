@@ -9,6 +9,7 @@
     { "path": "./tools/tsconfig.engine-tests.json" },
     { "path": "./tools/tsconfig.styles.json" },
     { "path": "./tools/tsconfig.styles-tests.json" },
-    { "path": "./tools/tsconfig.sim.json" }
+    { "path": "./tools/tsconfig.sim.json" },
+    { "path": "./tools/tsconfig.sim-tests.json" }
   ]
 }
