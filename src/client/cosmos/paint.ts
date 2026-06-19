@@ -134,6 +134,14 @@ function drawShell(
   const objects: StarObject[] = [];
   const { cx, cy, rMax, band } = frame;
   const fillAlpha = style.fill.alpha;
+  // VIS-DEPTH (D-02): the per-shell legibility weight from synthesis (a Scene
+  // value, never a raw DayVector — ENG-02). Multiplied into per-glow alpha and
+  // star size so older shells dim while standout days keep accents. The
+  // legibility floor already lives in `shell.weight` (synthesis clamps it), so
+  // paint just maps the number to pixels — it does not re-decide policy.
+  const weight = shell.weight;
+  // Size keeps a high floor so standout-but-old days stay legible at small radius.
+  const sizeWeight = 0.7 + weight * 0.3;
 
   // --- per-shell nebula clouds (mock l.213-223) ---
   // Density derived from geometry (element count), NOT raw activity — paint stays
@@ -149,7 +157,7 @@ function drawShell(
     const hue = shell.elements.length
       ? shell.elements.reduce((s, e) => s + e.hue, 0) / shell.elements.length
       : 0.5;
-    objects.push(addGlow(scene, nx, ny, cr, hueToColor(ramp, hue), fillAlpha * 0.22 * (0.5 + dens)));
+    objects.push(addGlow(scene, nx, ny, cr, hueToColor(ramp, hue), fillAlpha * 0.22 * (0.5 + dens) * weight));
   }
 
   // --- stars (mock l.228-246): small dot + big glow ---
@@ -158,8 +166,8 @@ function drawShell(
     const x = cx + Math.cos(el.angle) * rr;
     const y = cy + Math.sin(el.angle) * rr;
     const color = hueToColor(ramp, el.hue);
-    const sz = Math.max(2, el.size * rMax * 0.06) * (el.big ? 1.6 : 1);
-    const energyAlpha = fillAlpha * (0.6 + el.energy * 0.4);
+    const sz = Math.max(2, el.size * rMax * 0.06) * (el.big ? 1.6 : 1) * sizeWeight;
+    const energyAlpha = fillAlpha * (0.6 + el.energy * 0.4) * weight;
 
     if (el.big) {
       // Big star: soft additive glow halo first (mock l.238-242).
