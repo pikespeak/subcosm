@@ -139,7 +139,7 @@ Plans:
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Engine Foundation | 3/3 | Complete    | 2026-06-19 |
-| 2. Visual Engine + Simulator | 5/5 | Complete   | 2026-06-19 |
+| 2. Visual Engine + Simulator | 5/5 | Complete    | 2026-06-19 |
 | 3. Devvit Scaffold + Data Layer | 0/TBD | Not started | - |
 | 4. Live Game | 0/TBD | Not started | - |
 | 5. Submit | 0/TBD | Not started | - |
