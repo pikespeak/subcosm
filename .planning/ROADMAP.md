@@ -33,7 +33,10 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. `tsc --noEmit` and `npm run build` pass clean; ESLint reports zero `Math.random` or Devvit import violations in `src/engine/`
   4. Every TypeScript type for the four contracts is `z.infer` of its Zod schema — no hand-written interfaces exist for DayVector, Scene, Genome, or StyleTemplate
   5. The `Genome` schema includes a `dailyGoal` field (genome-quest data: goal type + target parameter + threshold); `DayVector` includes an `outcome` field (actual values for scoring); `Scene` includes a `goalAchieved` field; a per-user action-budget shape (cap/day count, personal-layer marker) exists in the schema and is distinct from all community-layer fields — verified by schema inspection in tests
-**Plans**: TBD
+**Plans**: 3 plans
+- [ ] 01-01-PLAN.md — Wave-0 setup (zod+vitest, isolated engine TS project, ESLint determinism boundary) + the four Zod contracts + personal-layer/goal fields
+- [ ] 01-02-PLAN.md — The deterministic pipeline slice: mulberry32 → synthesize (genShell port) → render() stub → Calm preset, proven byte-identical
+- [ ] 01-03-PLAN.md — Chaotic + Crystalline presets + the TPL-03 divergence proof (same data, three worlds, zero engine change)
 
 ### Phase 2: Visual Engine + Simulator
 **Goal**: A standalone Vite dev page renders a simulated Subcosm universe at visual parity with the mock — scrubbing through time, nudging the frontier, switching genome presets, and regenerating from a new seed all work; the day's goal is legible in the readout; the engine is provably complete before any Reddit code is written
@@ -93,7 +96,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Engine Foundation | 0/TBD | Not started | - |
+| 1. Engine Foundation | 0/3 | Not started | - |
 | 2. Visual Engine + Simulator | 0/TBD | Not started | - |
 | 3. Devvit Scaffold + Data Layer | 0/TBD | Not started | - |
 | 4. Live Game | 0/TBD | Not started | - |
