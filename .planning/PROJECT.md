@@ -10,6 +10,8 @@
 
 Subcosm is a collaborative, persistent Reddit game (Devvit Web) where each community grows **one shared "cosmos"** from its own daily activity. Depth encodes time: a glowing genesis core (install day / first post) sits at the center, and each day adds a concentric **shell of stars** synthesized from that day's posts, comments, contributors, and conflict. The outermost shell is the live **frontier** that fills during the day and freezes forever at the daily tick. It's r/place energy, but biographical instead of spatial — "what did our universe become overnight?"
 
+**The game (daily loop):** at dawn the community gets a collective **goal** ("genome quest" — e.g. grow a symmetric spiral, tame the conflict-red, ignite a rare star) and can **predict** how the day will go; through the day, players **steer** the live frontier toward the goal with limited nudges; **overnight the frontier freezes and the reveal resolves** the goal and the predictions. An achieved goal leaves a **persistent reward** (special star / era badge) in the ring, and rare mutations go into a **collection**. Built **staged**: (1) goal + steering + reveal, (2) daily guess + streaks, (3) collection. This is what makes Subcosm a game rather than a passive visualizer — meaningful daily stakes resolved by the overnight reveal.
+
 ## Core Value
 
 The community's real activity becomes a beautiful, **legible, deterministic** universe that accumulates daily and reveals overnight — one self-authored artifact per community, rendered by a single engine that produces provably different worlds from different data + genome/style config.
@@ -19,7 +21,7 @@ The community's real activity becomes a beautiful, **legible, deterministic** un
 <!-- Hackathon entry — competition-facing, not monetized. -->
 
 - **Customer**: Reddit communities (mods install; members shape the universe). Judges of the Reddit "Games with a Hook" Devvit challenge.
-- **Revenue model**: None in scope (payments are post-hackathon).
+- **Revenue model**: Free-to-play. Post-hackathon monetization via **Devvit Payments (Reddit Gold)** — **fair/cosmetic only** (cosmetics, collection/history, supporter badge, extra guesses/tips), never buying the shared community outcome. Not in hackathon scope (payments need approval). Devvit prohibits gambling, deceptive pricing, and paywalling core functionality.
 - **Success metric**: A complete arc (genesis → mature shells) visible in the judging window, running smoothly in the mobile post viewport, looking self-authored (not AI slop).
 - **Strategy notes**: Deadline 15 July 2026. Target prizes: Best App with a Hook ($15k), Best Use of Phaser ($5k), Best Retention ($3k), Best User Contributions ($3k). Full spec: `docs/subcosm-requirements.md`.
 
@@ -56,6 +58,7 @@ The community's real activity becomes a beautiful, **legible, deterministic** un
 - **Week-1 tooling**: standalone **Vite + TypeScript (strict) + Vitest + Zod** harness. `src/engine/` has **zero Devvit imports** (pure, unit-testable); `src/sim/` generates the `DayVector[]` whose schema IS the real collector's future contract.
 - **Working environment**: integrates **Claude Context OS v4** (session/handoff discipline — `templates/`, `docs/context/`, `docs/summaries/`, `.claude/commands/`) and a repo-wide **Zod + Plan-Mode standard** embedded at the top of root `CLAUDE.md` (mirrored to `agents.md` via symlink). GSD owns `.planning/`; context-os owns `CLAUDE.md`.
 - **North-star vision (post-MVP)**: beyond a single community's universe, a **connected multiverse** — many subreddit "galaxies" that owners can opt-in link into shared "quadrants" (curated regions of Reddit), with graphical travel between linked universes (Star-Trek-quadrant feel). Each community keeps its own sovereign universe (invariant I-4 holds); linking is a **consent-based meta-layer** on top — no default connection, owner-initiated or owner-permitted only. This shapes the camera/LOD design as an additional **outer zoom tier**: multiverse → galaxy (subreddit) → daily shell → star (post). Not built this milestone, but the Scene/Camera contracts are kept embeddable so it isn't designed out. **Open design questions (deferred to that milestone, to discuss with the user before building it):** (1) is linking bidirectional — both owners consent — or invite-and-join; (2) who defines a "quadrant" — the inviting owner, a curated list, or thematic grouping; (3) free travel between all linked galaxies vs only along established link edges (a star-map graph). General directive: **build everything flexibly now so none of these become blockers later.**
+- **Monetization & retention readiness (post-MVP, not built now):** the game must bolt on fair/cosmetic monetization (Devvit Payments / Reddit Gold) and ethical retention later without rework. Design rule: keep a per-user **personal layer** (action budget, guesses, collection, cosmetics, streak) cleanly separate from the shared deterministic **community layer** (the universe); model daily actions as a **budgeted, countable resource** (cap/day) so "extra actions" can become a product without touching synthesis; reserve per-contribution cosmetic fields. Retention via fair, value-based hooks only (variable reward = the reveal, streaks, social identity "my star stays in the fossil", progress/collection, natural FOMO from the permanent freeze) — **no dark patterns, no gambling/gacha, no paywalling core functionality** (also Devvit-prohibited).
 
 ## Constraints
 
@@ -82,6 +85,8 @@ The community's real activity becomes a beautiful, **legible, deterministic** un
 | One element = thread/post | D-3 — most tangible deep-zoom unit | — Pending |
 | GSD owns `.planning/`; Context-OS owns root `CLAUDE.md`; skip GSD's CLAUDE.md generator | User decision — avoid competing instruction files; context-os + Zod standard is the authority | — Pending |
 | Keep Scene/Camera contracts embeddable in a future connected multiverse (subreddits as galaxies, opt-in links, ST-quadrant regions) | User's north-star vision; consent-based linking preserves per-community sovereignty (I-4) and avoids a costly later rewrite of camera/scene/coordinate model | — Pending |
+| Daily game loop = goal ("genome quest") + steering + overnight reveal; built staged (1: goal+steering+reveal, 2: guess+streaks, 3: collection) | Turns Subcosm from a passive visualizer into a game with daily stakes; hits User Contributions + Retention + Hook | — Pending |
+| Monetization (post-MVP) = fair/cosmetic only via Devvit Payments (Reddit Gold); never buy the shared outcome | Devvit prohibits gambling + paywalling core functionality; pay-for-influence would break invariant I-5. Separate a per-user "personal layer" from the shared "community layer" so monetization + ethical retention bolt on later | — Pending |
 
 ## Evolution
 

@@ -21,6 +21,8 @@ Each subreddit grows **one shared cosmos** from its own daily activity. **Depth 
 - **Shape today:** players nudge the live frontier (spread / symmetry / hue). Nudges bias the *mean* of a parameter — they never dictate the result, so it stays a shared organism, not a single user's drawing.
 - **One engine, many worlds:** behaviour (`Genome`) and look (`StyleTemplate`) are **data, not code**, so the same engine renders provably different cosmoses per community.
 
+**The daily game (the hook).** Every day the community gets a shared **goal** — a "genome quest" like *grow a symmetric spiral*, *tame the conflict-red*, or *ignite a rare twin-star*. Players spend a limited budget of **nudges** to steer the live frontier toward it (and call how the day will go); **overnight the frontier freezes and the reveal resolves the goal** — a success leaves a **permanent reward star** in that ring, visible forever. Steering only biases the odds, never dictates the outcome, so it stays a *shared* organism, not one player's drawing. That loop — *set a goal → shape it together → reveal overnight* — is the retention hook, and it's literally built from the community's own activity.
+
 ### How we built it
 
 The heart is a **pure, deterministic rendering engine** with a strict typed seam:
@@ -53,8 +55,10 @@ so the same inputs always produce a byte-identical scene on every device.
 
 ### What's next
 
+- Deeper game layers: a daily **prediction + streaks**, and a **collection** of rare overnight mutations.
 - More flagship styles (Comic, Pixel) — each is pure data on the same engine.
 - Rare overnight mutations, the full signal→parameter genome matrix, and an fbm/WebGL shader layer (our Phaser target).
+- Optional, fair **free-to-play** extras via Reddit Gold — cosmetics, collection, supporter badges. Never pay-to-win: the shared community outcome is never for sale.
 - A **connected multiverse**: subreddits as galaxies that owners can opt-in link into shared "quadrants," with graphical travel between them.
 
 ---

@@ -69,12 +69,22 @@
 - [ ] **LIVE-02**: At the tick the frontier **freezes irreversibly** and a pinned **reveal/update post** is created ("what your universe became overnight").
 - [ ] **LIVE-03**: Client and server render identically from the same Ring record (determinism holds across the seam).
 
+### B2. Game / Daily Loop (GAME) — MVP core (staged)
+
+> The daily loop is what makes Subcosm a *game*: goal + steering + overnight reveal. Built staged — stage 1 here; guess/streaks and collection are Stretch. **The goal + outcome fields must exist in the contracts from Phase 1** (build-for-flexibility), even though scoring logic lands in Phase 4.
+
+- [ ] **GAME-01**: Each day carries a **goal** ("genome quest") as data on the Genome/day (e.g. high symmetry, low conflict, ignite a specific rare gene). It is legible to players at dawn (shown in the readout).
+- [ ] **GAME-02**: At the tick the day's shell is **scored against its goal deterministically** (from the DayVector/outcome); achieved ✓/✗ (+ degree) is recorded on the Ring and surfaced in the reveal.
+- [ ] **GAME-03**: Steering nudges measurably move the day toward/away from the goal — the contribution → outcome link is legible (steering still biases the mean only, never dictates; invariant I-5).
+- [ ] **GAME-04**: An achieved goal leaves a **persistent reward** on the ring (special star / era badge), visible permanently in the universe.
+- [ ] **GAME-05**: Daily player actions (nudges, and later guesses) are a **budgeted, countable per-user resource** (cap/day) on a **personal layer** kept separate from the shared community universe — so fair/cosmetic monetization and ethical retention can bolt on later without reworking synthesis.
+
 ### C. Submission & Polish (required to enter)
 
 - [ ] **SUB-01**: App is **published** with an app listing on developer.reddit.com.
 - [ ] **SUB-02**: A **public demo post** on a subreddit runs the game, self-explanatory and playable (judging is primarily based on this).
 - [ ] **SUB-03**: Mobile experience is polished (target ~60fps in the post viewport; bonus points).
-- [ ] **SUB-04**: Onboarding makes the loop legible at a glance; cold-start day looks intentional, not broken-empty.
+- [ ] **SUB-04**: Onboarding makes the loop legible at a glance — both the cosmos loop and the goal→steer→reveal game loop; cold-start day looks intentional, not broken-empty.
 - [ ] **SUB-05**: Compliant with Devvit Rules; aesthetics read self-authored (not AI-slop / generic neon fractal).
 - [ ] **SUB-06**: Devpost write-up complete (`docs/devpost-submission.md`), media gallery + links filled.
 
@@ -91,6 +101,10 @@
 - **STRETCH-Genome**: full Signal→Param weight matrix exercised, rare-event mutation table, presets UI.
 - **STRETCH-Phaser**: fbm/WebGL shader paint layer for the "Best Use of Phaser" prize — gated on WebGL availability inside the Devvit webroot iframe (verify early).
 - **STRETCH-ModeB**: read a host community's real top-post/comments as the theme source (NLP + moderation).
+- **STRETCH-Guess** (game stage 2): players submit a daily prediction at dawn; scored at the reveal → personal points + streaks + a community scoreboard.
+- **STRETCH-Collect** (game stage 3): rare overnight mutations / star-types recorded in a per-community and/or personal collection album.
+- **STRETCH-Monetize** (post-MVP, needs Reddit approval): Devvit Payments (Reddit Gold) — **fair/cosmetic only** (cosmetics, collection/history, supporter badge, extra guesses/tips). NEVER buy the shared outcome, no gambling/gacha, no paywalling core functionality (Devvit-prohibited). `products.json` + `purchase(sku)` + fulfill/refund endpoints; gold prices from the fixed tiers (5/25/50/100/150/250/500/1000/2500). The personal-layer separation introduced in GAME-05 (Phase 1 contracts) is the prerequisite; no synthesis rework required.
+- **STRETCH-Retention** (ethical only): variable-reward reveal, streaks + gentle loss-aversion, social identity, progress/collection, natural FOMO from the permanent freeze. No dark patterns / deceptive scarcity.
 
 ## Out of Scope (with reasoning)
 
@@ -107,6 +121,7 @@
 - **Submission requires** a published app listing **and** a public playable demo post; judged primarily on community play via the demo link. No repo/video required (video optional, not provided).
 - **Platform:** Devvit Web, mobile-first, runs in the Reddit post viewport; Reddit hosts everything (no own server/DB) — Redis, scheduler, realtime, triggers, settings are Devvit primitives.
 - All hard rules from `docs/subcosm-requirements.md` (determinism, no stored images, legibility, reduced-motion, steering biases mean) and the Zod single-source-of-truth standard hold throughout.
+- **Layer separation (build-for-flexibility):** keep a per-user *personal layer* (action budget, guesses, collection, cosmetics, streak) cleanly separate from the shared deterministic *community layer* (the universe); model daily actions as a **budgeted, countable resource** (cap/day) so "extra actions" can become a product without touching synthesis; reserve per-contribution cosmetic fields. Payments/cosmetics live in an isolated Devvit layer; the engine stays pure + deterministic. Monetization is **fair/cosmetic-only and post-MVP** (Devvit-approved); retention mechanics are **ethical-only** (no dark patterns, gambling, or paywalling core functionality).
 
 ---
 
@@ -126,6 +141,8 @@
 | SYN-02 | Phase 1: Engine Foundation | Pending |
 | SYN-03 | Phase 1: Engine Foundation | Pending |
 | SYN-04 | Phase 1: Engine Foundation | Pending |
+| GAME-01 | Phase 1: Engine Foundation | Pending |
+| GAME-05 | Phase 1: Engine Foundation | Pending |
 | PNT-01 | Phase 2: Visual Engine + Simulator | Pending |
 | PNT-02 | Phase 2: Visual Engine + Simulator | Pending |
 | PNT-03 | Phase 2: Visual Engine + Simulator | Pending |
@@ -151,6 +168,9 @@
 | LIVE-01 | Phase 4: Live Game | Pending |
 | LIVE-02 | Phase 4: Live Game | Pending |
 | LIVE-03 | Phase 4: Live Game | Pending |
+| GAME-02 | Phase 4: Live Game | Pending |
+| GAME-03 | Phase 4: Live Game | Pending |
+| GAME-04 | Phase 4: Live Game | Pending |
 | SUB-01 | Phase 5: Submit | Pending |
 | SUB-02 | Phase 5: Submit | Pending |
 | SUB-03 | Phase 5: Submit | Pending |
