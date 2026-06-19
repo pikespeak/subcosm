@@ -11,10 +11,15 @@
 // In Task 1 (RED) `synthesize` does not exist yet, so this file fails to import.
 // Task 2 implements synthesize + render and turns it GREEN.
 import { describe, expect, test } from 'vitest';
-import { synthesize } from './synthesis';
+import { synthesize, MIN_GAP, LEGIBILITY_FLOOR } from './synthesis';
 import { render } from './render';
 import { fixtureDays, calm } from '../../tests/fixtures';
 import { StyleTemplateSchema } from './contracts';
+// Frozen pre-D-01 baseline of per-shell `elements` arrays, captured from the
+// ORIGINAL (Math.pow(0.85, idx)) synthesize output before the geometry change.
+// VIS-DEPTH must change ONLY `radius` (+ the new `weight`); element positions/
+// energies stay byte-identical (proves zero new rng() calls — RESEARCH Pitfall 1).
+import elementsBaseline from '../../tests/synthesis-elements-baseline.json';
 
 // Minimal valid StyleTemplate for the render-stub assertion. Synthesis never
 // reads it; render only forwards days+genome to synthesize in Phase 1.
@@ -54,6 +59,60 @@ describe('synthesize data-sensitivity (SYN-04)', () => {
     const coldShell = scene.shells[2]!;
     expect(coldShell.day).toBe(1);
     expect(coldShell.elements).toEqual([]);
+  });
+});
+
+describe('synthesize depth geometry + weight (VIS-DEPTH / D-01, D-02)', () => {
+  // D-01: every ring individually distinguishable to the core — radius strictly
+  // decreasing AND each adjacent pair separated by at least MIN_GAP (no central
+  // blob). Asserted at the fixture's shell count (N=3); the production target is
+  // N≈30 — the clamped-min-gap floor scales with N so the guarantee holds there.
+  test('radius is strictly decreasing with a guaranteed minimum gap (D-01)', () => {
+    const scene = synthesize(fixtureDays, calm);
+    const radii = scene.shells.map((s) => s.radius);
+    expect(radii.length).toBeGreaterThan(1);
+    for (let i = 1; i < radii.length; i++) {
+      const gap = radii[i - 1]! - radii[i]!;
+      // strictly decreasing
+      expect(radii[i]!).toBeLessThan(radii[i - 1]!);
+      // and never closer than the legibility floor gap (no-blob guarantee)
+      expect(gap).toBeGreaterThanOrEqual(MIN_GAP - 1e-9);
+    }
+    // frontier (idx 0) is the largest ring
+    expect(radii[0]).toBe(Math.max(...radii));
+  });
+
+  // D-02: every shell carries a bounded weight ≥ legibility floor (nothing fades
+  // to illegible, including the oldest/genesis shell).
+  test('every shell carries a weight ≥ LEGIBILITY_FLOOR (D-02)', () => {
+    const scene = synthesize(fixtureDays, calm);
+    for (const shell of scene.shells) {
+      expect(typeof shell.weight).toBe('number');
+      expect(shell.weight).toBeGreaterThanOrEqual(LEGIBILITY_FLOOR - 1e-9);
+      expect(shell.weight).toBeLessThanOrEqual(1);
+    }
+  });
+
+  // Pitfall 1 guard: the depth change must touch ONLY radius (+ the new weight).
+  // Each shell's `elements` array must deep-equal the frozen pre-change baseline.
+  // If any element angle/r/energy/conflict drifted, a stray rng() call slipped in
+  // (RNG consumption order changed) → this fails loudly.
+  test('per-shell elements arrays are byte-unchanged vs the pre-D-01 baseline (Pitfall 1)', () => {
+    const scene = synthesize(fixtureDays, calm);
+    const elements = scene.shells.map((s) => s.elements);
+    expect(elements).toEqual(elementsBaseline);
+    // byte-level too (catches numeric/key-order drift JSON would surface)
+    expect(JSON.stringify(elements)).toBe(JSON.stringify(elementsBaseline));
+  });
+
+  // Standout days keep accents: the high-conflict dense day (fixtures[0]) should
+  // carry more weight than the calm AMA day (fixtures[1]) at the same/adjacent age,
+  // i.e. conflict lifts weight above pure age-fade.
+  test('a high-conflict day keeps a higher weight than a calm later day (D-02 accent)', () => {
+    const scene = synthesize(fixtureDays, calm);
+    const denseShell = scene.shells[0]!; // day-44, conflict 0.85 (frontier)
+    const amaShell = scene.shells[1]!; // day-36, conflict 0.2
+    expect(denseShell.weight).toBeGreaterThan(amaShell.weight);
   });
 });
 

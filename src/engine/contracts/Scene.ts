@@ -45,6 +45,11 @@ export type ShellMeta = z.infer<typeof ShellMetaSchema>;
 export const ShellSchema = z.object({
   day: z.number().int().positive(),
   radius: z.number(),
+  // VIS-DEPTH (D-02): per-shell legibility weight. Older shells fade with age,
+  // standout days keep accents, nothing drops below the legibility floor. A
+  // bounded 0..1 scalar (CoreNodeSchema precedent); paint multiplies it into
+  // per-glow alpha/size. Present on EVERY shell (genesis included) — fixed-key.
+  weight: z.number().min(0).max(1),
   meta: ShellMetaSchema,
   elements: z.array(ElementSchema),
 });
