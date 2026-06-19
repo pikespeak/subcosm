@@ -65,7 +65,7 @@ Decimal phases appear between their surrounding integers in numeric order.
   5. The camera/coordinate model is verified (design review, not implementation) to not preclude an outer zoom tier for a future multiverse — no hardcoded assumptions that would make adding a galaxy-level zoom impossible
   6. `prefers-reduced-motion` produces a static render with no animation or strobe; `npm test` and `npm run build` both pass green
 
-**Plans**: 3/5 plans executed
+**Plans**: 4/5 plans executed
 **UI hint**: yes
 
 Plans:
@@ -80,7 +80,7 @@ Plans:
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-- [ ] 02-04-PLAN.md — Camera + depth scrubber + pinch/scroll/click navigation + always-visible HUD readout (with frontier goal line)
+- [x] 02-04-PLAN.md — Camera + depth scrubber + pinch/scroll/click navigation + always-visible HUD readout (with frontier goal line)
 
 **Wave 4** *(blocked on Wave 3 completion)*
 
@@ -139,7 +139,7 @@ Plans:
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Engine Foundation | 3/3 | Complete    | 2026-06-19 |
-| 2. Visual Engine + Simulator | 3/5 | In Progress|  |
+| 2. Visual Engine + Simulator | 4/5 | In Progress|  |
 | 3. Devvit Scaffold + Data Layer | 0/TBD | Not started | - |
 | 4. Live Game | 0/TBD | Not started | - |
 | 5. Submit | 0/TBD | Not started | - |

@@ -40,10 +40,10 @@
 
 #### Camera & Navigation (CAM)
 
-- [ ] **CAM-01**: Camera holds independent view state (zoom / focus / scrub / intro) and never mutates the Scene.
-- [ ] **CAM-02**: A depth scrubber flies through time; focusing a shell zooms it; depth maps to date.
-- [ ] **CAM-03**: A per-shell readout shows date / era / theme / stars / comments / contributors / conflict (legibility — mandatory, never removed).
-- [ ] **CAM-04**: The camera/coordinate model is kept embeddable so a future outer zoom tier (multiverse → galaxy) is not designed out (design-review item, no implementation).
+- [x] **CAM-01**: Camera holds independent view state (zoom / focus / scrub / intro) and never mutates the Scene.
+- [x] **CAM-02**: A depth scrubber flies through time; focusing a shell zooms it; depth maps to date.
+- [x] **CAM-03**: A per-shell readout shows date / era / theme / stars / comments / contributors / conflict (legibility — mandatory, never removed).
+- [x] **CAM-04**: The camera/coordinate model is kept embeddable so a future outer zoom tier (multiverse → galaxy) is not designed out (design-review item, no implementation).
 
 #### Steering / Front Nudges (STR)
 
@@ -158,10 +158,10 @@
 | PNT-02 | Phase 2: Visual Engine + Simulator | Complete |
 | PNT-03 | Phase 2: Visual Engine + Simulator | Complete |
 | PNT-04 | Phase 2: Visual Engine + Simulator | Complete |
-| CAM-01 | Phase 2: Visual Engine + Simulator | Pending |
-| CAM-02 | Phase 2: Visual Engine + Simulator | Pending |
-| CAM-03 | Phase 2: Visual Engine + Simulator | Pending |
-| CAM-04 | Phase 2: Visual Engine + Simulator | Pending |
+| CAM-01 | Phase 2: Visual Engine + Simulator | Complete |
+| CAM-02 | Phase 2: Visual Engine + Simulator | Complete |
+| CAM-03 | Phase 2: Visual Engine + Simulator | Complete |
+| CAM-04 | Phase 2: Visual Engine + Simulator | Complete |
 | STR-01 | Phase 2: Visual Engine + Simulator | Pending |
 | STR-02 | Phase 2: Visual Engine + Simulator | Pending |
 | SIM-01 | Phase 2: Visual Engine + Simulator | Complete |

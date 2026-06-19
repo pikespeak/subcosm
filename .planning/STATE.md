@@ -5,16 +5,16 @@ milestone_name: milestone
 current_phase: 02
 current_phase_name: Visual Engine + Simulator
 status: executing
-stopped_at: Completed 02-03 (mock-parity paint + Crystalline + reduced-motion)
-last_updated: "2026-06-19T19:07:45.714Z"
+stopped_at: Completed 02-04 (camera + input + HUD); checkpoint approved
+last_updated: "2026-06-19T19:34:34.170Z"
 last_activity: 2026-06-19
-last_activity_desc: Completed plan 02-03 — checkpoint approved
+last_activity_desc: Completed plan 02-04 (checkpoint approved after trackpad-pinch fix)
 progress:
   total_phases: 5
   completed_phases: 1
   total_plans: 8
-  completed_plans: 6
-  percent: 75
+  completed_plans: 7
+  percent: 88
 ---
 
 # Project State
@@ -29,19 +29,19 @@ See: .planning/PROJECT.md (updated 2026-06-19)
 ## Current Position
 
 Phase: 02 (Visual Engine + Simulator) — EXECUTING
-Plan: 4 of 5
+Plan: 5 of 5
 Status: Ready to execute
-Last activity: 2026-06-19 — Completed plan 02-03 (checkpoint approved)
+Last activity: 2026-06-19 — Completed plan 02-04 (checkpoint approved after trackpad-pinch fix)
 
-Progress: [████████░░] 75%
+Progress: [█████████░] 88%
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 3
-- Average duration: -
-- Total execution time: 0 hours
+- Total plans completed: 7
+- Average duration: ~12min
+- Total execution time: ~1.3 hours
 
 **By Phase:**
 
@@ -61,6 +61,7 @@ Progress: [████████░░] 75%
 | Phase 02 P01 | 21min | 3 tasks | 22 files |
 | Phase 02 P02 | 5min | 2 tasks | 8 files |
 | Phase 02 P03 | 5min | 3 tasks | 6 files |
+| Phase 02 P04 | 35min | 2 tasks | 8 files |
 
 ## Accumulated Context
 
@@ -83,6 +84,9 @@ Recent decisions affecting current work:
 - [Phase ?]: Plan 02-01: Cosmos dev page is a separate plain-vite entry (npm run cosmos), NOT a devvit.json entrypoint — Devvit build inputs are splash+game only
 - [Phase 02]: Plan 02-03: Crystalline authored as a techno-id StyleTemplate variant (no new StyleId) — proves look is data, not code (Open Q2)
 - [Phase 02]: Plan 02-03: mock parity accepted within the 2-day dev-fixture limit; full multi-shell parity re-judged in 02-05 with the 30-day simulator; reduced-motion accepted on wiring
+- [Phase 02]: Plan 02-04: CameraController is the sole owner of view state — scrub/focus are camera-only and never re-synthesize (CAM-01 determinism guard)
+- [Phase 02]: Plan 02-04: trackpad pinch handled as ctrl+wheel with preventDefault (browser convention); fixed incidental deltaX->deltaY wheel-axis bug
+- [Phase 02]: Plan 02-04: day-1/day-44 visual sameness is fixture-bound (2-day dev-fixture), not a bug — full depth fly-through re-judged in 02-05 with the 30-day simulator
 
 ### Pending Todos
 
@@ -106,6 +110,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-06-19T19:07:45.708Z
-Stopped at: Completed 02-03-PLAN.md (mock-parity paint + Crystalline + reduced-motion); checkpoint approved
-Resume file: .planning/phases/02-visual-engine-simulator/02-04-PLAN.md
+Last session: 2026-06-19T19:34:07.973Z
+Stopped at: Completed 02-04-PLAN.md (camera + input + HUD); checkpoint approved after trackpad-pinch fix
+Resume file: .planning/phases/02-visual-engine-simulator/02-05-PLAN.md
