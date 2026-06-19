@@ -65,4 +65,35 @@ export default defineConfig([
     plugins: { js },
     extends: ['js/recommended'],
   },
+  // Engine boundary (ENG-03): src/engine/** is a pure, deterministic, Devvit-free core.
+  // Placed AFTER the trailing catch-all so its no-restricted-* rules win for src/engine/**.
+  {
+    extends: [js.configs.recommended, ...tseslint.configs.recommended],
+    files: ['src/engine/**/*.{ts,tsx}'],
+    languageOptions: {
+      ecmaVersion: 2023,
+      globals: globals.browser,
+      parserOptions: {
+        project: ['./tools/tsconfig.engine.json'],
+        tsconfigRootDir: import.meta.dirname,
+      },
+    },
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: ['@devvit/*', 'phaser', '*/client/*', '*/server/*'],
+        },
+      ],
+      // Ban Math.random ONLY — synthesis legitimately uses Math.imul/max/floor/PI/cos/sin.
+      'no-restricted-properties': [
+        'error',
+        {
+          object: 'Math',
+          property: 'random',
+          message: 'error.engine.determinism.noMathRandom',
+        },
+      ],
+    },
+  },
 ]);
