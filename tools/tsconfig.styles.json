@@ -1,0 +1,18 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "lib": ["ES2023"],
+
+    "outDir": "../dist/types/styles",
+
+    "tsBuildInfoFile": "../dist/types/styles/tsconfig.tsbuildinfo",
+
+    "rootDir": "../src/styles"
+  },
+  // The styles SOURCE project: pure StyleTemplate DATA modules, schema-parsed at
+  // module load. Allowed to import `zod` + engine contract TYPES; MUST NOT import
+  // `phaser` or anything under `*/client/*` (lint-enforced in eslint.config.js).
+  "include": ["../src/styles/**/*"],
+  "exclude": ["../src/styles/**/*.test.ts"],
+  "references": [{ "path": "./tsconfig.engine.json" }]
+}

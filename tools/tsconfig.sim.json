@@ -1,0 +1,18 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "lib": ["ES2023"],
+
+    "outDir": "../dist/types/sim",
+
+    "tsBuildInfoFile": "../dist/types/sim/tsconfig.tsbuildinfo",
+
+    "rootDir": "../src/sim"
+  },
+  // The sim SOURCE project: the simulator that emits DayVector[] (the ONE Zod
+  // boundary for Phase 2 simulated input). Allowed to import `zod` + engine
+  // contract/rng modules; MUST NOT import `phaser` or `*/client/*` (lint-enforced).
+  "include": ["../src/sim/**/*"],
+  "exclude": ["../src/sim/**/*.test.ts"],
+  "references": [{ "path": "./tsconfig.engine.json" }]
+}

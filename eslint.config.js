@@ -111,4 +111,37 @@ export default defineConfig([
       ],
     },
   },
+  // Styles + Sim boundary (PNT-02 / SIM-02 / QA-03): src/styles/** holds
+  // StyleTemplate DATA and src/sim/** holds the DayVector simulator. Both are
+  // pure, Phaser-free, parse-at-boundary modules — like the engine, they may
+  // import zod + engine contracts but NEVER phaser/client/server/Devvit.
+  // Placed AFTER the trailing catch-all so its no-restricted-imports wins.
+  {
+    extends: [js.configs.recommended, ...tseslint.configs.recommended],
+    files: ['src/styles/**/*.{ts,tsx}', 'src/sim/**/*.{ts,tsx}'],
+    languageOptions: {
+      ecmaVersion: 2023,
+      globals: globals.browser,
+      parserOptions: {
+        project: ['./tools/tsconfig.styles.json', './tools/tsconfig.sim.json'],
+        tsconfigRootDir: import.meta.dirname,
+      },
+    },
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: ['@devvit/*', 'phaser', '*/client/*', '*/server/*'],
+        },
+      ],
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        {
+          argsIgnorePattern: '^_',
+          varsIgnorePattern: '^_',
+          caughtErrorsIgnorePattern: '^_',
+        },
+      ],
+    },
+  },
 ]);
