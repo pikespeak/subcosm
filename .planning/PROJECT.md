@@ -1,8 +1,12 @@
-# Mandelbrut
+# Subcosm
+
+> **Elevator pitch:** Your subreddit grows its own cosmos from its daily activity. Each day adds a shell of stars — zoom in to travel back through your community's whole history, and watch what it becomes overnight.
+
+*(The working spec and renderer mock under `docs/` use the earlier codename "Mandelbrut".)*
 
 ## What This Is
 
-Mandelbrut is a collaborative, persistent Reddit game (Devvit Web) where each community grows **one shared "universe"** from its own daily activity. Depth encodes time: a glowing genesis core (install day / first post) sits at the center, and each day adds a concentric **shell of stars** synthesized from that day's posts, comments, contributors, and conflict. The outermost shell is the live **frontier** that fills during the day and freezes forever at the daily tick. It's r/place energy, but biographical instead of spatial — "what did our universe become overnight?"
+Subcosm is a collaborative, persistent Reddit game (Devvit Web) where each community grows **one shared "cosmos"** from its own daily activity. Depth encodes time: a glowing genesis core (install day / first post) sits at the center, and each day adds a concentric **shell of stars** synthesized from that day's posts, comments, contributors, and conflict. The outermost shell is the live **frontier** that fills during the day and freezes forever at the daily tick. It's r/place energy, but biographical instead of spatial — "what did our universe become overnight?"
 
 ## Core Value
 
@@ -46,6 +50,7 @@ The community's real activity becomes a beautiful, **legible, deterministic** un
 - **Comic & Pixel** styles — Week 3 (Techno first; skin-as-data already supports them).
 - Rare-event mutations, fbm/WebGL shader layer, Phaser — later visual upgrades (Canvas2D ships first).
 - Mode B (real host-community theme extraction), post-level zoom (star→real post), "top of all time" backfill — stretch.
+- **Connected multiverse / "Reddit universe"** — multiple community universes (each subreddit = a galaxy) linked into a larger navigable cosmos you can graphically travel between, Star-Trek-quadrant style (a quadrant = a curated region spanning a subset of Reddit). **Opt-in only: no default link** — an owner manually establishes a connection, or grants permission for their universe to join another. A distinct **post-MVP milestone**, not this one (see Context "North-star vision" + Key Decisions). Week-1 camera/scene contracts must not preclude an outer multiverse zoom tier.
 - Literal infinite-fractal / Mandelbrot deep-zoom — **never** (LOD shells, not unbounded math).
 
 ## Context
@@ -54,6 +59,7 @@ The community's real activity becomes a beautiful, **legible, deterministic** un
 - **Platform target**: Devvit Web (Reddit Interactive Posts), mobile-first, runs inside the post viewport. Devvit wiring is deliberately deferred — the simulator decouples visual/engine progress from platform risk.
 - **Week-1 tooling**: standalone **Vite + TypeScript (strict) + Vitest + Zod** harness. `src/engine/` has **zero Devvit imports** (pure, unit-testable); `src/sim/` generates the `DayVector[]` whose schema IS the real collector's future contract.
 - **Working environment**: integrates **Claude Context OS v4** (session/handoff discipline — `templates/`, `docs/context/`, `docs/summaries/`, `.claude/commands/`) and a repo-wide **Zod + Plan-Mode standard** embedded at the top of root `CLAUDE.md` (mirrored to `agents.md` via symlink). GSD owns `.planning/`; context-os owns `CLAUDE.md`.
+- **North-star vision (post-MVP)**: beyond a single community's universe, a **connected multiverse** — many subreddit "galaxies" that owners can opt-in link into shared "quadrants" (curated regions of Reddit), with graphical travel between linked universes (Star-Trek-quadrant feel). Each community keeps its own sovereign universe (invariant I-4 holds); linking is a **consent-based meta-layer** on top — no default connection, owner-initiated or owner-permitted only. This shapes the camera/LOD design as an additional **outer zoom tier**: multiverse → galaxy (subreddit) → daily shell → star (post). Not built this milestone, but the Scene/Camera contracts are kept embeddable so it isn't designed out. **Open design questions (deferred to that milestone, to discuss with the user before building it):** (1) is linking bidirectional — both owners consent — or invite-and-join; (2) who defines a "quadrant" — the inviting owner, a curated list, or thematic grouping; (3) free travel between all linked galaxies vs only along established link edges (a star-map graph). General directive: **build everything flexibly now so none of these become blockers later.**
 
 ## Constraints
 
@@ -79,6 +85,7 @@ The community's real activity becomes a beautiful, **legible, deterministic** un
 | Concentric shells as foundation, spiral only as texture | D-2 — legibility first | — Pending |
 | One element = thread/post | D-3 — most tangible deep-zoom unit | — Pending |
 | GSD owns `.planning/`; Context-OS owns root `CLAUDE.md`; skip GSD's CLAUDE.md generator | User decision — avoid competing instruction files; context-os + Zod standard is the authority | — Pending |
+| Keep Scene/Camera contracts embeddable in a future connected multiverse (subreddits as galaxies, opt-in links, ST-quadrant regions) | User's north-star vision; consent-based linking preserves per-community sovereignty (I-4) and avoids a costly later rewrite of camera/scene/coordinate model | — Pending |
 
 ## Evolution
 
