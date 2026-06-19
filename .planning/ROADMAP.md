@@ -69,10 +69,21 @@ Decimal phases appear between their surrounding integers in numeric order.
 **UI hint**: yes
 
 Plans:
+**Wave 1**
+
 - [ ] 02-01-PLAN.md — Wave-0 setup (styles/sim build coverage + separate dev-page Vite entry + Painter seam + glow/bake primitives) + thinnest end-to-end Scene→Phaser render slice
 - [ ] 02-02-PLAN.md — The data simulator: scripted 30-day beats + generateDayVectors with the single DayVectorSchema.parse() boundary, seed-deterministic (TDD)
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
 - [ ] 02-03-PLAN.md — Full mock-parity Techno paint + Crystalline StyleTemplate + prefers-reduced-motion static frame
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
 - [ ] 02-04-PLAN.md — Camera + depth scrubber + pinch/scroll/click navigation + always-visible HUD readout (with frontier goal line)
+
+**Wave 4** *(blocked on Wave 3 completion)*
+
 - [ ] 02-05-PLAN.md — Steering nudges + the complete dev-page control harness (regenerate, seed field, genome-preset selector)
 
 ### Phase 3: Devvit Scaffold + Data Layer
