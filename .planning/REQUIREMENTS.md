@@ -112,6 +112,48 @@
 
 ## Traceability
 
-<!-- Filled by the roadmapper: REQ-ID → Phase. -->
-
-(pending roadmap)
+| Requirement | Phase | Status |
+|-------------|-------|--------|
+| ENG-01 | Phase 1: Engine Foundation | Pending |
+| ENG-02 | Phase 1: Engine Foundation | Pending |
+| ENG-03 | Phase 1: Engine Foundation | Pending |
+| ENG-04 | Phase 1: Engine Foundation | Pending |
+| TPL-01 | Phase 1: Engine Foundation | Pending |
+| TPL-02 | Phase 1: Engine Foundation | Pending |
+| TPL-03 | Phase 1: Engine Foundation | Pending |
+| TPL-04 | Phase 1: Engine Foundation | Pending |
+| SYN-01 | Phase 1: Engine Foundation | Pending |
+| SYN-02 | Phase 1: Engine Foundation | Pending |
+| SYN-03 | Phase 1: Engine Foundation | Pending |
+| SYN-04 | Phase 1: Engine Foundation | Pending |
+| PNT-01 | Phase 2: Visual Engine + Simulator | Pending |
+| PNT-02 | Phase 2: Visual Engine + Simulator | Pending |
+| PNT-03 | Phase 2: Visual Engine + Simulator | Pending |
+| PNT-04 | Phase 2: Visual Engine + Simulator | Pending |
+| CAM-01 | Phase 2: Visual Engine + Simulator | Pending |
+| CAM-02 | Phase 2: Visual Engine + Simulator | Pending |
+| CAM-03 | Phase 2: Visual Engine + Simulator | Pending |
+| CAM-04 | Phase 2: Visual Engine + Simulator | Pending |
+| STR-01 | Phase 2: Visual Engine + Simulator | Pending |
+| STR-02 | Phase 2: Visual Engine + Simulator | Pending |
+| SIM-01 | Phase 2: Visual Engine + Simulator | Pending |
+| SIM-02 | Phase 2: Visual Engine + Simulator | Pending |
+| SIM-03 | Phase 2: Visual Engine + Simulator | Pending |
+| QA-01 | Phase 2: Visual Engine + Simulator | Pending |
+| QA-02 | Phase 2: Visual Engine + Simulator | Pending |
+| QA-03 | Phase 2: Visual Engine + Simulator | Pending |
+| DEV-01 | Phase 3: Devvit Scaffold + Data Layer | Pending |
+| DEV-02 | Phase 3: Devvit Scaffold + Data Layer | Pending |
+| DEV-03 | Phase 3: Devvit Scaffold + Data Layer | Pending |
+| DEV-04 | Phase 3: Devvit Scaffold + Data Layer | Pending |
+| DEV-05 | Phase 3: Devvit Scaffold + Data Layer | Pending |
+| DEV-06 | Phase 3: Devvit Scaffold + Data Layer | Pending |
+| LIVE-01 | Phase 4: Live Game | Pending |
+| LIVE-02 | Phase 4: Live Game | Pending |
+| LIVE-03 | Phase 4: Live Game | Pending |
+| SUB-01 | Phase 5: Submit | Pending |
+| SUB-02 | Phase 5: Submit | Pending |
+| SUB-03 | Phase 5: Submit | Pending |
+| SUB-04 | Phase 5: Submit | Pending |
+| SUB-05 | Phase 5: Submit | Pending |
+| SUB-06 | Phase 5: Submit | Pending |
