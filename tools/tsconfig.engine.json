@@ -5,10 +5,14 @@
 
     "outDir": "../dist/types/engine",
 
-    "tsBuildInfoFile": "../dist/types/engine/tsconfig.tsbuildinfo",
+    "tsBuildInfoFile": "../dist/types/engine/tsconfig.tsbuildinfo"
 
-    "rootDir": "../src/engine"
+    // No explicit rootDir: the engine source lives in ../src/engine and its
+    // tests pull the shared fixture module from ../tests/fixtures.ts. TS infers
+    // the rootDir from the included files; emit (type-only, never consumed)
+    // lands under outDir. Keeping tests/fixtures.ts in the project satisfies the
+    // composite "list all files" rule so `tsc --build` stays green.
   },
-  "include": ["../src/engine/**/*"],
+  "include": ["../src/engine/**/*", "../tests/**/*"],
   "exclude": []
 }
