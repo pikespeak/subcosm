@@ -1,29 +1,44 @@
 // CosmosScene — the Phaser.Scene that paints a synthesized Scene to pixels.
 //
-// The thinnest end-to-end paint slice (plan 02-01): draw the genesis core +
-// the frontier shell's stars as tinted additive glows (primitives.ts). Fuller
-// shell parity, the frontier rAF animation, and bake-on-freeze land in plan 03.
+// The draw itself lives in paint.ts (full mock parity: nebula, stars, frontier
+// ignite, genesis core, vignette — all from StyleTemplate data, PNT-01/PNT-02).
+// This Scene owns the lifecycle: lay the universe in on create/resize, then in
+// update() animate ONLY the live frontier (shells[0]) — the pulsing ignite ring +
+// star twinkle — while every frozen shell stays as its baked Image (PNT-03).
 //
 // Contract discipline (ENG-02): this Scene reads only the engine `Scene`
-// (geometry, hue is a 0..1 hint) + the `StyleTemplate` (look). It NEVER reaches
-// back for a raw DayVector. Hue → color is resolved here through the palette
-// ramp — paint maps hue to color, never the reverse.
+// (geometry; hue is a 0..1 hint) + the `StyleTemplate` (look). It NEVER reaches
+// back for a raw DayVector. Hue → color is resolved in paint.ts through the ramp.
+//
+// Accessibility (PNT-04): reduced-motion.ts decides whether the frontier animates
+// at all; under prefers-reduced-motion the whole surface is a single static,
+// non-strobe frame and the update loop stops.
 import * as Phaser from 'phaser';
 import type { Scene as CosmosSceneData, StyleTemplate } from '../../engine/contracts';
-import { addGlow, ensureGlowTexture } from './primitives';
+import {
+  SPACE_BG,
+  buildRamp,
+  computeFrame,
+  drawIgniteRing,
+  paintScene,
+  type PaintFrame,
+  type PaintResult,
+} from './paint';
+import { prefersReducedMotion, watchReducedMotion } from './reduced-motion';
 
 export interface CosmosSceneInit {
   scene: CosmosSceneData;
   style: StyleTemplate;
 }
 
-/** Background space color (UI-SPEC dominant: near-black space stage). */
-const SPACE_BG = 0x04030a;
-
 export class CosmosScene extends Phaser.Scene {
   private cosmos!: CosmosSceneData;
   private style!: StyleTemplate;
   private ramp: number[] = [];
+  private frame!: PaintFrame;
+  private paintResult: PaintResult | null = null;
+  private animate = true;
+  private stopWatchingMotion: (() => void) | null = null;
 
   constructor() {
     super('Cosmos');
@@ -33,83 +48,78 @@ export class CosmosScene extends Phaser.Scene {
   init(data: CosmosSceneInit): void {
     this.cosmos = data.scene;
     this.style = data.style;
-    this.ramp = this.style.palette.ramp.map((hex) =>
-      Phaser.Display.Color.HexStringToColor(hex).color,
-    );
+    this.ramp = buildRamp(this.style);
   }
 
   create(): void {
     const cam = this.cameras.main;
     cam.setBackgroundColor(SPACE_BG);
 
-    ensureGlowTexture(this);
-    this.paint(this.scale.width, this.scale.height);
+    // PNT-04: only animate when the user has NOT requested reduced motion AND the
+    // style says the frontier animates. Otherwise the whole surface is static.
+    this.animate = this.style.motion.frontierOnly && !prefersReducedMotion();
+
+    this.layout(this.scale.width, this.scale.height);
 
     this.scale.on('resize', (size: Phaser.Structs.Size) => {
-      // Cheapest correct response for this slice: resize the camera and repaint.
       this.cameras.resize(size.width, size.height);
-      this.paintReset();
-      this.paint(size.width, size.height);
+      this.children.removeAll(true);
+      this.layout(size.width, size.height);
     });
+
+    // React live to a prefers-reduced-motion change (PNT-04): re-decide and
+    // re-lay the universe so toggling the OS setting flips between animated and a
+    // single static, non-strobe frame without a reload.
+    this.stopWatchingMotion = watchReducedMotion((reduced) => {
+      this.animate = this.style.motion.frontierOnly && !reduced;
+      this.children.removeAll(true);
+      this.layout(this.scale.width, this.scale.height);
+    });
+    this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => this.stopWatchingMotion?.());
+    this.events.once(Phaser.Scenes.Events.DESTROY, () => this.stopWatchingMotion?.());
   }
 
-  /** Clear previously drawn glows (full re-layout on resize for this slice). */
-  private paintReset(): void {
-    this.children.removeAll(true);
+  /** Lay the whole universe into the viewport and draw the initial frame. */
+  private layout(width: number, height: number): void {
+    this.frame = computeFrame(width, height);
+    this.paintResult = paintScene(this, this.cosmos, this.style, this.frame);
+
+    // Always draw one frontier frame up front. Under reduced-motion this is the
+    // FINAL frame too: ignite fully on (pulse=1), no twinkle, no further updates
+    // (PNT-04 — a static, non-strobe surface).
+    this.renderFrontier(0, this.animate ? 0.8 : 1, this.animate ? 1 : 1);
   }
 
-  /** Paint the genesis core + frontier shell stars into the current viewport. */
-  private paint(width: number, height: number): void {
-    const cx = width / 2;
-    const cy = height / 2;
-    // Map the normalized radii (0..1) onto the smaller screen half-extent so the
-    // whole universe fits with margin (mock uses ~0.95 of min dimension).
-    const rMax = Math.min(width, height) * 0.46;
-    const fillAlpha = this.style.fill.alpha;
+  /**
+   * update — re-render ONLY the live frontier each frame (PNT-03): the pulsing
+   * ignite ring + a gentle star twinkle, scaled by StyleTemplate.motion.speed.
+   * Frozen shells are baked Images and are never touched here. Skipped entirely
+   * when `this.animate` is false (reduced-motion: the static frame already drawn).
+   */
+  override update(time: number): void {
+    if (!this.animate || !this.paintResult) return;
+    const speed = this.style.motion.speed;
+    // Pulsing ignite (mock l.227: 0.55 + 0.45*sin) and star twinkle (mock l.234).
+    const pulse = 0.55 + 0.45 * Math.sin(time * 0.0022 * speed);
+    const twinkle = 0.72 + 0.28 * Math.sin(time * 0.004 * speed);
+    this.renderFrontier(time, pulse, twinkle);
+  }
 
-    // --- frontier shell (shells[0] — outermost, radius pow(0.85,0)=1) ---
-    const frontier = this.cosmos.shells[0];
-    if (frontier) {
-      const shellR = frontier.radius * rMax;
-      for (const el of frontier.elements) {
-        const x = cx + Math.cos(el.angle) * shellR * el.r;
-        const y = cy + Math.sin(el.angle) * shellR * el.r;
-        const color = this.hueToColor(el.hue);
-        // size is a small normalized factor; scale into px and brighten "big".
-        const glowR = Math.max(2, el.size * rMax * 0.08) * (el.big ? 1.6 : 1);
-        addGlow(this, x, y, glowR, color, fillAlpha * (0.6 + el.energy * 0.4));
-      }
+  /**
+   * Draw the frontier frame: the ignite ring at the given pulse + the frontier
+   * stars at the given twinkle. `pulse`/`twinkle` are 1 for the static
+   * reduced-motion frame (no animation).
+   */
+  private renderFrontier(_time: number, pulse: number, twinkle: number): void {
+    const result = this.paintResult;
+    if (!result) return;
+    drawIgniteRing(result.igniteGraphics, this.style, this.ramp, this.frame, result.frontierRadius, pulse);
+    // Star twinkle: a cheap per-frame alpha breath on the live frontier stars
+    // only (frozen shells are baked, untouched — PNT-03). Both Image and Star
+    // implement the Alpha component, so setAlpha is always present.
+    const twinkleAlpha = Math.min(1, this.style.fill.alpha + 0.3) * twinkle;
+    for (const obj of result.frontierStars) {
+      obj.setAlpha(twinkleAlpha);
     }
-
-    // --- genesis core (large warm-white glow + bright dot) ---
-    const core = this.cosmos.core;
-    const coreColor = this.hueToColor(core.hue);
-    const coreGlowR = Math.max(40, core.radius * rMax * 6);
-    addGlow(this, cx, cy, coreGlowR, this.warmWhite(), 0.9);
-    addGlow(this, cx, cy, coreGlowR * 0.45, coreColor, 0.7 + core.energy * 0.2);
-    // Bright core dot on top.
-    addGlow(this, cx, cy, Math.max(6, core.radius * rMax), this.warmWhite(), 1);
-  }
-
-  /** Resolve a 0..1 hue hint to a palette color by interpolating the ramp. */
-  private hueToColor(hue: number): number {
-    const ramp = this.ramp;
-    if (ramp.length === 0) return 0xffffff;
-    if (ramp.length === 1) return ramp[0]!;
-    const clamped = Math.min(0.999999, Math.max(0, hue));
-    const scaled = clamped * (ramp.length - 1);
-    const i = Math.floor(scaled);
-    const t = scaled - i;
-    const a = Phaser.Display.Color.IntegerToColor(ramp[i]!);
-    const b = Phaser.Display.Color.IntegerToColor(ramp[i + 1]!);
-    const r = Math.round(Phaser.Math.Linear(a.red, b.red, t));
-    const g = Math.round(Phaser.Math.Linear(a.green, b.green, t));
-    const bl = Math.round(Phaser.Math.Linear(a.blue, b.blue, t));
-    return Phaser.Display.Color.GetColor(r, g, bl);
-  }
-
-  /** The warm-white core stop (last ramp entry, or white). */
-  private warmWhite(): number {
-    return this.ramp.length > 0 ? this.ramp[this.ramp.length - 1]! : 0xffffff;
   }
 }
