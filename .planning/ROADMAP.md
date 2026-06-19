@@ -65,7 +65,7 @@ Decimal phases appear between their surrounding integers in numeric order.
   5. The camera/coordinate model is verified (design review, not implementation) to not preclude an outer zoom tier for a future multiverse — no hardcoded assumptions that would make adding a galaxy-level zoom impossible
   6. `prefers-reduced-motion` produces a static render with no animation or strobe; `npm test` and `npm run build` both pass green
 
-**Plans**: 2/5 plans executed
+**Plans**: 3/5 plans executed
 **UI hint**: yes
 
 Plans:
@@ -76,7 +76,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 02-03-PLAN.md — Full mock-parity Techno paint + Crystalline StyleTemplate + prefers-reduced-motion static frame
+- [x] 02-03-PLAN.md — Full mock-parity Techno paint + Crystalline StyleTemplate + prefers-reduced-motion static frame
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
@@ -139,7 +139,7 @@ Plans:
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Engine Foundation | 3/3 | Complete    | 2026-06-19 |
-| 2. Visual Engine + Simulator | 2/5 | In Progress|  |
+| 2. Visual Engine + Simulator | 3/5 | In Progress|  |
 | 3. Devvit Scaffold + Data Layer | 0/TBD | Not started | - |
 | 4. Live Game | 0/TBD | Not started | - |
 | 5. Submit | 0/TBD | Not started | - |

@@ -36,7 +36,7 @@
 - [x] **PNT-01**: A Techno **Phaser** (WebGL) paint module renders a Scene at visual parity with `docs/subcosm-universe-mock.html` (genesis core, concentric shells, nebula, frontier ignite, vignette); visual reference `docs/subcosm.png`. Phaser is the paint layer behind the `Scene` seam — `src/engine/synthesis` stays Phaser-free.
 - [x] **PNT-02**: All Techno look constants come from a `StyleTemplate` data object, not hard-coded in paint.
 - [x] **PNT-03**: Mobile-perf foundations from day one (Phaser/WebGL): frozen shells baked to `RenderTexture` (only the live frontier re-renders per frame), reused textures/geometry instead of per-star reallocation, capped resolution/DPR — hold ~60fps in the post viewport.
-- [ ] **PNT-04**: Paint honors `prefers-reduced-motion` — static render, no strobe/ignite.
+- [x] **PNT-04**: Paint honors `prefers-reduced-motion` — static render, no strobe/ignite.
 
 #### Camera & Navigation (CAM)
 
@@ -157,7 +157,7 @@
 | PNT-01 | Phase 2: Visual Engine + Simulator | Complete |
 | PNT-02 | Phase 2: Visual Engine + Simulator | Complete |
 | PNT-03 | Phase 2: Visual Engine + Simulator | Complete |
-| PNT-04 | Phase 2: Visual Engine + Simulator | Pending |
+| PNT-04 | Phase 2: Visual Engine + Simulator | Complete |
 | CAM-01 | Phase 2: Visual Engine + Simulator | Pending |
 | CAM-02 | Phase 2: Visual Engine + Simulator | Pending |
 | CAM-03 | Phase 2: Visual Engine + Simulator | Pending |
