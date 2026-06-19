@@ -21,3 +21,4 @@ output/
 *.swp
 .vscode/
 .idea/
+/.codex
