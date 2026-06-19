@@ -462,22 +462,25 @@ test("same DayVector[] yields diverging Scenes across presets", () => {
 | A4 | The `render(...)` orchestrator (ENG-04) ships as a typed stub in Phase 1 (synthesis wired, paint/camera not) | phase_requirements ENG-04 | MEDIUM — ENG-04 is listed as a Phase-1 REQ but its full body (scrub/nudge/regenerate/destroy) depends on paint+camera (Phase 2). Recommend stub now; **flag for user confirmation** that a stub satisfies ENG-01..05 acceptance for this phase. |
 | A5 | Co-locating `*.test.ts` next to source vs a `tests/` dir is free choice; Vitest discovers both | project structure | LOW — purely organizational. |
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **ENG-04 scope boundary (the one real ambiguity).**
    - What we know: ENG-04 ("single `render()` orchestrates synthesis → paint → camera, exposes scrub/nudge/regenerate/destroy") is assigned to Phase 1, but paint and camera are explicitly Phase 2.
    - What's unclear: whether the phase's Definition-of-Done requires the *full* `render` API or just the synthesis-wired stub + the typed signature.
    - Recommendation: ship `render(days, genome, style)` as a typed stub that calls `synthesize` and returns/holds a `Scene`, with `scrub/nudge/regenerate/destroy` declared but throwing/`TODO`-stubbed. Phase 2 fills the body. **Confirm with user during planning** (A4).
+   - **RESOLVED:** Resolved in Plan 02 (Task 2) — render-stub scope adopted per Assumption A4 / this Open Q1: typed signature + synthesis wired, `scrub/nudge/regenerate/destroy` bodies deferred to Phase 2.
 
 2. **Hue-hint derivation.**
    - What we know: Scene must stay style-agnostic; the mock uses a raw `hue` degree per era.
    - What's unclear: exact 0–1 hue-hint formula from `DayVector` (theme hash? momentum? a Genome palette index?).
    - Recommendation: derive a deterministic 0–1 hint (e.g. hash of `dominantTheme` or a genome-driven base) and let Phase-2 paint map it through `StyleTemplate.palette`. Keep it simple; it only needs to be deterministic + visibly varied.
+   - **RESOLVED:** Falls under the Claude's-discretion grant in CONTEXT.md — derive a deterministic 0..1 hint from `dominantTheme`/steering (exact formula is Claude's discretion); Phase 2 paint maps it through `StyleTemplate.palette`.
 
 3. **Crystalline genome values.**
    - What we know: D-01 — Crystalline = high symmetry + inheritance; final palette is Phase 2.
    - What's unclear: precise numeric knobs.
    - Recommendation: set `volatility` low, `inheritance` high, symmetry/arms knobs high; tune so `presets.test.ts` shows visible divergence from Calm/Chaotic. Numbers are Claude's discretion.
+   - **RESOLVED:** Crystalline preset existence fixed by D-01 (high symmetry + inheritance); precise numeric knobs are Claude's discretion per the CONTEXT.md grant (tuned for visible cross-preset divergence in Plan 03).
 
 ## Environment Availability
 
