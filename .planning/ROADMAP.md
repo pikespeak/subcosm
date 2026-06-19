@@ -101,7 +101,15 @@ Plans:
   4. The 60fps rule is preserved — only the live frontier re-renders per frame; frozen shells stay baked to texture
   5. `prefers-reduced-motion` still produces a static render with no animation or strobe
 
-**Plans**: TBD
+**Plans**: 2 plans
+
+**Wave 1**
+
+- [ ] 02.1-01-PLAN.md — VIS-DEPTH: clamped-min-gap radius falloff + per-shell `weight` fade (synthesis-side; re-baselines the golden snapshot once) so every shell reads distinctly to the core
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
+- [ ] 02.1-02-PLAN.md — VIS-ANIM: data-driven ignite (`igniteParams`: conflict→amplitude/hardness, energy→tempo, no-strobe) + baked per-day frozen-shell signature (paint-side; no contract change)
 
 ### Phase 3: Devvit Scaffold + Data Layer
 
@@ -157,7 +165,7 @@ Plans:
 |-------|----------------|--------|-----------|
 | 1. Engine Foundation | 3/3 | Complete    | 2026-06-19 |
 | 2. Visual Engine + Simulator | 5/5 | Complete    | 2026-06-19 |
-| 2.1. Visual Depth & Animation Polish | 0/TBD | Not started | - |
+| 2.1. Visual Depth & Animation Polish | 0/2 | Not started | - |
 | 3. Devvit Scaffold + Data Layer | 0/TBD | Not started | - |
 | 4. Live Game | 0/TBD | Not started | - |
 | 5. Submit | 0/TBD | Not started | - |
