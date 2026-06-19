@@ -21,21 +21,22 @@
   "dependencies": {
     "@devvit/start": "0.13.4",
     "@devvit/web": "0.13.4",
-    "@hono/node-server": "2.0.3",
+    "@eslint/plugin-kit": "^0.7.2",
+    "@hono/node-server": "^2.0.5",
     "devvit": "0.13.4",
-    "hono": "4.12.21",
-    "phaser": "4.1.0",
+    "hono": "^4.12.26",
+    "phaser": "^4.2.0",
     "zod": "4.4.3"
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",
     "@types/node": "^22.19.19",
-    "eslint": "10.4.0",
+    "eslint": "^10.5.0",
     "globals": "17.6.0",
-    "prettier": "3.8.3",
+    "prettier": "^3.8.4",
     "typescript": "6.0.3",
-    "typescript-eslint": "8.59.4",
-    "vite": "8.0.13",
+    "typescript-eslint": "^8.61.1",
+    "vite": "^8.0.16",
     "vitest": "4.1.9"
   }
 }
