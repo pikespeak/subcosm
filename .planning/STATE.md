@@ -2,17 +2,17 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-current_phase: 3
-current_phase_name: Devvit Scaffold + Data Layer
-status: Phase 2 plans executed (5/5); ready to validate/advance phase
-stopped_at: Phase 2.1 context gathered
-last_updated: "2026-06-19T20:50:37.457Z"
-last_activity: 2026-06-19
-last_activity_desc: Phase 02 complete, transitioned to Phase 3
+current_phase: 2.1
+current_phase_name: Visual Depth & Animation Polish
+status: Phase 2.1 planned (2 plans, 2 waves); ready to execute
+stopped_at: Phase 2.1 plans created — 02.1-01 (VIS-DEPTH) + 02.1-02 (VIS-ANIM)
+last_updated: "2026-06-20T00:00:00.000Z"
+last_activity: 2026-06-20
+last_activity_desc: Phase 2.1 planned — 2 plans ready to execute (Phase 3 deferred until 2.1 ships)
 progress:
   total_phases: 6
   completed_phases: 2
-  total_plans: 8
+  total_plans: 10
   completed_plans: 8
   percent: 33
 ---
