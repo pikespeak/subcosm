@@ -16,7 +16,7 @@ The daily game loop (GAME-01..05) is built staged: the goal + personal-layer fie
 Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Engine Foundation** - Zod contracts (including goal + personal-layer fields), seeded RNG, genome/style-as-data template engine, and deterministic synthesis — the typed core everything else depends on (completed 2026-06-19)
-- [ ] **Phase 2: Visual Engine + Simulator** - Techno Canvas2D paint at mock parity, camera + depth scrubber + legibility readout (including day's goal), steering nudges, data simulator, and the dev harness — the complete standalone visual demo
+- [x] **Phase 2: Visual Engine + Simulator** - Techno Canvas2D paint at mock parity, camera + depth scrubber + legibility readout (including day's goal), steering nudges, data simulator, and the dev harness — the complete standalone visual demo (completed 2026-06-19)
 - [ ] **Phase 3: Devvit Scaffold + Data Layer** - Devvit Web app scaffold, Reddit triggers → Redis aggregation, hourly UTC scheduler tick, genome at install via settings — the Reddit wiring
 - [ ] **Phase 4: Live Game** - Live frontier fills during the day, freezes overnight irreversibly, the tick scores the day against its goal (GAME-02/03/04), and a pinned reveal post shows what the community's universe became — the full retention loop
 - [ ] **Phase 5: Submit** - Mobile polish, onboarding (including goal→steer→reveal loop legibility), published app listing, public playable demo post, Devpost write-up — the submission package
@@ -65,7 +65,7 @@ Decimal phases appear between their surrounding integers in numeric order.
   5. The camera/coordinate model is verified (design review, not implementation) to not preclude an outer zoom tier for a future multiverse — no hardcoded assumptions that would make adding a galaxy-level zoom impossible
   6. `prefers-reduced-motion` produces a static render with no animation or strobe; `npm test` and `npm run build` both pass green
 
-**Plans**: 4/5 plans executed
+**Plans**: 5/5 plans complete
 **UI hint**: yes
 
 Plans:
@@ -84,7 +84,7 @@ Plans:
 
 **Wave 4** *(blocked on Wave 3 completion)*
 
-- [ ] 02-05-PLAN.md — Steering nudges + the complete dev-page control harness (regenerate, seed field, genome-preset selector)
+- [x] 02-05-PLAN.md — Steering nudges + the complete dev-page control harness (regenerate, seed field, genome-preset selector)
 
 ### Phase 3: Devvit Scaffold + Data Layer
 
@@ -139,7 +139,7 @@ Plans:
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Engine Foundation | 3/3 | Complete    | 2026-06-19 |
-| 2. Visual Engine + Simulator | 4/5 | In Progress|  |
+| 2. Visual Engine + Simulator | 5/5 | Complete   | 2026-06-19 |
 | 3. Devvit Scaffold + Data Layer | 0/TBD | Not started | - |
 | 4. Live Game | 0/TBD | Not started | - |
 | 5. Submit | 0/TBD | Not started | - |

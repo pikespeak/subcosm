@@ -5,16 +5,16 @@ milestone_name: milestone
 current_phase: 02
 current_phase_name: Visual Engine + Simulator
 status: executing
-stopped_at: Completed 02-04 (camera + input + HUD); checkpoint approved
-last_updated: "2026-06-19T19:34:34.170Z"
+stopped_at: Completed 02-05 (steering nudges + dev harness); final demo checkpoint approved after teardown fix — Phase 2 plans 5/5 complete
+last_updated: "2026-06-19T20:14:00.000Z"
 last_activity: 2026-06-19
-last_activity_desc: Completed plan 02-04 (checkpoint approved after trackpad-pinch fix)
+last_activity_desc: Completed plan 02-05 (final demo checkpoint approved after teardown fix); deferred VIS-DEPTH + VIS-ANIM
 progress:
   total_phases: 5
   completed_phases: 1
   total_plans: 8
-  completed_plans: 7
-  percent: 88
+  completed_plans: 8
+  percent: 100
 ---
 
 # Project State
@@ -28,12 +28,12 @@ See: .planning/PROJECT.md (updated 2026-06-19)
 
 ## Current Position
 
-Phase: 02 (Visual Engine + Simulator) — EXECUTING
-Plan: 5 of 5
-Status: Ready to execute
-Last activity: 2026-06-19 — Completed plan 02-04 (checkpoint approved after trackpad-pinch fix)
+Phase: 02 (Visual Engine + Simulator) — ALL PLANS COMPLETE (5/5)
+Plan: 5 of 5 — complete
+Status: Phase 2 plans executed (5/5); ready to validate/advance phase
+Last activity: 2026-06-19 — Completed plan 02-05 (final demo checkpoint approved after teardown fix); VIS-DEPTH + VIS-ANIM deferred
 
-Progress: [█████████░] 88%
+Progress: [██████████] 100%
 
 ## Performance Metrics
 
@@ -62,6 +62,7 @@ Progress: [█████████░] 88%
 | Phase 02 P02 | 5min | 2 tasks | 8 files |
 | Phase 02 P03 | 5min | 3 tasks | 6 files |
 | Phase 02 P04 | 35min | 2 tasks | 8 files |
+| Phase 02 P05 | ~14min | 2 tasks + checkpoint | 6 files |
 
 ## Accumulated Context
 
@@ -87,6 +88,9 @@ Recent decisions affecting current work:
 - [Phase 02]: Plan 02-04: CameraController is the sole owner of view state — scrub/focus are camera-only and never re-synthesize (CAM-01 determinism guard)
 - [Phase 02]: Plan 02-04: trackpad pinch handled as ctrl+wheel with preventDefault (browser convention); fixed incidental deltaX->deltaY wheel-axis bug
 - [Phase 02]: Plan 02-04: day-1/day-44 visual sameness is fixture-bound (2-day dev-fixture), not a bug — full depth fly-through re-judged in 02-05 with the 30-day simulator
+- [Phase 02]: Plan 02-05: render() handle bodies delegate to the injected Painter (zero phaser in src/engine); nudge biases the frontier steering MEAN (× steerGain) and re-synthesizes only shells[0] — frozen shells never re-baked (STR-01/STR-02, ENG-04)
+- [Phase 02]: Plan 02-05: every regenerate/preset/seed change tears down the prior render — exactly one HUD/canvas/rAF-loop/wheel-listener (lifecycle hygiene fix d81fb20)
+- [Phase 02]: Plan 02-05: VIS-DEPTH + VIS-ANIM visual-quality enhancements deferred to a dedicated follow-up plan (paint/synthesis/animation NOT changed in the finalize run)
 
 ### Pending Todos
 
@@ -102,6 +106,8 @@ None yet.
 
 | Category | Item | Status | Deferred At |
 |----------|------|--------|-------------|
+| Polish/Follow-up | VIS-DEPTH — rework shell radius/spacing geometry so earlier/frozen days read distinctly (radius=pow(0.85,idx) crushes old shells into a faint central blob) | Planned-next | 02-05 |
+| Polish/Follow-up | VIS-ANIM — make the frontier ignite pulse data-driven from day metrics (conflict/energy/momentum) instead of a uniform StyleTemplate-constant sine | Planned-next | 02-05 |
 | Stretch | Comic + Pixel StyleTemplates | Stretch only | Roadmap |
 | Stretch | Full Signal→Param weight matrix + rare events | Stretch only | Roadmap |
 | Stretch | Phaser/fbm WebGL shader layer (Best-Use-of-Phaser prize) | Stretch only | Roadmap |
@@ -110,6 +116,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-06-19T19:34:07.973Z
-Stopped at: Completed 02-04-PLAN.md (camera + input + HUD); checkpoint approved after trackpad-pinch fix
-Resume file: .planning/phases/02-visual-engine-simulator/02-05-PLAN.md
+Last session: 2026-06-19T20:14:00.000Z
+Stopped at: Completed 02-05-PLAN.md (steering nudges + dev harness); final demo checkpoint approved after teardown fix — Phase 2 plans 5/5 complete; VIS-DEPTH + VIS-ANIM deferred
+Resume file: None (Phase 2 plans complete — validate/advance phase next)

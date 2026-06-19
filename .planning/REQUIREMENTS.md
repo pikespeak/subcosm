@@ -47,8 +47,8 @@
 
 #### Steering / Front Nudges (STR)
 
-- [ ] **STR-01**: Nudge controls (branch / symmetry / hue) re-synthesize the live frontier visibly.
-- [ ] **STR-02**: Nudges bias the **mean** of the affected parameter only; the result is still diced around it.
+- [x] **STR-01**: Nudge controls (branch / symmetry / hue) re-synthesize the live frontier visibly.
+- [x] **STR-02**: Nudges bias the **mean** of the affected parameter only; the result is still diced around it.
 
 #### Data Simulator (SIM)
 
@@ -162,8 +162,8 @@
 | CAM-02 | Phase 2: Visual Engine + Simulator | Complete |
 | CAM-03 | Phase 2: Visual Engine + Simulator | Complete |
 | CAM-04 | Phase 2: Visual Engine + Simulator | Complete |
-| STR-01 | Phase 2: Visual Engine + Simulator | Pending |
-| STR-02 | Phase 2: Visual Engine + Simulator | Pending |
+| STR-01 | Phase 2: Visual Engine + Simulator | Complete |
+| STR-02 | Phase 2: Visual Engine + Simulator | Complete |
 | SIM-01 | Phase 2: Visual Engine + Simulator | Complete |
 | SIM-02 | Phase 2: Visual Engine + Simulator | Complete |
 | SIM-03 | Phase 2: Visual Engine + Simulator | Complete |
