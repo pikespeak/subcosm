@@ -120,7 +120,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Engine Foundation | 3/3 | Complete   | 2026-06-19 |
+| 1. Engine Foundation | 3/3 | Complete    | 2026-06-19 |
 | 2. Visual Engine + Simulator | 0/TBD | Not started | - |
 | 3. Devvit Scaffold + Data Layer | 0/TBD | Not started | - |
 | 4. Live Game | 0/TBD | Not started | - |
