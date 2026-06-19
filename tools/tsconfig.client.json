@@ -12,6 +12,12 @@
   "references": [
     {
       "path": "./tsconfig.shared.json"
+    },
+    {
+      "path": "./tsconfig.engine.json"
+    },
+    {
+      "path": "./tsconfig.styles.json"
     }
   ]
 }

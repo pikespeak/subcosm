@@ -21,6 +21,6 @@ export default defineConfig({
   },
   server: {
     port: 5180,
-    open: true,
+    open: '/cosmos-dev.html',
   },
 });
