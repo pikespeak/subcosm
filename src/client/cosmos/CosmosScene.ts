@@ -21,6 +21,7 @@ import {
   computeFrame,
   drawIgniteRing,
   paintScene,
+  repaintFrontierLayer,
   type PaintFrame,
   type PaintResult,
 } from './paint';
@@ -99,6 +100,33 @@ export class CosmosScene extends Phaser.Scene {
     });
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => this.stopWatchingMotion?.());
     this.events.once(Phaser.Scenes.Events.DESTROY, () => this.stopWatchingMotion?.());
+  }
+
+  /**
+   * Repaint ONLY the live frontier shell after a steering nudge (STR-01 / PNT-03).
+   * Swaps shells[0] for the freshly re-synthesized frontier, destroys the old
+   * frontier star objects, and redraws just that layer — the baked frozen shells
+   * and the genesis core are never re-rendered (RESEARCH Pattern 5). The nudge
+   * biased the MEAN; synthesis already diced the new positions (STR-02).
+   */
+  repaintFrontier(frontier: CosmosSceneData['shells'][number]): void {
+    if (!this.paintResult) return;
+    // Update the stored Scene's frontier so a later resize re-lays the nudged
+    // frontier (read-only swap of shells[0]; frozen shells stay identical).
+    this.cosmos = { ...this.cosmos, shells: [frontier, ...this.cosmos.shells.slice(1)] };
+
+    const newStars = repaintFrontierLayer(
+      this,
+      frontier,
+      this.paintResult.frontierStars,
+      this.frame,
+      this.style,
+    );
+    this.paintResult = { ...this.paintResult, frontier, frontierStars: newStars };
+
+    // Draw one frontier frame immediately so the nudge is visible even under
+    // reduced-motion (where update() does not run): ignite full-on, no twinkle.
+    this.renderFrontier(0, this.animate ? 0.8 : 1, 1);
   }
 
   /** Lay the whole universe into the viewport and draw the initial frame. */

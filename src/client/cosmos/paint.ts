@@ -267,6 +267,33 @@ export function paintScene(
 }
 
 /**
+ * repaintFrontierLayer — re-draw ONLY the live frontier shell after a steering
+ * nudge (STR-01 / PNT-03). Destroys the previous frontier star objects and
+ * redraws the new frontier shell's stars at the SAME frontier radius — the
+ * frozen shells (baked Images) and the genesis core are never touched. Returns
+ * the fresh star objects so CosmosScene keeps animating the live frontier.
+ *
+ * This is the surgical counterpart to a full `paintScene`: a nudge re-synthesizes
+ * the frontier and lands here; a regenerate re-mounts the whole Scene instead.
+ */
+export function repaintFrontierLayer(
+  scene: Phaser.Scene,
+  frontier: Shell,
+  prevStars: StarObject[],
+  frame: PaintFrame,
+  style: StyleTemplate,
+): StarObject[] {
+  // Tear down the old live frontier stars (NOT the baked frozen shells/core).
+  for (const obj of prevStars) obj.destroy();
+
+  const ramp = buildRamp(style);
+  const facet = usesFacet(style);
+  const frontierRadius = frontier.radius * frame.rMax;
+  if (frontierRadius < 1.5) return [];
+  return drawShell(scene, frontier, frontierRadius, frame, ramp, style, facet);
+}
+
+/**
  * Draw the pulsing frontier ignite ring (mock l.249-252) at the given pulse
  * (0..1). Called every frame by CosmosScene for the frontier ONLY; under
  * reduced-motion it is called once with pulse=1 (fully on, no strobe).

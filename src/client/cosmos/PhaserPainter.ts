@@ -35,9 +35,14 @@ export class PhaserPainter implements Painter {
     }
   }
 
-  /** Plan 03: repaint only the live frontier shell (PNT-03). */
-  repaintFrontier(_frontier: CosmosSceneData['shells'][number]): void {
-    // Frontier rAF animation + bake-on-freeze land in plan 03.
+  /**
+   * Repaint ONLY the live frontier shell after a steering nudge (PNT-03 /
+   * STR-01). Delegates to the CosmosScene, which re-draws just the frontier
+   * layer — the frozen shells stay baked, never re-rendered (RESEARCH Pattern 5).
+   */
+  repaintFrontier(frontier: CosmosSceneData['shells'][number]): void {
+    const scene = this.game.scene.getScene(SCENE_KEY) as CosmosScene | null;
+    scene?.repaintFrontier(frontier);
   }
 
   /**
