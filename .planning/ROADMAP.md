@@ -37,14 +37,14 @@ Decimal phases appear between their surrounding integers in numeric order.
   4. Every TypeScript type for the four contracts is `z.infer` of its Zod schema — no hand-written interfaces exist for DayVector, Scene, Genome, or StyleTemplate
   5. The `Genome` schema includes a `dailyGoal` field (genome-quest data: goal type + target parameter + threshold); `DayVector` includes an `outcome` field (actual values for scoring); `Scene` includes a `goalAchieved` field; a per-user action-budget shape (cap/day count, personal-layer marker) exists in the schema and is distinct from all community-layer fields — verified by schema inspection in tests
 
-**Plans**: 1/3 plans executed
+**Plans**: 2/3 plans executed
 **Wave 1**
 
 - [x] 01-01-PLAN.md — Wave-0 setup (zod+vitest, isolated engine TS project, ESLint determinism boundary) + the four Zod contracts + personal-layer/goal fields
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 01-02-PLAN.md — The deterministic pipeline slice: mulberry32 → synthesize (genShell port) → render() stub → Calm preset, proven byte-identical
+- [x] 01-02-PLAN.md — The deterministic pipeline slice: mulberry32 → synthesize (genShell port) → render() stub → Calm preset, proven byte-identical
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
@@ -120,7 +120,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Engine Foundation | 1/3 | In Progress|  |
+| 1. Engine Foundation | 2/3 | In Progress|  |
 | 2. Visual Engine + Simulator | 0/TBD | Not started | - |
 | 3. Devvit Scaffold + Data Layer | 0/TBD | Not started | - |
 | 4. Live Game | 0/TBD | Not started | - |

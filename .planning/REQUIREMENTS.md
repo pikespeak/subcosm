@@ -13,23 +13,23 @@
 #### Contracts & Engine Seam (ENG)
 
 - [x] **ENG-01**: All four contracts (DayVector, Scene, Genome, StyleTemplate) are **Zod schemas**; every TS type is `z.infer` of its schema (no hand-written interfaces for contract shapes).
-- [ ] **ENG-02**: Synthesis is fully decoupled from paint — synthesis imports no style code, paint reads no raw DayVector. `Scene` is the only seam.
+- [x] **ENG-02**: Synthesis is fully decoupled from paint — synthesis imports no style code, paint reads no raw DayVector. `Scene` is the only seam.
 - [x] **ENG-03**: `src/engine/` has zero Devvit imports and is pure + unit-testable; an ESLint rule bans `Math.random()` and Devvit imports inside `src/engine/`.
-- [ ] **ENG-04**: A single `render(dayVectors, genome, style)` entry orchestrates synthesis → paint → camera and exposes scrub / nudge / regenerate / destroy.
+- [x] **ENG-04**: A single `render(dayVectors, genome, style)` entry orchestrates synthesis → paint → camera and exposes scrub / nudge / regenerate / destroy.
 
 #### Config-Driven Template Engine (TPL)
 
-- [ ] **TPL-01**: A new or altered `Genome` (behaviour/params) or `StyleTemplate` (design/skin) is **pure data** — zero engine-code changes. Both are injected into `render(...)`.
+- [x] **TPL-01**: A new or altered `Genome` (behaviour/params) or `StyleTemplate` (design/skin) is **pure data** — zero engine-code changes. Both are injected into `render(...)`.
 - [x] **TPL-02**: `Genome` carries per-community knobs as data (Signal→Param weight matrix, ranges, volatility, inheritance, `steerGain`, rare-event table, allowed genes, day-boundary, chosen style); `StyleTemplate` carries design as data (substrate, palette, line, fill, texture, gene→primitive, postFX, motion, type).
 - [ ] **TPL-03**: The harness ships **≥2 selectable Genome presets** (e.g. "Calm" vs "Chaotic", same Techno style, different params); switching presets visibly changes the universe from the **same** `DayVector[]`.
 - [x] **TPL-04**: One style per community is genome-driven; the engine never assumes a single hard-coded look.
 
 #### Deterministic Synthesis (SYN)
 
-- [ ] **SYN-01**: Given `DayVector + seed + genomeVersion`, synthesis is deterministic via seeded mulberry32 (one closure per DayVector, fixed consumption order).
-- [ ] **SYN-02**: Two synthesis calls with identical inputs produce a byte-identical Scene (determinism test).
-- [ ] **SYN-03**: Synthesis ports the mock's `genShell()` logic, mapping DayVector fields to shell elements at visual parity with the mock.
-- [ ] **SYN-04**: Changing the data visibly changes the universe (sparse vs dense shells, red conflict turbulence, bright AMA clusters).
+- [x] **SYN-01**: Given `DayVector + seed + genomeVersion`, synthesis is deterministic via seeded mulberry32 (one closure per DayVector, fixed consumption order).
+- [x] **SYN-02**: Two synthesis calls with identical inputs produce a byte-identical Scene (determinism test).
+- [x] **SYN-03**: Synthesis ports the mock's `genShell()` logic, mapping DayVector fields to shell elements at visual parity with the mock.
+- [x] **SYN-04**: Changing the data visibly changes the universe (sparse vs dense shells, red conflict turbulence, bright AMA clusters).
 
 #### Techno Paint (PNT)
 
@@ -141,17 +141,17 @@
 | Requirement | Phase | Status |
 |-------------|-------|--------|
 | ENG-01 | Phase 1: Engine Foundation | Complete |
-| ENG-02 | Phase 1: Engine Foundation | Pending |
+| ENG-02 | Phase 1: Engine Foundation | Complete |
 | ENG-03 | Phase 1: Engine Foundation | Complete |
-| ENG-04 | Phase 1: Engine Foundation | Pending |
-| TPL-01 | Phase 1: Engine Foundation | Pending |
+| ENG-04 | Phase 1: Engine Foundation | Complete |
+| TPL-01 | Phase 1: Engine Foundation | Complete |
 | TPL-02 | Phase 1: Engine Foundation | Complete |
 | TPL-03 | Phase 1: Engine Foundation | Pending |
 | TPL-04 | Phase 1: Engine Foundation | Complete |
-| SYN-01 | Phase 1: Engine Foundation | Pending |
-| SYN-02 | Phase 1: Engine Foundation | Pending |
-| SYN-03 | Phase 1: Engine Foundation | Pending |
-| SYN-04 | Phase 1: Engine Foundation | Pending |
+| SYN-01 | Phase 1: Engine Foundation | Complete |
+| SYN-02 | Phase 1: Engine Foundation | Complete |
+| SYN-03 | Phase 1: Engine Foundation | Complete |
+| SYN-04 | Phase 1: Engine Foundation | Complete |
 | GAME-01 | Phase 1: Engine Foundation | Complete |
 | GAME-05 | Phase 1: Engine Foundation | Complete |
 | PNT-01 | Phase 2: Visual Engine + Simulator | Pending |

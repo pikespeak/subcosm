@@ -6,14 +6,14 @@ current_phase: 01
 current_phase_name: Engine Foundation
 status: executing
 stopped_at: Completed 01-01-PLAN.md
-last_updated: "2026-06-19T15:29:51.834Z"
+last_updated: "2026-06-19T15:43:21.832Z"
 last_activity: 2026-06-19
 last_activity_desc: Phase 01 execution started
 progress:
   total_phases: 5
   completed_phases: 0
   total_plans: 3
-  completed_plans: 1
+  completed_plans: 2
   percent: 0
 ---
 
@@ -29,7 +29,7 @@ See: .planning/PROJECT.md (updated 2026-06-19)
 ## Current Position
 
 Phase: 01 (Engine Foundation) — EXECUTING
-Plan: 2 of 3
+Plan: 3 of 3
 Status: Ready to execute
 Last activity: 2026-06-19 — Phase 01 execution started
 
@@ -56,6 +56,7 @@ Progress: [░░░░░░░░░░] 0%
 
 *Updated after each plan completion*
 | Phase 01 P01 | 7min | 2 tasks | 13 files |
+| Phase 01 P02 | 9min | 2 tasks | 11 files |
 
 ## Accumulated Context
 
@@ -69,6 +70,9 @@ Recent decisions affecting current work:
 - Roadmap: Simulator fused into Phase 2 (Visual Engine) — its output schema IS the DayVector contract
 - [Phase ?]: Plan 01-01: contracts are z.infer-only Zod schemas; engine isolated via dedicated tsconfig + ESLint Math.random/Devvit ban
 - [Phase ?]: Plan 01-01: game-loop hook fields baked in now (dailyGoal/outcome/goalAchieved/actionCap=3); personal layer (ActionBudget) separate from Scene
+- [Phase ?]: Seed each per-day RNG from day.seed (not array index) — Redis-order-safe determinism (SYN-01)
+- [Phase ?]: Element.hue is a deterministic 0..1 hint (FNV-1a theme hash + steering.hue), never a color — Scene stays style-agnostic (ENG-02)
+- [Phase ?]: render() ships as a typed stub (synthesis wired; paint/camera deferred to Phase 2) per resolved Open Question 1 (ENG-04)
 
 ### Pending Todos
 
@@ -92,6 +96,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-06-19T15:29:40.445Z
+Last session: 2026-06-19T15:42:53.234Z
 Stopped at: Completed 01-01-PLAN.md
 Resume file: None
