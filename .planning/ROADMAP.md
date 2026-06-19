@@ -17,6 +17,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Engine Foundation** - Zod contracts (including goal + personal-layer fields), seeded RNG, genome/style-as-data template engine, and deterministic synthesis — the typed core everything else depends on (completed 2026-06-19)
 - [x] **Phase 2: Visual Engine + Simulator** - Techno Canvas2D paint at mock parity, camera + depth scrubber + legibility readout (including day's goal), steering nudges, data simulator, and the dev harness — the complete standalone visual demo (completed 2026-06-19)
+- [ ] **Phase 2.1: Visual Depth & Animation Polish** (INSERTED) - Rework shell depth/spacing geometry so earlier/frozen days read distinctly (no central blob) and make the frontier ignite data-driven from day metrics — the deferred visual-quality pass from 02-05, before any Reddit code
 - [ ] **Phase 3: Devvit Scaffold + Data Layer** - Devvit Web app scaffold, Reddit triggers → Redis aggregation, hourly UTC scheduler tick, genome at install via settings — the Reddit wiring
 - [ ] **Phase 4: Live Game** - Live frontier fills during the day, freezes overnight irreversibly, the tick scores the day against its goal (GAME-02/03/04), and a pinned reveal post shows what the community's universe became — the full retention loop
 - [ ] **Phase 5: Submit** - Mobile polish, onboarding (including goal→steer→reveal loop legibility), published app listing, public playable demo post, Devpost write-up — the submission package
@@ -86,6 +87,22 @@ Plans:
 
 - [x] 02-05-PLAN.md — Steering nudges + the complete dev-page control harness (regenerate, seed field, genome-preset selector)
 
+### Phase 2.1: Visual Depth & Animation Polish (INSERTED)
+
+**Goal**: Earlier/frozen day-shells read distinctly all the way toward the core (no central blob), and the frontier ignite animation is data-driven so different days and communities animate differently — both judged side-by-side vs `docs/subcosm-universe-mock.html` — without breaking determinism, the 60fps "only the frontier animates" rule, or the synthesis/paint contract separation. This is the visual-quality pass deferred from Plan 02-05, done before any Reddit code.
+**Mode:** mvp
+**Depends on**: Phase 2
+**Requirements**: VIS-DEPTH, VIS-ANIM
+**Success Criteria** (what must be TRUE):
+
+  1. Scrubbing from the frontier to day 1, every shell is individually distinguishable — the `radius = Math.pow(0.85, idx)` compression that crushed deep shells into a faint central blob is gone; a side-by-side comparison vs the mock is convincing
+  2. The frontier ignite pulse visibly differs between a high-conflict day, a calm day, and an AMA/energy-spike day — animation parameters derive from the day's metrics, not a `StyleTemplate` constant
+  3. Determinism holds: golden snapshots re-baselined, the same `seed + genomeVersion` reproduces an identical universe, and `npm test` + `npm run build` + `tsc --noEmit` are all green
+  4. The 60fps rule is preserved — only the live frontier re-renders per frame; frozen shells stay baked to texture
+  5. `prefers-reduced-motion` still produces a static render with no animation or strobe
+
+**Plans**: TBD
+
 ### Phase 3: Devvit Scaffold + Data Layer
 
 **Goal**: A Devvit Web app hosts the engine as an interactive post; real Reddit activity flows through triggers into Redis daily counters; the scheduler tick freezes a ring and opens the next frontier; mod configures the genome at install
@@ -140,6 +157,7 @@ Plans:
 |-------|----------------|--------|-----------|
 | 1. Engine Foundation | 3/3 | Complete    | 2026-06-19 |
 | 2. Visual Engine + Simulator | 5/5 | Complete    | 2026-06-19 |
+| 2.1. Visual Depth & Animation Polish | 0/TBD | Not started | - |
 | 3. Devvit Scaffold + Data Layer | 0/TBD | Not started | - |
 | 4. Live Game | 0/TBD | Not started | - |
 | 5. Submit | 0/TBD | Not started | - |
