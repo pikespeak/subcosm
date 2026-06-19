@@ -35,7 +35,7 @@ $$ r_i = R_{\max}\cdot 0.85^{\,i} $$
 so the same inputs always produce a byte-identical scene on every device.
 - **Zod as the single source of truth.** All four contracts (`DayVector`, `Scene`, `Genome`, `StyleTemplate`) are Zod schemas; TypeScript types are inferred from them, and data is validated only at system boundaries.
 - **Simulator first.** We built a data simulator that generates realistic `DayVector[]` (growth, busy/quiet days, a drama spike, an AMA day, a cold-start day-1) so we could tune the data→visuals mapping with **zero platform risk** before wiring Reddit. The simulator's schema *is* the contract the real collector fills.
-- **Mobile-first rendering.** Canvas 2D with bake-on-freeze caching (only the live frontier animates), pre-cached gradients, and a capped device-pixel-ratio to hold 60 fps in the Reddit post viewport.
+- **Mobile-first rendering with Phaser.** The paint layer is built on **Phaser** (WebGL): frozen shells bake to a `RenderTexture` (only the live frontier re-renders), geometry/textures are reused instead of per-star reallocation, and resolution is capped to hold ~60 fps in the Reddit post viewport. Synthesis stays render-agnostic, so Phaser is a swappable paint adapter behind the `Scene` seam.
 
 `[TODO: replace with the real build narrative + final numbers once implemented — e.g. measured fps on device, ring count, draw-call budget.]`
 
@@ -44,7 +44,7 @@ so the same inputs always produce a byte-identical scene on every device.
 - **Determinism is fragile.** A single `Math.random()` anywhere in the engine silently breaks reproducibility across clients — we ban it in the engine with ESLint and verify with a snapshot test.
 - **Reddit has no vote trigger.** There's no score-delta event, so the "conflict" signal can't be streamed — it's a composite derived from comment events plus a tick-time score snapshot.
 - **The scheduler is UTC-only.** Per-community day boundaries are computed in an hourly sweeper using IANA time zones, with deterministic `hash(subId) % 60` minute jitter.
-- **Mobile Canvas 2D has performance cliffs.** Per-star gradients and uncapped DPR will tank the frame rate; the cache and DPR cap are part of the first implementation, not a later optimization.
+- **Mobile WebGL performance.** Re-rendering every star each frame tanks the frame rate; baking frozen shells to a Phaser `RenderTexture` and reusing geometry (so only the live frontier animates) is part of the first implementation, not a later optimization.
 - **Avoiding "AI slop."** The hardest aesthetic goal: look genuinely self-authored, not a generic neon fractal. We anchor the visual grammar to natural references (agate, tree rings, coral).
 
 ### What we learned
@@ -57,7 +57,7 @@ so the same inputs always produce a byte-identical scene on every device.
 
 - Deeper game layers: a daily **prediction + streaks**, and a **collection** of rare overnight mutations.
 - More flagship styles (Comic, Pixel) — each is pure data on the same engine.
-- Rare overnight mutations, the full signal→parameter genome matrix, and an fbm/WebGL shader layer (our Phaser target).
+- Rare overnight mutations, the full signal→parameter genome matrix, and an advanced fbm/WebGL **shader pass** on top of the Phaser renderer.
 - Optional, fair **free-to-play** extras via Reddit Gold — cosmetics, collection, supporter badges. Never pay-to-win: the shared community outcome is never for sale.
 - A **connected multiverse**: subreddits as galaxies that owners can opt-in link into shared "quadrants," with graphical travel between them.
 
@@ -65,7 +65,9 @@ so the same inputs always produce a byte-identical scene on every device.
 
 ## Built with
 
-`typescript` · `vite` · `vitest` · `zod` · `canvas-2d` · `devvit` · `reddit-developer-platform` · `redis` · `realtime` · `mulberry32` · `html5` · `phaser` *(planned, shader layer)*
+`typescript` · `phaser` · `webgl` · `vite` · `vitest` · `zod` · `devvit` · `reddit-developer-platform` · `redis` · `realtime` · `mulberry32` · `html5`
+
+**Did you use Phaser?** → **Yes.** Phaser (WebGL) is the rendering layer that paints the universe; the deterministic synthesis engine is render-agnostic behind the `Scene` seam.
 
 ---
 

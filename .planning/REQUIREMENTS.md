@@ -29,9 +29,9 @@
 - [ ] **SYN-04**: Changing the data visibly changes the universe (sparse vs dense shells, red conflict turbulence, bright AMA clusters).
 
 #### Techno Paint (PNT)
-- [ ] **PNT-01**: A Techno Canvas2D paint module renders a Scene at visual parity with `docs/subcosm-universe-mock.html` (genesis core, concentric shells, nebula, frontier ignite, vignette); visual reference `docs/subcosm.png`.
+- [ ] **PNT-01**: A Techno **Phaser** (WebGL) paint module renders a Scene at visual parity with `docs/subcosm-universe-mock.html` (genesis core, concentric shells, nebula, frontier ignite, vignette); visual reference `docs/subcosm.png`. Phaser is the paint layer behind the `Scene` seam — `src/engine/synthesis` stays Phaser-free.
 - [ ] **PNT-02**: All Techno look constants come from a `StyleTemplate` data object, not hard-coded in paint.
-- [ ] **PNT-03**: Mobile-perf foundations from day one: gradients pre-cached outside the rAF loop, `devicePixelRatio` capped at 2.0, frozen shells bake-cached (only the frontier re-renders per frame).
+- [ ] **PNT-03**: Mobile-perf foundations from day one (Phaser/WebGL): frozen shells baked to `RenderTexture` (only the live frontier re-renders per frame), reused textures/geometry instead of per-star reallocation, capped resolution/DPR — hold ~60fps in the post viewport.
 - [ ] **PNT-04**: Paint honors `prefers-reduced-motion` — static render, no strobe/ignite.
 
 #### Camera & Navigation (CAM)
@@ -99,7 +99,7 @@
 
 - **STRETCH-Styles**: Comic + Pixel StyleTemplates (each = one data file, zero engine changes).
 - **STRETCH-Genome**: full Signal→Param weight matrix exercised, rare-event mutation table, presets UI.
-- **STRETCH-Phaser**: fbm/WebGL shader paint layer for the "Best Use of Phaser" prize — gated on WebGL availability inside the Devvit webroot iframe (verify early).
+- **STRETCH-Shader**: an advanced fbm/WebGL **shader pass** on top of the Phaser renderer for extra visual depth. Optional polish — the **Phaser base renderer is now core** (PNT-01), targeting the "Best Use of Phaser" prize; the official Phaser template already confirms WebGL runs in the webroot.
 - **STRETCH-ModeB**: read a host community's real top-post/comments as the theme source (NLP + moderation).
 - **STRETCH-Guess** (game stage 2): players submit a daily prediction at dawn; scored at the reveal → personal points + streaks + a community scoreboard.
 - **STRETCH-Collect** (game stage 3): rare overnight mutations / star-types recorded in a per-community and/or personal collection album.
