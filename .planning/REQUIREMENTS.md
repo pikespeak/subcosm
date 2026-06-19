@@ -11,45 +11,53 @@
 ### A. Engine + Simulator (no Devvit) — built first
 
 #### Contracts & Engine Seam (ENG)
-- [ ] **ENG-01**: All four contracts (DayVector, Scene, Genome, StyleTemplate) are **Zod schemas**; every TS type is `z.infer` of its schema (no hand-written interfaces for contract shapes).
+
+- [x] **ENG-01**: All four contracts (DayVector, Scene, Genome, StyleTemplate) are **Zod schemas**; every TS type is `z.infer` of its schema (no hand-written interfaces for contract shapes).
 - [ ] **ENG-02**: Synthesis is fully decoupled from paint — synthesis imports no style code, paint reads no raw DayVector. `Scene` is the only seam.
-- [ ] **ENG-03**: `src/engine/` has zero Devvit imports and is pure + unit-testable; an ESLint rule bans `Math.random()` and Devvit imports inside `src/engine/`.
+- [x] **ENG-03**: `src/engine/` has zero Devvit imports and is pure + unit-testable; an ESLint rule bans `Math.random()` and Devvit imports inside `src/engine/`.
 - [ ] **ENG-04**: A single `render(dayVectors, genome, style)` entry orchestrates synthesis → paint → camera and exposes scrub / nudge / regenerate / destroy.
 
 #### Config-Driven Template Engine (TPL)
+
 - [ ] **TPL-01**: A new or altered `Genome` (behaviour/params) or `StyleTemplate` (design/skin) is **pure data** — zero engine-code changes. Both are injected into `render(...)`.
-- [ ] **TPL-02**: `Genome` carries per-community knobs as data (Signal→Param weight matrix, ranges, volatility, inheritance, `steerGain`, rare-event table, allowed genes, day-boundary, chosen style); `StyleTemplate` carries design as data (substrate, palette, line, fill, texture, gene→primitive, postFX, motion, type).
+- [x] **TPL-02**: `Genome` carries per-community knobs as data (Signal→Param weight matrix, ranges, volatility, inheritance, `steerGain`, rare-event table, allowed genes, day-boundary, chosen style); `StyleTemplate` carries design as data (substrate, palette, line, fill, texture, gene→primitive, postFX, motion, type).
 - [ ] **TPL-03**: The harness ships **≥2 selectable Genome presets** (e.g. "Calm" vs "Chaotic", same Techno style, different params); switching presets visibly changes the universe from the **same** `DayVector[]`.
-- [ ] **TPL-04**: One style per community is genome-driven; the engine never assumes a single hard-coded look.
+- [x] **TPL-04**: One style per community is genome-driven; the engine never assumes a single hard-coded look.
 
 #### Deterministic Synthesis (SYN)
+
 - [ ] **SYN-01**: Given `DayVector + seed + genomeVersion`, synthesis is deterministic via seeded mulberry32 (one closure per DayVector, fixed consumption order).
 - [ ] **SYN-02**: Two synthesis calls with identical inputs produce a byte-identical Scene (determinism test).
 - [ ] **SYN-03**: Synthesis ports the mock's `genShell()` logic, mapping DayVector fields to shell elements at visual parity with the mock.
 - [ ] **SYN-04**: Changing the data visibly changes the universe (sparse vs dense shells, red conflict turbulence, bright AMA clusters).
 
 #### Techno Paint (PNT)
+
 - [ ] **PNT-01**: A Techno **Phaser** (WebGL) paint module renders a Scene at visual parity with `docs/subcosm-universe-mock.html` (genesis core, concentric shells, nebula, frontier ignite, vignette); visual reference `docs/subcosm.png`. Phaser is the paint layer behind the `Scene` seam — `src/engine/synthesis` stays Phaser-free.
 - [ ] **PNT-02**: All Techno look constants come from a `StyleTemplate` data object, not hard-coded in paint.
 - [ ] **PNT-03**: Mobile-perf foundations from day one (Phaser/WebGL): frozen shells baked to `RenderTexture` (only the live frontier re-renders per frame), reused textures/geometry instead of per-star reallocation, capped resolution/DPR — hold ~60fps in the post viewport.
 - [ ] **PNT-04**: Paint honors `prefers-reduced-motion` — static render, no strobe/ignite.
 
 #### Camera & Navigation (CAM)
+
 - [ ] **CAM-01**: Camera holds independent view state (zoom / focus / scrub / intro) and never mutates the Scene.
 - [ ] **CAM-02**: A depth scrubber flies through time; focusing a shell zooms it; depth maps to date.
 - [ ] **CAM-03**: A per-shell readout shows date / era / theme / stars / comments / contributors / conflict (legibility — mandatory, never removed).
 - [ ] **CAM-04**: The camera/coordinate model is kept embeddable so a future outer zoom tier (multiverse → galaxy) is not designed out (design-review item, no implementation).
 
 #### Steering / Front Nudges (STR)
+
 - [ ] **STR-01**: Nudge controls (branch / symmetry / hue) re-synthesize the live frontier visibly.
 - [ ] **STR-02**: Nudges bias the **mean** of the affected parameter only; the result is still diced around it.
 
 #### Data Simulator (SIM)
+
 - [ ] **SIM-01**: `generateDayVectors(config)` produces realistic `DayVector[]` — growth, busy/quiet, one drama spike, one AMA day, plus cold-start day-1.
 - [ ] **SIM-02**: The simulator calls `DayVectorSchema.parse()` at its output boundary (only validation point before the engine).
 - [ ] **SIM-03**: A **regenerate** control produces a new universe from a new seed; the same seed reproduces an identical universe.
 
 #### Quality & Verification (QA)
+
 - [ ] **QA-01**: A dev page (Vite) renders the simulated universe with scrubber, nudge buttons, regenerate, seed field, and a **genome-preset selector**.
 - [ ] **QA-02**: `npm test` (Vitest) passes — determinism + schema-validity tests; `npm run build` + `tsc --noEmit` green.
 - [ ] **QA-03**: Zod `.parse()` only at boundaries, never inside synthesis/paint/the frame loop.
@@ -57,6 +65,7 @@
 ### B. Devvit Integration & Live Game (Reddit wiring)
 
 #### Devvit Data Layer (DEV)
+
 - [ ] **DEV-01**: A Devvit Web app scaffolds and hosts the engine as the post webroot (interactive post). Verify current template + CLI at scaffold (`devvit new`).
 - [ ] **DEV-02**: Event triggers (post/comment create, etc.) increment Redis daily counters; unique contributors via SET, top threads via ZSET. (No vote trigger exists — see DEV-03.)
 - [ ] **DEV-03**: A **conflict composite** is derived at tick time from comment-rate / reply-depth proxies + a score snapshot (no streaming vote deltas).
@@ -65,6 +74,7 @@
 - [ ] **DEV-06**: A mod configures the **Genome** at install via Devvit settings (preset + style); the chosen style/genome drives that community's universe end-to-end.
 
 #### Live Front & Reveal (LIVE)
+
 - [ ] **LIVE-01**: The live frontier fills during the day and renders nudges in near-real-time (realtime channel names use `-`, no colons); nudges aggregate into a Redis steer hash.
 - [ ] **LIVE-02**: At the tick the frontier **freezes irreversibly** and a pinned **reveal/update post** is created ("what your universe became overnight").
 - [ ] **LIVE-03**: Client and server render identically from the same Ring record (determinism holds across the seam).
@@ -73,11 +83,11 @@
 
 > The daily loop is what makes Subcosm a *game*: goal + steering + overnight reveal. Built staged — stage 1 here; guess/streaks and collection are Stretch. **The goal + outcome fields must exist in the contracts from Phase 1** (build-for-flexibility), even though scoring logic lands in Phase 4.
 
-- [ ] **GAME-01**: Each day carries a **goal** ("genome quest") as data on the Genome/day (e.g. high symmetry, low conflict, ignite a specific rare gene). It is legible to players at dawn (shown in the readout).
+- [x] **GAME-01**: Each day carries a **goal** ("genome quest") as data on the Genome/day (e.g. high symmetry, low conflict, ignite a specific rare gene). It is legible to players at dawn (shown in the readout).
 - [ ] **GAME-02**: At the tick the day's shell is **scored against its goal deterministically** (from the DayVector/outcome); achieved ✓/✗ (+ degree) is recorded on the Ring and surfaced in the reveal.
 - [ ] **GAME-03**: Steering nudges measurably move the day toward/away from the goal — the contribution → outcome link is legible (steering still biases the mean only, never dictates; invariant I-5).
 - [ ] **GAME-04**: An achieved goal leaves a **persistent reward** on the ring (special star / era badge), visible permanently in the universe.
-- [ ] **GAME-05**: Daily player actions (nudges, and later guesses) are a **budgeted, countable per-user resource** (cap/day) on a **personal layer** kept separate from the shared community universe — so fair/cosmetic monetization and ethical retention can bolt on later without reworking synthesis.
+- [x] **GAME-05**: Daily player actions (nudges, and later guesses) are a **budgeted, countable per-user resource** (cap/day) on a **personal layer** kept separate from the shared community universe — so fair/cosmetic monetization and ethical retention can bolt on later without reworking synthesis.
 
 ### C. Submission & Polish (required to enter)
 
@@ -89,6 +99,7 @@
 - [ ] **SUB-06**: Devpost write-up complete (`docs/devpost-submission.md`), media gallery + links filled.
 
 ### Definition of Done (submittable)
+
 - A community (or the simulator) produces a universe that accumulates daily, reveals overnight, and reads legibly on mobile.
 - Published app listing + public playable demo post exist; same Ring data → identical render client/server.
 - Engine pure (no Devvit, no `Math.random`); build + tests green; no temporary broken states.
@@ -129,20 +140,20 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| ENG-01 | Phase 1: Engine Foundation | Pending |
+| ENG-01 | Phase 1: Engine Foundation | Complete |
 | ENG-02 | Phase 1: Engine Foundation | Pending |
-| ENG-03 | Phase 1: Engine Foundation | Pending |
+| ENG-03 | Phase 1: Engine Foundation | Complete |
 | ENG-04 | Phase 1: Engine Foundation | Pending |
 | TPL-01 | Phase 1: Engine Foundation | Pending |
-| TPL-02 | Phase 1: Engine Foundation | Pending |
+| TPL-02 | Phase 1: Engine Foundation | Complete |
 | TPL-03 | Phase 1: Engine Foundation | Pending |
-| TPL-04 | Phase 1: Engine Foundation | Pending |
+| TPL-04 | Phase 1: Engine Foundation | Complete |
 | SYN-01 | Phase 1: Engine Foundation | Pending |
 | SYN-02 | Phase 1: Engine Foundation | Pending |
 | SYN-03 | Phase 1: Engine Foundation | Pending |
 | SYN-04 | Phase 1: Engine Foundation | Pending |
-| GAME-01 | Phase 1: Engine Foundation | Pending |
-| GAME-05 | Phase 1: Engine Foundation | Pending |
+| GAME-01 | Phase 1: Engine Foundation | Complete |
+| GAME-05 | Phase 1: Engine Foundation | Complete |
 | PNT-01 | Phase 2: Visual Engine + Simulator | Pending |
 | PNT-02 | Phase 2: Visual Engine + Simulator | Pending |
 | PNT-03 | Phase 2: Visual Engine + Simulator | Pending |
