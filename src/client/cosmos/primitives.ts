@@ -68,3 +68,37 @@ export function addGlow(
   img.setDisplaySize(radius * 2, radius * 2);
   return img;
 }
+
+/**
+ * Add one faceted/angular star — the Crystalline 'facet' primitive (D-05).
+ *
+ * Where the default star is a soft round glow dot, Crystalline communities read
+ * as an ordered, many-armed lattice (genome symmetry 5). This draws a sharp
+ * `points`-pointed star polygon (additive, so it still reads as light) — the
+ * angular silhouette is what distinguishes Crystalline at a glance from the
+ * round Calm/Chaotic Techno stars. Still ONE draw call per star; the painter
+ * selects it via `style.genes` (paint-only — no synthesis change, ENG-02).
+ *
+ * @param scene  the owning scene.
+ * @param x      center x (px).
+ * @param y      center y (px).
+ * @param radius outer radius of the facet star (px).
+ * @param color  resolved palette color (paint maps Element.hue → ramp → color).
+ * @param alpha  per-element energy cap (StyleTemplate.fill.alpha).
+ * @param points number of facet arms (the genome's symmetry — angular spikes).
+ */
+export function addFacetStar(
+  scene: Phaser.Scene,
+  x: number,
+  y: number,
+  radius: number,
+  color: number,
+  alpha: number,
+  points: number,
+): Phaser.GameObjects.Star {
+  // Phaser's Star takes (x, y, points, innerRadius, outerRadius). A tight inner
+  // radius (~38% of outer) gives the crisp faceted spikes that read as "crystal".
+  const star = scene.add.star(x, y, Math.max(3, Math.round(points)), radius * 0.38, radius, color, alpha);
+  star.setBlendMode(Phaser.BlendModes.ADD);
+  return star;
+}
