@@ -2,18 +2,18 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-current_phase: 2.1
+current_phase: 02.1
 current_phase_name: Visual Depth & Animation Polish
-status: Phase 2.1 planned (2 plans, 2 waves); ready to execute
-stopped_at: Phase 2.1 plans created — 02.1-01 (VIS-DEPTH) + 02.1-02 (VIS-ANIM)
-last_updated: "2026-06-20T00:00:00.000Z"
-last_activity: 2026-06-20
-last_activity_desc: Phase 2.1 planned — 2 plans ready to execute (Phase 3 deferred until 2.1 ships)
+status: executing
+stopped_at: Completed 02.1-01-PLAN.md (VIS-DEPTH); checkpoint APPROVED
+last_updated: "2026-06-20T07:50:09.518Z"
+last_activity: 2026-06-19
+last_activity_desc: Phase 02.1 execution started
 progress:
   total_phases: 6
   completed_phases: 2
   total_plans: 10
-  completed_plans: 8
+  completed_plans: 9
   percent: 33
 ---
 
@@ -24,14 +24,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-06-19)
 
 **Core value:** The community's real activity becomes a beautiful, legible, deterministic universe — one engine, provably different worlds from different data + config
-**Current focus:** Phase 02 — Visual Engine + Simulator
+**Current focus:** Phase 02.1 — Visual Depth & Animation Polish
 
 ## Current Position
 
-Phase: 3 — Devvit Scaffold + Data Layer
-Plan: Not started
-Status: Phase 2 plans executed (5/5); ready to validate/advance phase
-Last activity: 2026-06-19 — Phase 02 complete, transitioned to Phase 3
+Phase: 02.1 (Visual Depth & Animation Polish) — EXECUTING
+Plan: 2 of 2
+Status: Ready to execute
+Last activity: 2026-06-19 — Phase 02.1 execution started
 
 Progress: [██████████] 100%
 
@@ -64,6 +64,7 @@ Progress: [██████████] 100%
 | Phase 02 P03 | 5min | 3 tasks | 6 files |
 | Phase 02 P04 | 35min | 2 tasks | 8 files |
 | Phase 02 P05 | ~14min | 2 tasks + checkpoint | 6 files |
+| Phase 02.1 P01 | ~10min | 3 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -92,6 +93,8 @@ Recent decisions affecting current work:
 - [Phase 02]: Plan 02-05: render() handle bodies delegate to the injected Painter (zero phaser in src/engine); nudge biases the frontier steering MEAN (× steerGain) and re-synthesizes only shells[0] — frozen shells never re-baked (STR-01/STR-02, ENG-04)
 - [Phase 02]: Plan 02-05: every regenerate/preset/seed change tears down the prior render — exactly one HUD/canvas/rAF-loop/wheel-listener (lifecycle hygiene fix d81fb20)
 - [Phase 02]: Plan 02-05: VIS-DEPTH + VIS-ANIM visual-quality enhancements deferred to a dedicated follow-up plan (paint/synthesis/animation NOT changed in the finalize run)
+- [Phase ?]: [Phase 02.1]: Plan 02.1-01 (VIS-DEPTH): clamped-min-gap shellRadius (Pattern 1A, base 0.92, blend 0.45/0.55, MIN_GAP 0.9/N) replaces pow(0.85,idx) — no central blob; per-shell weight age-fade with LEGIBILITY_FLOOR 0.35 mapped in paint; elements byte-unchanged (zero new rng); checkpoint APPROVED
+- [Phase ?]: [Phase 02.1]: simulator sparsity vs mock (src/sim/beats.ts magnitudes) deferred to new Phase 2.2 (universe richness/density) — NOT a VIS-DEPTH defect (star elements byte-identical)
 
 ### Pending Todos
 
@@ -117,6 +120,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-06-19T20:50:37.445Z
-Stopped at: Phase 2.1 context gathered
-Resume file: .planning/phases/02.1-visual-depth-animation-polish-inserted/02.1-CONTEXT.md
+Last session: 2026-06-20T07:50:09.511Z
+Stopped at: Completed 02.1-01-PLAN.md (VIS-DEPTH); checkpoint APPROVED
+Resume file: None
