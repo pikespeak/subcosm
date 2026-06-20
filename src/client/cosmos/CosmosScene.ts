@@ -26,6 +26,7 @@ import {
   type PaintResult,
 } from './paint';
 import { prefersReducedMotion, watchReducedMotion } from './reduced-motion';
+import { igniteParams, IGNITE_REST } from './ignite';
 import { CameraController } from './camera';
 import { attachInput } from './input';
 
@@ -41,6 +42,14 @@ export class CosmosScene extends Phaser.Scene {
   private frame!: PaintFrame;
   private paintResult: PaintResult | null = null;
   private animate = true;
+  /**
+   * Cached mean energy of the live frontier (shells[0]) — feeds igniteParams'
+   * tempo (D-03 energy→tempo). Computed ONCE whenever the frontier is
+   * (re)established (layout / repaintFrontier), never per frame: a per-frame
+   * `reduce()` over the frontier elements would be wasted work in the 60fps hot
+   * path (RESEARCH Pitfall 4). 0 when there is no frontier or no elements.
+   */
+  private frontierEnergy = 0;
   private stopWatchingMotion: (() => void) | null = null;
   /** Independent view-state controller (CAM-01) — created in create(). */
   private controller: CameraController | null = null;
@@ -114,6 +123,9 @@ export class CosmosScene extends Phaser.Scene {
     // Update the stored Scene's frontier so a later resize re-lays the nudged
     // frontier (read-only swap of shells[0]; frozen shells stay identical).
     this.cosmos = { ...this.cosmos, shells: [frontier, ...this.cosmos.shells.slice(1)] };
+    // Re-cache the frontier energy for the freshly nudged frontier (once, not per
+    // frame — Pitfall 4). The nudge re-diced the elements, so the mean may shift.
+    this.frontierEnergy = this.computeFrontierEnergy();
 
     const newStars = repaintFrontierLayer(
       this,
@@ -125,19 +137,36 @@ export class CosmosScene extends Phaser.Scene {
     this.paintResult = { ...this.paintResult, frontier, frontierStars: newStars };
 
     // Draw one frontier frame immediately so the nudge is visible even under
-    // reduced-motion (where update() does not run): ignite full-on, no twinkle.
-    this.renderFrontier(0, this.animate ? 0.8 : 1, 1);
+    // reduced-motion (where update() does not run): the static shimmer REST frame
+    // (no swing) so the animated baseline and this static frame agree (D-04).
+    this.renderFrontier(0, IGNITE_REST.pulse, IGNITE_REST.twinkle);
+  }
+
+  /**
+   * Mean energy of the live frontier (shells[0]) elements, or 0 when there is no
+   * frontier / no elements. Called ONLY when the frontier is (re)established —
+   * never per frame (Pitfall 4). A Scene value (Element.energy), never a raw
+   * DayVector (ENG-02).
+   */
+  private computeFrontierEnergy(): number {
+    const frontier = this.cosmos.shells[0];
+    const els = frontier?.elements ?? [];
+    if (els.length === 0) return 0;
+    return els.reduce((s, e) => s + e.energy, 0) / els.length;
   }
 
   /** Lay the whole universe into the viewport and draw the initial frame. */
   private layout(width: number, height: number): void {
     this.frame = computeFrame(width, height);
     this.paintResult = paintScene(this, this.cosmos, this.style, this.frame);
+    // Cache the frontier energy ONCE here (Pitfall 4: not per frame in update()).
+    this.frontierEnergy = this.computeFrontierEnergy();
 
-    // Always draw one frontier frame up front. Under reduced-motion this is the
-    // FINAL frame too: ignite fully on (pulse=1), no twinkle, no further updates
-    // (PNT-04 — a static, non-strobe surface).
-    this.renderFrontier(0, this.animate ? 0.8 : 1, this.animate ? 1 : 1);
+    // Always draw one frontier frame up front at the shimmer REST values (the
+    // base with no time-varying swing). Under reduced-motion this is also the
+    // FINAL frame: a single static, non-strobe surface (PNT-04). The rest values
+    // match igniteParams' baseline so the animated loop continues seamlessly.
+    this.renderFrontier(0, IGNITE_REST.pulse, IGNITE_REST.twinkle);
   }
 
   /**
@@ -151,11 +180,21 @@ export class CosmosScene extends Phaser.Scene {
     // reduced-motion: this is user-initiated navigation (scrub/zoom/focus), not
     // ambient cosmos animation, so PNT-04 does not suppress it (CAM-02).
     this.controller?.update();
+    // ALL new shimmer math stays BELOW this gate (PNT-04 / Pitfall 3): under
+    // prefers-reduced-motion update() never runs, so the only frame is the static
+    // REST frame drawn by layout()/repaintFrontier() — no animation leaks through.
     if (!this.animate || !this.paintResult) return;
-    const speed = this.style.motion.speed;
-    // Pulsing ignite (mock l.227: 0.55 + 0.45*sin) and star twinkle (mock l.234).
-    const pulse = 0.55 + 0.45 * Math.sin(time * 0.0022 * speed);
-    const twinkle = 0.72 + 0.28 * Math.sin(time * 0.004 * speed);
+    // Data-driven ignite (VIS-ANIM D-03/D-04): conflict→amplitude/hardness,
+    // energy→tempo, with a mathematically bounded no-strobe pulse (proven in
+    // ignite.test.ts). Read the conflict from the frontier shell's Scene meta and
+    // the energy from the cached frontier scalar — never a raw DayVector (ENG-02).
+    const conflict = this.cosmos.shells[0]?.meta.conflict ?? 0;
+    const { pulse, twinkle } = igniteParams(
+      conflict,
+      this.frontierEnergy,
+      time,
+      this.style.motion.speed,
+    );
     this.renderFrontier(time, pulse, twinkle);
   }
 
