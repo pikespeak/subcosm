@@ -16,9 +16,11 @@ import {
   minGapFor,
   RADIUS_FLOOR,
   LEGIBILITY_FLOOR,
+  STAR_FLOOR,
 } from './synthesis';
 import { render } from './render';
 import { fixtureDays, calm } from '../../tests/fixtures';
+import { generateDayVectors } from '../sim/generator';
 import { DayVectorSchema, type DayVector } from './contracts';
 import { StyleTemplateSchema } from './contracts';
 
@@ -52,10 +54,14 @@ function syntheticDays(n: number): DayVector[] {
   }
   return days;
 }
-// Frozen pre-D-01 baseline of per-shell `elements` arrays, captured from the
-// ORIGINAL (Math.pow(0.85, idx)) synthesize output before the geometry change.
-// VIS-DEPTH must change ONLY `radius` (+ the new `weight`); element positions/
-// energies stay byte-identical (proves zero new rng() calls — RESEARCH Pitfall 1).
+// Frozen baseline of per-shell `elements` arrays for the fixture days. RE-BASELINED
+// for VIS-DENSITY: raising STAR_FLOOR + adding STAR_BASELINE legitimately changes the
+// per-day star COUNT (and therefore the rng draw count for those stars), so the dense
+// fixtures now carry more elements. This snapshot is regenerated from the current
+// `synthesize` output; its job is the DETERMINISM guard — same seed reproduces the same
+// elements byte-for-byte (a stray non-density rng() call, or any per-element drift at a
+// FIXED count, still fails loudly). It is NO LONGER the "elements unchanged vs VIS-DEPTH"
+// guard (that intent was geometry-only; VIS-DENSITY is allowed to change counts).
 import elementsBaseline from '../../tests/synthesis-elements-baseline.json';
 
 // Minimal valid StyleTemplate for the render-stub assertion. Synthesis never
@@ -178,11 +184,12 @@ describe('synthesize depth geometry + weight (VIS-DEPTH / D-01, D-02)', () => {
     }
   });
 
-  // Pitfall 1 guard: the depth change must touch ONLY radius (+ the new weight).
-  // Each shell's `elements` array must deep-equal the frozen pre-change baseline.
-  // If any element angle/r/energy/conflict drifted, a stray rng() call slipped in
-  // (RNG consumption order changed) → this fails loudly.
-  test('per-shell elements arrays are byte-unchanged vs the pre-D-01 baseline (Pitfall 1)', () => {
+  // Determinism guard (re-baselined for VIS-DENSITY): each shell's `elements` array
+  // must deep-equal the (regenerated) baseline. VIS-DENSITY legitimately changed the
+  // star COUNT per day, but at that fixed count every element's angle/r/energy/conflict
+  // must still be byte-reproducible from the seed — if any per-element value drifted, a
+  // stray non-density rng() call slipped in (RNG consumption order changed) → fails loudly.
+  test('per-shell elements arrays are byte-reproducible vs the re-baselined snapshot (determinism)', () => {
     const scene = synthesize(fixtureDays, calm);
     const elements = scene.shells.map((s) => s.elements);
     expect(elements).toEqual(elementsBaseline);
@@ -198,6 +205,52 @@ describe('synthesize depth geometry + weight (VIS-DEPTH / D-01, D-02)', () => {
     const denseShell = scene.shells[0]!; // day-44, conflict 0.85 (frontier)
     const amaShell = scene.shells[1]!; // day-36, conflict 0.2
     expect(denseShell.weight).toBeGreaterThan(amaShell.weight);
+  });
+});
+
+describe('synthesize density (VIS-DENSITY)', () => {
+  // Every NON-genesis shell across the FULL scripted sim arc must read as a populated
+  // cluster — at least STAR_FLOOR stars — even on the quietest days (beats day-30 ≈ 9
+  // posts). Genesis (day-1) is core-only by contract and is exempt. Driven through the
+  // real generator + a fixed master seed so the assertion runs over the actual emitted
+  // DayVectors (jitter included), not the raw beat means.
+  test('every non-genesis shell across the sim arc has ≥ STAR_FLOOR stars', () => {
+    const days = generateDayVectors({ seed: 0xc05c01c });
+    const scene = synthesize(days, calm);
+    for (const shell of scene.shells) {
+      if (shell.day === 1) {
+        expect(shell.elements).toEqual([]); // genesis stays core-only
+        continue;
+      }
+      expect(shell.elements.length).toBeGreaterThanOrEqual(STAR_FLOOR);
+    }
+  });
+
+  // Contrast preserved: a busy drama day (beats day-12, ≈92 posts) must carry CLEARLY
+  // more stars than a quiet tail day (beats day-30, ≈9 posts). Locks "populated but
+  // still contrasted" — the floor lifts the quiet day, it does not flatten the arc.
+  test('a busy day has clearly more stars than a quiet day (contrast preserved)', () => {
+    const days = generateDayVectors({ seed: 0xc05c01c });
+    const scene = synthesize(days, calm);
+    const dramaDay = scene.shells.find((s) => s.day === 12)!;
+    const quietDay = scene.shells.find((s) => s.day === 30)!;
+    expect(dramaDay).toBeDefined();
+    expect(quietDay).toBeDefined();
+    // quiet day sits at the floor; the busy day must be meaningfully denser.
+    expect(quietDay.elements.length).toBe(STAR_FLOOR);
+    expect(dramaDay.elements.length).toBeGreaterThan(quietDay.elements.length);
+    // "clearly" more — not a 1-star difference; the busy day is at least ~1.4x denser.
+    expect(dramaDay.elements.length).toBeGreaterThanOrEqual(
+      Math.ceil(quietDay.elements.length * 1.4),
+    );
+  });
+
+  // The cap (112) is intact: the densest fixture day (410 posts) never exceeds it.
+  test('the per-day star count never exceeds the 112 cap', () => {
+    const scene = synthesize(fixtureDays, calm);
+    for (const shell of scene.shells) {
+      expect(shell.elements.length).toBeLessThanOrEqual(112);
+    }
   });
 });
 
