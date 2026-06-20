@@ -12,7 +12,13 @@ export default defineConfig([
       ecmaVersion: 2023,
       globals: globals.node,
       parserOptions: {
-        project: ['./tools/tsconfig.server.json'],
+        // Server SOURCE project + the server-TESTS project (the latter owns the
+        // *.test.ts files, which the source project excludes) — mirrors the
+        // engine/styles/sim source+tests pairing.
+        project: [
+          './tools/tsconfig.server.json',
+          './tools/tsconfig.server-tests.json',
+        ],
         tsconfigRootDir: import.meta.dirname,
       },
     },
