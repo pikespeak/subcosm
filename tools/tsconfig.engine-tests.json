@@ -12,7 +12,10 @@
     "tsBuildInfoFile": "../dist/types/engine-tests/tsconfig.tsbuildinfo",
     "rootDir": ".."
   },
-  "include": ["../src/engine/**/*.test.ts", "../tests/**/*"],
+  "include": ["../src/engine/**/*.test.ts", "../tests/**/*", "../tests/**/*.json"],
   "exclude": [],
-  "references": [{ "path": "./tsconfig.engine.json" }]
+  "references": [
+    { "path": "./tsconfig.engine.json" },
+    { "path": "./tsconfig.sim.json" }
+  ]
 }
