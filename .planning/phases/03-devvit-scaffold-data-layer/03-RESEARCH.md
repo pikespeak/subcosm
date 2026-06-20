@@ -511,22 +511,25 @@ const subName = (await reddit.getCurrentSubreddit())?.name;
 | A7 | Conflict normalization constants (`k`, weights) are tunable and should be a pure unit-tested function. | Don't Hand-Roll, D-02 | LOW — D-02 fixes inputs+intent; the curve is explicitly Claude's discretion. |
 | A8 | Native `Intl.DateTimeFormat` is available in the Devvit server runtime (Node ≥22) for IANA TZ math. | Pattern 5 | LOW — Node 22 ships full ICU; `engines.node >=22.2.0`. Confirm in the spike. |
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **Does WebGL initialize in the Reddit post iframe on mobile?**
    - What we know: Phaser supports WebGL+Canvas; `type: AUTO` falls back to Canvas. Reddit games are an official Phaser target.
    - What's unclear: Whether the *mobile* post iframe grants a WebGL context (no authoritative Devvit doc found).
    - Recommendation: **Wave-0 spike on a physical phone** rendering a WebGL probe + Canvas2D fallback before committing the full mount. Plan must include this gate (mirrors STATE pre-work blocker).
+   - **RESOLVED — by the 03-01 Wave-0 spike:** the WebGL-on-mobile probe (with the Canvas2D fallback behind the same `Scene` seam) is the first executable task of plan 03-01; its result determines the render path before the full mount is wired.
 
 2. **Exact trigger payload field names in 0.13.4.**
    - What we know: payloads carry author/comment/post objects; docs show `author?.id` access.
    - What's unclear: precise nesting of `parentId` / thread root for reply-depth.
    - Recommendation: log the first real `onCommentCreate` payload during playtest; finalize `CommentCreatePayloadSchema` against it (`passthrough()` in the meantime).
+   - **RESOLVED — by the 03-01 Wave-0 spike:** the first real `onCommentCreate`/`onPostCreate` payloads are logged during the 03-01 playtest spike; `CommentCreatePayloadSchema` is then tightened against the captured `parentId`/thread-root nesting in plan 03-02 (Task 2).
 
 3. **Tick idempotency / at-least-once semantics.**
    - What we know: scheduler is at-least-once; the hourly sweeper may overlap a slow tick.
    - What's unclear: exact delivery guarantees.
    - Recommendation: make `runTick` idempotent — guard on a stored `lastTickDay` per sub so a double-fire writes a ring at most once per local day.
+   - **RESOLVED — mitigated by the `lastTickDay` guard in 03-03:** `runTick` reads `organism:{sub}:lastTickDay` and is a no-op when `last >= day`, so an at-least-once double-fire writes a ring at most once per local day (plan 03-03, Task 2). Exact delivery guarantees no longer matter because the guard makes the tick idempotent regardless.
 
 ## Environment Availability
 
