@@ -78,9 +78,12 @@ export class CosmosScene extends Phaser.Scene {
     const cam = this.cameras.main;
     cam.setBackgroundColor(SPACE_BG);
 
-    // PNT-04: only animate when the user has NOT requested reduced motion AND the
-    // style says the frontier animates. Otherwise the whole surface is static.
-    this.animate = this.style.motion.frontierOnly && !prefersReducedMotion();
+    // PNT-04: animate whenever motion is enabled (speed > 0) AND the user has NOT
+    // requested reduced motion. `frontierOnly` is a SCOPE hint (which shells move,
+    // not whether motion runs) — we only ever animate the frontier regardless, per
+    // the 60fps perf model, so it must NOT gate animation on/off (WR-02). Otherwise
+    // the whole surface is a single static, non-strobe frame.
+    this.animate = this.style.motion.speed > 0 && !prefersReducedMotion();
 
     this.layout(this.scale.width, this.scale.height);
 
@@ -103,7 +106,7 @@ export class CosmosScene extends Phaser.Scene {
     // re-lay the universe so toggling the OS setting flips between animated and a
     // single static, non-strobe frame without a reload.
     this.stopWatchingMotion = watchReducedMotion((reduced) => {
-      this.animate = this.style.motion.frontierOnly && !reduced;
+      this.animate = this.style.motion.speed > 0 && !reduced;
       this.children.removeAll(true);
       this.layout(this.scale.width, this.scale.height);
     });
