@@ -126,10 +126,24 @@ Plans:
   4. A mod installing the app sees a settings page to choose genome preset + style; the chosen config drives that community's universe with no code changes
 
 **Plans**: 5 plans
+**Wave 1**
+
 - [ ] 03-01-PLAN.md — Wave-0 spike: WebGL-in-iframe-on-mobile + first trigger payload capture + devvit.json 0.13.4 conformance (DEV-01, DEV-02)
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
 - [ ] 03-02-PLAN.md — Triggers → Redis daily counters (SET/ZSET/reply proxy) + pure conflict composite (DEV-02, DEV-03)
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
 - [ ] 03-03-PLAN.md — Ring record contract + scheduler tick: freeze frontier → conflict → Ring (seed=hash) → reset → idempotency guard (DEV-04, DEV-05)
+
+**Wave 4** *(blocked on Wave 3 completion)*
+
 - [ ] 03-04-PLAN.md — Install settings (genome/style/IANA tz, i18n-validated) + hourly UTC sweeper firing local-midnight ticks (DEV-04, DEV-06)
+
+**Wave 5** *(blocked on Wave 4 completion)*
+
 - [ ] 03-05-PLAN.md — GET /api/organism + data-driven game.ts: fetch → render real universe with cold-start/error/loading states (DEV-01, DEV-05)
 
 ### Phase 4: Live Game
