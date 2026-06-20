@@ -203,8 +203,10 @@ export class CosmosScene extends Phaser.Scene {
 
   /**
    * Draw the frontier frame: the ignite ring at the given pulse + the frontier
-   * stars at the given twinkle. `pulse`/`twinkle` are 1 for the static
-   * reduced-motion frame (no animation).
+   * stars at the given twinkle. For the static reduced-motion / initial / post-
+   * nudge frame these are the shimmer REST values `IGNITE_REST`
+   * (`pulse = SHIMMER_BASE = 0.78`, `twinkle = TWINKLE_BASE = 0.85`) — the sine's
+   * zero-crossing, so the static frame and the animated baseline agree (no strobe).
    */
   private renderFrontier(_time: number, pulse: number, twinkle: number): void {
     const result = this.paintResult;

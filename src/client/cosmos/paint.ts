@@ -339,7 +339,9 @@ export function repaintFrontierLayer(
 /**
  * Draw the pulsing frontier ignite ring (mock l.249-252) at the given pulse
  * (0..1). Called every frame by CosmosScene for the frontier ONLY; under
- * reduced-motion it is called once with pulse=1 (fully on, no strobe).
+ * reduced-motion it is called once at the shimmer rest value `SHIMMER_BASE` (0.78)
+ * — the sine's zero-crossing, so the static frame and the animated baseline agree
+ * (no strobe).
  */
 export function drawIgniteRing(
   graphics: Phaser.GameObjects.Graphics,
