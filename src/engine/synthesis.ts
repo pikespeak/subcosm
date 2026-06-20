@@ -78,23 +78,52 @@ const RADIUS_LIN_WEIGHT = 0.55;
 export const LEGIBILITY_FLOOR = 0.35;
 
 /**
- * MIN_GAP — the guaranteed minimum radial separation between two adjacent shells
- * (the no-blob guarantee, D-01). Even spacing of N rings would give 1/N; we take
- * ~0.9 of that as the hard floor so deep rings stay individually distinguishable
- * at the production target N≈30. Exported for the synthesis test assertions.
+ * RADIUS_FLOOR — [ASSUMED] the innermost (oldest) shell is mapped to exactly this
+ * normalized radius, and no shell ever lands below it. It sits a clear margin
+ * ABOVE the genesis core (`core.radius = 0.06`), so even at the production target
+ * N≈30 (and up to the 112-shell ceiling) the deepest ring never collides with or
+ * sinks into the core — the central-blob / illegible-deep-ring failure D-01 exists
+ * to prevent. The whole [0,1] falloff is re-mapped into [RADIUS_FLOOR, 1] so the
+ * shape (perspective + linear blend) is preserved while the endpoints are pinned:
+ * idx 0 (frontier) → 1.0, idx N-1 (oldest) → RADIUS_FLOOR.
  */
-export function minGapFor(n: number): number {
-  return n > 0 ? 0.9 / n : 0;
-}
-// Convenience constant at the test fixture's shell count (N=3). The runtime
-// floor is computed per-call via minGapFor(N); the test asserts gap ≥ MIN_GAP.
-export const MIN_GAP = minGapFor(3);
+export const RADIUS_FLOOR = 0.12;
 
 /**
- * shellRadius — clamped-minimum-gap falloff (RESEARCH Pattern 1A, recommended).
- * Blend an exponential (perspective) term with a linear (even-spacing) term,
- * then enforce a hard minimum gap from the previous ring so adjacent shells are
- * never closer than minGap. Frontier (idx 0) is the largest. PURE — no rng().
+ * MIN_GAP_FRACTION — [ASSUMED] the per-ring hard floor is this fraction of the
+ * even spacing of N rings across the usable band [RADIUS_FLOOR, 1]. Below 1 so
+ * the band can never overrun (cumulative forced descent stays within the band and
+ * the innermost ring lands at RADIUS_FLOOR, never below it) — this is what keeps
+ * the falloff strictly monotonic AND above the core for EVERY N.
+ */
+const MIN_GAP_FRACTION = 0.6;
+
+/**
+ * minGapFor — the guaranteed minimum radial separation between two adjacent shells
+ * at shell count `n` (the no-blob guarantee, D-01). Even spacing of the usable
+ * band [RADIUS_FLOOR, 1] across the N-1 inner gaps is `(1 - RADIUS_FLOOR)/(n-1)`;
+ * we take MIN_GAP_FRACTION of that as the hard floor. Because the fraction is < 1,
+ * `(n-1) * minGapFor(n) < 1 - RADIUS_FLOOR`, so enforcing the gap can never push a
+ * ring below RADIUS_FLOOR. Returns 0 for n ≤ 1 (a single frontier, no inner gap)
+ * to avoid division by zero. Exported for the synthesis test assertions (which
+ * derive the expected gap PER-N via this same function — never a hardcoded value).
+ */
+export function minGapFor(n: number): number {
+  return n > 1 ? (MIN_GAP_FRACTION * (1 - RADIUS_FLOOR)) / (n - 1) : 0;
+}
+
+/**
+ * shellRadius — clamped-minimum-gap falloff (RESEARCH Pattern 1A, recommended),
+ * re-mapped into [RADIUS_FLOOR, 1] so it can NEVER undershoot the core (D-01).
+ *
+ * Blend an exponential (perspective) term with a linear (even-spacing) term, then
+ * re-map that [0,1] shape into the usable band [RADIUS_FLOOR, 1] (idx 0 → 1.0, the
+ * largest; deepest ring → RADIUS_FLOOR). Finally enforce a per-N hard minimum gap
+ * from the previous ring so adjacent shells stay individually distinguishable. The
+ * gap floor is sized to the band (minGapFor), so the pull-inward can never drive a
+ * radius below RADIUS_FLOOR or make two rings coincide. Frontier (idx 0) is always
+ * the largest. PURE — no rng(); reads only idx / n / constants, so the determinism
+ * guarantee and the byte-identical element stream are untouched.
  *
  * @param idx        0 = frontier (newest) .. N-1 = oldest
  * @param n          total shell count (days.length)
@@ -108,9 +137,13 @@ export function shellRadius(
   const expPart = Math.pow(RADIUS_EXP_BASE, idx);
   const linPart = n > 0 ? 1 - idx / n : 1;
   const blended = expPart * RADIUS_EXP_WEIGHT + linPart * RADIUS_LIN_WEIGHT;
-  if (idx === 0 || prevRadius === null) return blended;
-  // enforce the monotonic minimum gap inward from the previous ring
-  return Math.min(prevRadius - minGapFor(n), blended);
+  // Re-map the [0,1] falloff into [RADIUS_FLOOR, 1] so deep rings never reach the
+  // core. `blended` is strictly decreasing in idx, so `mapped` is too.
+  const mapped = RADIUS_FLOOR + (1 - RADIUS_FLOOR) * blended;
+  if (idx === 0 || prevRadius === null) return mapped;
+  // Enforce the monotonic minimum gap inward from the previous ring. The gap floor
+  // is band-sized (minGapFor), so this can never push the radius below RADIUS_FLOOR.
+  return Math.min(prevRadius - minGapFor(n), mapped);
 }
 
 /**
