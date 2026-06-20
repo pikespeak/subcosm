@@ -1,10 +1,11 @@
 ---
 phase: 3
 slug: devvit-scaffold-data-layer
-status: draft
+status: approved
 shadcn_initialized: false
 preset: none
 created: 2026-06-20
+reviewed_at: 2026-06-20
 ---
 
 # Phase 3 — UI Design Contract
