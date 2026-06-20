@@ -56,10 +56,37 @@ function hueHint(day: DayVector): number {
   return clamp01(blended);
 }
 
-// Star count: mock `Math.max(5, Math.min(112, Math.round(p*0.30)))`, with the
-// 0.30 literal replaced by the genome density knob.
+/**
+ * STAR_FLOOR — [ASSUMED] the per-day minimum star count (VIS-DENSITY). The mock's
+ * floor of 5 left the simulator's quiet days (beats.ts: day-30 postsMean≈9, day-29≈11)
+ * rendering only ~5 tiny faint stars → rings read as near-empty. A clear cluster needs
+ * markedly more; 18 lands the quietest sim day in the "visibly populated" band while
+ * staying well under the busy/drama/AMA counts (so contrast survives — see STAR_BASELINE).
+ * The whole synthesis arc was verified numerically against beats.ts before committing.
+ */
+export const STAR_FLOOR = 18;
+
+/**
+ * STAR_BASELINE — [ASSUMED] a gentle additive baseline added BEFORE the density slope.
+ * A pure raised floor would flatten quiet→busy contrast (every day ≤ a few dozen posts
+ * would clamp to STAR_FLOOR, so a 24-post day and a 92-post drama day would look the
+ * same). The baseline lifts the linear term so busy days separate cleanly above the
+ * floor: drama day-12 (≈92 posts, calm density 0.24) → ~32 stars vs a quiet day's 18,
+ * while the cap keeps the densest day (410 posts) at 108 < 112. Keeps `starCount`
+ * monotonic in `posts` and a PURE function of its args (no rng, no Devvit — ENG-02/03).
+ */
+export const STAR_BASELINE = 10;
+
+// Star count (VIS-DENSITY): mock was `Math.max(5, Math.min(112, Math.round(p*0.30)))`.
+// The 0.30 literal is the genome density knob; the floor is raised to STAR_FLOOR and a
+// gentle STAR_BASELINE term lifts the slope so even the quietest day reads as a
+// populated cluster while busy days stay markedly denser. Cap (112) unchanged. PURE,
+// monotonic non-decreasing in `posts` — same args → same count (determinism preserved).
 function starCount(posts: number, density: number): number {
-  return Math.max(5, Math.min(112, Math.round(posts * density)));
+  return Math.max(
+    STAR_FLOOR,
+    Math.min(112, Math.round(STAR_BASELINE + posts * density)),
+  );
 }
 
 // ---- VIS-DEPTH geometry (D-01 / D-02) — PURE, no rng() (RESEARCH Pitfall 1) ----
