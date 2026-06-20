@@ -1,17 +1,30 @@
+/* game.css — the Subcosm post webroot stage (S2).
+ *
+ * The stage fills the post viewport and disables native touch gestures
+ * (touch-action: none) so pinch-to-zoom / drag manipulate the cosmos camera
+ * (plan 04) instead of scrolling/zooming the Reddit post page. Background is the
+ * cosmos deep-space ink (#04030a), matching the Phaser backgroundColor so there
+ * is no flash of the old Phaser-template grey before the canvas paints. */
+html,
 body {
   margin: 0;
   padding: 0;
   color: rgba(255, 255, 255, 0.87);
-  background-color: #0f0f0f;
+  background-color: #04030a;
+  /* Disable page-level pull-to-refresh / overscroll inside the post iframe. */
+  overscroll-behavior: none;
 }
 
 #app {
   width: 100%;
-  height: 100vh;
+  /* dvh tracks the real mobile viewport (URL-bar collapse) better than vh. */
+  height: 100dvh;
   overflow: hidden;
 }
 
 #game-container {
   width: 100%;
   height: 100%;
+  /* The stage owns all touch gestures (pinch/drag → camera, not page scroll). */
+  touch-action: none;
 }
