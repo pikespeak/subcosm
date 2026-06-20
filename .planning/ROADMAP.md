@@ -125,7 +125,12 @@ Plans:
   3. The hourly UTC sweeper fires the daily tick at the correct local day boundary, writes a Ring record with `genomeVersion` and explicit `ringCount`, resets counters, and opens the next frontier — verified in a test subreddit
   4. A mod installing the app sees a settings page to choose genome preset + style; the chosen config drives that community's universe with no code changes
 
-**Plans**: TBD
+**Plans**: 5 plans
+- [ ] 03-01-PLAN.md — Wave-0 spike: WebGL-in-iframe-on-mobile + first trigger payload capture + devvit.json 0.13.4 conformance (DEV-01, DEV-02)
+- [ ] 03-02-PLAN.md — Triggers → Redis daily counters (SET/ZSET/reply proxy) + pure conflict composite (DEV-02, DEV-03)
+- [ ] 03-03-PLAN.md — Ring record contract + scheduler tick: freeze frontier → conflict → Ring (seed=hash) → reset → idempotency guard (DEV-04, DEV-05)
+- [ ] 03-04-PLAN.md — Install settings (genome/style/IANA tz, i18n-validated) + hourly UTC sweeper firing local-midnight ticks (DEV-04, DEV-06)
+- [ ] 03-05-PLAN.md — GET /api/organism + data-driven game.ts: fetch → render real universe with cold-start/error/loading states (DEV-01, DEV-05)
 
 ### Phase 4: Live Game
 
