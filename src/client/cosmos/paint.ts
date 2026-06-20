@@ -143,21 +143,51 @@ function drawShell(
   // Size keeps a high floor so standout-but-old days stay legible at small radius.
   const sizeWeight = 0.7 + weight * 0.3;
 
+  // VIS-ANIM (D-05): a BAKED per-day metric signature. So a high-conflict frozen
+  // day looks visibly different from a calm one even though neither animates, we
+  // fold the shell's STATIC Scene metrics into each glow/star's OWN args BEFORE
+  // they flow into bakeShell. Phaser nuance (Pitfall 2): DynamicTexture.draw()
+  // ignores alpha/tint on game objects, so the variance MUST ride each object's
+  // own setTint/setAlpha/displaySize — never a per-shell dt.draw arg. The
+  // signature is a PURE function of conflict / weight / mean energy — NO rng in
+  // paint (Anti-Pattern A5; randomness, if ever needed, belongs in seeded
+  // synthesis). The live frontier draws through this same path so its baseline
+  // look matches its frozen self after it freezes; the frontier's per-FRAME
+  // motion stays owned by CosmosScene (igniteParams), not here.
+  const conflict = shell.meta.conflict;
+  const meanEnergy = shell.elements.length
+    ? shell.elements.reduce((s, e) => s + e.energy, 0) / shell.elements.length
+    : 0;
+  // Redshift push: high conflict shifts colors toward the WARM end of the ramp
+  // (hueToColor's high stops) for a turbulent/stormy frozen look; calm stays cool.
+  const redshift = conflict * 0.35;
+  // Energy → brighter cores + more/larger nebula; calm → dimmer, smoother.
+  const energyBoost = 0.85 + meanEnergy * 0.4;
+  // Conflict → tighter angular clumping of nebula (turbulent), calm → even spread.
+  const clump = conflict * 0.6;
+
   // --- per-shell nebula clouds (mock l.213-223) ---
   // Density derived from geometry (element count), NOT raw activity — paint stays
-  // on the Scene contract. More elements ⇒ more, brighter nebula.
+  // on the Scene contract. More elements ⇒ more, brighter nebula. High conflict/
+  // energy adds a couple extra clouds for a denser "turbulent" signature (D-05).
   const dens = Math.min(1, shell.elements.length / 60);
-  const nClouds = Math.round(2 + dens * 4);
+  const nClouds = Math.round(2 + dens * 4 + (conflict + meanEnergy) * 1.5);
+  // Nebula hue: the mean element hue of this shell, pushed warm by conflict.
+  const baseHue = shell.elements.length
+    ? shell.elements.reduce((s, e) => s + e.hue, 0) / shell.elements.length
+    : 0.5;
+  const nebulaHue = Math.min(1, baseHue + redshift);
   for (let c = 0; c < nClouds; c++) {
-    const ca = (c / nClouds) * Math.PI * 2 + shell.day;
+    // Conflict clumps the clouds toward one arc (turbulent) rather than an even ring.
+    const evenAngle = (c / nClouds) * Math.PI * 2;
+    const ca = evenAngle * (1 - clump) + shell.day;
     const nx = cx + Math.cos(ca) * shellR;
     const ny = cy + Math.sin(ca) * shellR;
-    const cr = band * 2.4 + shellR * 0.05;
-    // Nebula hue: the mean element hue of this shell, mapped through the ramp.
-    const hue = shell.elements.length
-      ? shell.elements.reduce((s, e) => s + e.hue, 0) / shell.elements.length
-      : 0.5;
-    objects.push(addGlow(scene, nx, ny, cr, hueToColor(ramp, hue), fillAlpha * 0.22 * (0.5 + dens) * weight));
+    // High conflict tightens the cloud radius (denser core), calm spreads softer.
+    const cr = (band * 2.4 + shellR * 0.05) * (1 - conflict * 0.25);
+    objects.push(
+      addGlow(scene, nx, ny, cr, hueToColor(ramp, nebulaHue), fillAlpha * 0.22 * (0.5 + dens) * weight * energyBoost),
+    );
   }
 
   // --- stars (mock l.228-246): small dot + big glow ---
@@ -165,13 +195,18 @@ function drawShell(
     const rr = shellR + el.r * band;
     const x = cx + Math.cos(el.angle) * rr;
     const y = cy + Math.sin(el.angle) * rr;
-    const color = hueToColor(ramp, el.hue);
+    // Per-star redshift: a high-conflict day pushes every star warmer too, so the
+    // whole frozen shell reads redshifted/turbulent (D-05). Bounded to [0,1].
+    const starHue = Math.min(1, el.hue + redshift);
+    const color = hueToColor(ramp, starHue);
     const sz = Math.max(2, el.size * rMax * 0.06) * (el.big ? 1.6 : 1) * sizeWeight;
-    const energyAlpha = fillAlpha * (0.6 + el.energy * 0.4) * weight;
+    // Fold D-02's age-fade (weight) AND D-05's per-day energy character into the
+    // same per-glow alpha so the two compose (the Plan-01 energyAlpha line).
+    const energyAlpha = fillAlpha * (0.6 + el.energy * 0.4) * weight * energyBoost;
 
     if (el.big) {
       // Big star: soft additive glow halo first (mock l.238-242).
-      objects.push(addGlow(scene, x, y, sz * 2.4, color, energyAlpha));
+      objects.push(addGlow(scene, x, y, sz * 2.4, color, Math.min(1, energyAlpha)));
     }
     if (facet) {
       // Crystalline: a faceted/angular star-polygon (D-05). Arm count = the
