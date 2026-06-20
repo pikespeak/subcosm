@@ -8,8 +8,11 @@
     "exactOptionalPropertyTypes": false,
     "rootDir": "../src/server"
   },
+  // The server SOURCE project: prod modules only. Test files are excluded here
+  // and type-checked by the sibling tools/tsconfig.server-tests.json project
+  // (mirrors the engine source/tests split).
   "include": ["../src/server/**/*"],
-  "exclude": [],
+  "exclude": ["../src/server/**/*.test.ts"],
   "references": [
     {
       "path": "./tsconfig.shared.json"

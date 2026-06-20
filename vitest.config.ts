@@ -7,6 +7,10 @@ import { defineConfig } from 'vitest/config';
 // module whose no-strobe bound must be unit-tested, VIS-ANIM D-04). Only
 // Phaser-free client modules belong here; Phaser-bearing client code is not a
 // target of this runner.
+//
+// Server: only the PURE server modules belong here — the central Redis
+// key-builder (no Devvit import) and the Zod trigger contracts (pure schemas).
+// Devvit-bearing server route handlers are NOT a target of this runner.
 export default defineConfig({
   test: {
     include: [
@@ -14,6 +18,8 @@ export default defineConfig({
       'src/styles/**/*.test.ts',
       'src/sim/**/*.test.ts',
       'src/client/cosmos/ignite.test.ts',
+      'src/server/core/redisKeys.test.ts',
+      'src/server/contracts/triggers.test.ts',
     ],
     environment: 'node',
     passWithNoTests: true,

@@ -1,0 +1,85 @@
+// triggers contracts — unit tests for the tolerant trigger payload schemas.
+//
+// These schemas are the Zod BOUNDARY (V5) for the Reddit-platform → server
+// trust boundary (T-03-01). They must accept the documented required ids AND
+// tolerate extra/unknown platform fields (.passthrough(), A2 — exact 0.13.4
+// nesting unconfirmed until the playtest spike), while still rejecting a payload
+// missing a required id.
+import { describe, expect, test } from 'vitest';
+import {
+  CommentCreatePayloadSchema,
+  PostCreatePayloadSchema,
+} from './triggers';
+
+describe('CommentCreatePayloadSchema', () => {
+  test('accepts a payload with the required ids', () => {
+    const parsed = CommentCreatePayloadSchema.parse({
+      author: { id: 't2_author' },
+      comment: { id: 't1_comment' },
+      post: { id: 't3_post' },
+    });
+    expect(parsed.author.id).toBe('t2_author');
+    expect(parsed.comment.id).toBe('t1_comment');
+    expect(parsed.post.id).toBe('t3_post');
+  });
+
+  test('tolerates an optional comment.parentId (reply-depth proxy)', () => {
+    const parsed = CommentCreatePayloadSchema.parse({
+      author: { id: 't2_a' },
+      comment: { id: 't1_c', parentId: 't1_parent' },
+      post: { id: 't3_p' },
+    });
+    expect(parsed.comment.parentId).toBe('t1_parent');
+  });
+
+  test('passes through extra unknown platform fields (A2)', () => {
+    const parsed = CommentCreatePayloadSchema.parse({
+      author: { id: 't2_a', name: 'someone' },
+      comment: { id: 't1_c', body: 'hi', extraNested: { x: 1 } },
+      post: { id: 't3_p' },
+      subreddit: { id: 't5_sub', name: 'sub' },
+      unexpectedTopLevel: true,
+    }) as Record<string, unknown>;
+    expect(parsed.unexpectedTopLevel).toBe(true);
+    expect(parsed.subreddit).toEqual({ id: 't5_sub', name: 'sub' });
+  });
+
+  test('rejects a payload missing a required id (boundary rejects malformed — V5)', () => {
+    expect(() =>
+      CommentCreatePayloadSchema.parse({
+        author: {},
+        comment: { id: 't1_c' },
+        post: { id: 't3_p' },
+      }),
+    ).toThrow();
+    expect(() =>
+      CommentCreatePayloadSchema.parse({
+        author: { id: 't2_a' },
+        comment: { id: 't1_c' },
+        // post.id missing
+      }),
+    ).toThrow();
+  });
+});
+
+describe('PostCreatePayloadSchema', () => {
+  test('accepts author.id + post.id and extra fields', () => {
+    const parsed = PostCreatePayloadSchema.parse({
+      author: { id: 't2_a' },
+      post: { id: 't3_p', title: 'Hello', flair: 'x' },
+      somethingElse: 1,
+    }) as Record<string, unknown>;
+    expect((parsed.author as { id: string }).id).toBe('t2_a');
+    expect((parsed.post as { id: string }).id).toBe('t3_p');
+    expect(parsed.somethingElse).toBe(1);
+  });
+
+  test('rejects a payload missing a required id', () => {
+    expect(() =>
+      PostCreatePayloadSchema.parse({ author: { id: 't2_a' } }),
+    ).toThrow();
+    expect(() =>
+      PostCreatePayloadSchema.parse({ post: { id: 't3_p' } }),
+    ).toThrow();
+  });
+});

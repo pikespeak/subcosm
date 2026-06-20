@@ -1,0 +1,20 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "outDir": "../dist/types/server-tests",
+    "tsBuildInfoFile": "../dist/types/server-tests/tsconfig.tsbuildinfo",
+    "customConditions": [],
+    "types": ["node"],
+    "exactOptionalPropertyTypes": false,
+    "rootDir": "../src/server"
+  },
+  // Type-checks the server tests (vitest). Emit (composite requires it) is
+  // declarations only, parked under dist/types/server-tests — never inside the
+  // source tree and never consumed at runtime.
+  "include": ["../src/server/**/*.test.ts"],
+  "exclude": [],
+  "references": [
+    { "path": "./tsconfig.server.json" },
+    { "path": "./tsconfig.shared.json" }
+  ]
+}
