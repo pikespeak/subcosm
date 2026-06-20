@@ -66,6 +66,7 @@
 
 - [x] **VIS-DEPTH**: Rework shell radius/spacing geometry so earlier/frozen days read distinctly all the way toward the core — the current `radius = Math.pow(0.85, idx)` (`src/engine/synthesis.ts`) crushes deep shells into a faint central blob. Per-shell brightness/size tuning allowed. Touches the engine contract `radius` → golden snapshots re-baselined and determinism tests updated; same `seed + genomeVersion` still reproduces identical output. Re-judged side-by-side vs `docs/subcosm-universe-mock.html`.
 - [x] **VIS-ANIM**: The frontier ignite animation is data-driven from the day's metrics (conflict / energy / momentum), not a uniform `StyleTemplate`-constant sine (`pulse = 0.55 + 0.45*sin(time*0.0022*speed)`). Different days and communities animate differently. Preserves the 60fps rule (only the frontier re-renders per frame) and `prefers-reduced-motion` (static frame).
+- [x] **VIS-DENSITY**: Every day-shell reads as visibly populated — even quiet days show a clear cluster of stars, not a near-empty faint ring. Raise the per-day star floor / density mapping in synthesis (`starCount`) so no ring looks empty, while preserving the busy/drama/AMA-vs-quiet contrast (busy days still markedly denser). Determinism re-baselined (element counts legitimately change); geometry (`radius`/`weight`) and the genome/style contracts are untouched. Re-judged vs `docs/subcosm-universe-mock.html`.
 
 ### B. Devvit Integration & Live Game (Reddit wiring)
 
