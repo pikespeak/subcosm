@@ -17,7 +17,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Engine Foundation** - Zod contracts (including goal + personal-layer fields), seeded RNG, genome/style-as-data template engine, and deterministic synthesis — the typed core everything else depends on (completed 2026-06-19)
 - [x] **Phase 2: Visual Engine + Simulator** - Techno Canvas2D paint at mock parity, camera + depth scrubber + legibility readout (including day's goal), steering nudges, data simulator, and the dev harness — the complete standalone visual demo (completed 2026-06-19)
-- [ ] **Phase 2.1: Visual Depth & Animation Polish** (INSERTED) - Rework shell depth/spacing geometry so earlier/frozen days read distinctly (no central blob) and make the frontier ignite data-driven from day metrics — the deferred visual-quality pass from 02-05, before any Reddit code
+- [x] **Phase 2.1: Visual Depth & Animation Polish** (INSERTED) - Rework shell depth/spacing geometry so earlier/frozen days read distinctly (no central blob) and make the frontier ignite data-driven from day metrics — the deferred visual-quality pass from 02-05, before any Reddit code (completed 2026-06-20)
 - [ ] **Phase 3: Devvit Scaffold + Data Layer** - Devvit Web app scaffold, Reddit triggers → Redis aggregation, hourly UTC scheduler tick, genome at install via settings — the Reddit wiring
 - [ ] **Phase 4: Live Game** - Live frontier fills during the day, freezes overnight irreversibly, the tick scores the day against its goal (GAME-02/03/04), and a pinned reveal post shows what the community's universe became — the full retention loop
 - [ ] **Phase 5: Submit** - Mobile polish, onboarding (including goal→steer→reveal loop legibility), published app listing, public playable demo post, Devpost write-up — the submission package
@@ -101,7 +101,7 @@ Plans:
   4. The 60fps rule is preserved — only the live frontier re-renders per frame; frozen shells stay baked to texture
   5. `prefers-reduced-motion` still produces a static render with no animation or strobe
 
-**Plans**: 1/2 plans executed
+**Plans**: 2/2 plans complete
 
 **Wave 1**
 
@@ -109,7 +109,7 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 02.1-02-PLAN.md — VIS-ANIM: data-driven ignite (`igniteParams`: conflict→amplitude/hardness, energy→tempo, no-strobe) + baked per-day frozen-shell signature (paint-side; no contract change)
+- [x] 02.1-02-PLAN.md — VIS-ANIM: data-driven ignite (`igniteParams`: conflict→amplitude/hardness, energy→tempo, no-strobe) + baked per-day frozen-shell signature (paint-side; no contract change)
 
 ### Phase 3: Devvit Scaffold + Data Layer
 
@@ -165,7 +165,7 @@ Plans:
 |-------|----------------|--------|-----------|
 | 1. Engine Foundation | 3/3 | Complete    | 2026-06-19 |
 | 2. Visual Engine + Simulator | 5/5 | Complete    | 2026-06-19 |
-| 2.1. Visual Depth & Animation Polish | 1/2 | In Progress|  |
+| 2.1. Visual Depth & Animation Polish | 2/2 | Complete   | 2026-06-20 |
 | 3. Devvit Scaffold + Data Layer | 0/TBD | Not started | - |
 | 4. Live Game | 0/TBD | Not started | - |
 | 5. Submit | 0/TBD | Not started | - |
