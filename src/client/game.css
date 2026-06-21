@@ -22,9 +22,108 @@ body {
   overflow: hidden;
 }
 
+#app {
+  position: relative; /* anchor the absolutely-positioned state overlays */
+}
+
 #game-container {
   width: 100%;
   height: 100%;
   /* The stage owns all touch gestures (pinch/drag → camera, not page scroll). */
   touch-action: none;
+}
+
+/* ── S3 state overlays (UI-SPEC) ───────────────────────────────────────────────
+ * Loading / cold-start / error chrome over the stage. Reuses the locked cosmos
+ * palette + the `.hud` translucent-dark panel treatment (rgba(5,4,12,0.78) +
+ * blur). Errors spend NO accent and NO alarm-red — muted ink only (the
+ * conflict-red token is reserved for DATA). Cold-start uses --gold for the
+ * Genesis heading (the genesis/big-bang accent). Overlays don't capture pointer
+ * events on the stage except their own controls (the retry button). */
+:root {
+  --ink: #eceaf5;
+  --muted: #8b86a8;
+  --gold: #ffd08a;
+  --hair: rgba(150, 130, 220, 0.14);
+  --panel: rgba(5, 4, 12, 0.78);
+}
+
+.state-overlay {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 2;
+  max-width: min(86vw, 420px);
+  box-sizing: border-box;
+  padding: 16px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  text-align: center;
+  /* The .hud translucent-dark panel + blur — legible over the cosmos. */
+  background: var(--panel);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid var(--hair);
+  border-radius: 12px;
+  /* Don't block stage gestures behind the panel; its own button re-enables. */
+  pointer-events: none;
+  font-family: 'Space Grotesk', system-ui, sans-serif;
+  color: var(--ink);
+}
+
+/* The cold-start panel sits over the genesis core — keep it from masking it. */
+.state-coldstart {
+  background: rgba(5, 4, 12, 0.62);
+}
+
+.state-heading {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 1.2;
+  color: var(--gold); /* genesis accent */
+}
+
+.state-line {
+  margin: 0;
+  font-family: 'Space Mono', ui-monospace, monospace;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.55;
+  color: var(--ink);
+}
+
+/* Error copy is muted ink (a read-only failure, not a destructive action). */
+#state-error .state-line {
+  color: var(--muted);
+}
+
+/* Retry: secondary substrate, no accent. Re-enable pointer events for the click,
+ * ≥44px touch target (Reddit mobile viewport hit-area floor). */
+.state-retry {
+  pointer-events: auto;
+  min-height: 44px;
+  margin-top: 8px;
+  padding: 0 24px;
+  background: linear-gradient(#1c1636, #15102a);
+  color: var(--ink);
+  border: 1px solid var(--hair);
+  border-radius: 10px;
+  font-family: 'Space Grotesk', system-ui, sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* Reduced motion: the overlays are already static (no animation declared); the
+ * blur is a static effect. Nothing strobes. This block documents intent and
+ * removes the backdrop blur where a UA maps reduced-motion to reduced effects. */
+@media (prefers-reduced-motion: reduce) {
+  .state-overlay {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
 }

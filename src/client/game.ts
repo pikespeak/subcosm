@@ -1,59 +1,80 @@
-// game — the Subcosm interactive-post webroot mount (S2, DEV-01).
+// game — the Subcosm interactive-post webroot mount (S2, DEV-01 / DEV-05).
 //
-// This REPLACES the Phaser-template boilerplate (Boot/Preloader/MainMenu/Game/
-// GameOver + the '#028af8' blue demo). It boots the engine via the single
-// orchestration seam `render(days, genome, style, painter)` — it NEVER calls
-// synthesis directly (the engine↔paint contract).
+// THE DATA-DRIVEN MOUNT (plan 03-05): the post now fetches the community's real
+// accumulated universe and renders it. It REPLACES the 03-01 fixed-fixture spike
+// stub (which proved Phaser/WebGL boots in the Reddit post iframe) with the
+// production read path: same-origin `fetch('/api/organism')` → `safeParse` the
+// `OrganismResponse` envelope → branch to loading / cold-start / error / render,
+// feeding the server's Ring records into the UNCHANGED engine `render()` seam.
 //
-// WAVE-0 SPIKE STUB (plan 03-01): for THIS plan the day data is a trivial FIXED
-// fixture (`generateDayVectors({ seed: SPIKE_SEED })`, reversed frontier-first)
-// and the genome/style are the Calm/Techno preset — there is NO `/api/organism`
-// fetch yet. The sole purpose of this stub is to prove that Phaser (WebGL,
-// Canvas2D fallback via `type: AUTO`) actually boots and paints a real Scene
-// inside the Reddit post iframe on a physical phone (RESEARCH A1/OQ1).
+// Boundary discipline (CLAUDE.md §6): the client NEVER throws on a bad payload —
+// it `safeParse`s at the UI boundary and routes a parse/fetch failure to the
+// muted-ink error overlay (T-03-12). It calls `render()` (the single orchestration
+// seam) — NEVER `synthesize()` directly. Rings arrive already RingRecord-parsed
+// from the server's single read boundary (03-03), so the client does NOT re-parse
+// on the hot path (Pitfall 6).
 //
-// The data-driven mount — `fetch('/api/organism')` → `safeParse` envelope →
-// cold-start / error overlays → feed Ring records into this same `render()` —
-// lands in plan 03-05. The dev control harness (scrubber / nudges / regenerate /
-// seed) is intentionally NOT here: the Phase-3 post is a read-only render.
+// Same-origin only (RESEARCH Pattern 1 / Pitfall 1): the client talks to its own
+// server via `fetch('/api/...')` — NO `postMessage`.
 //
 // Mirrors src/client/cosmos-dev/main.ts's Phaser config + mount sequence (the
-// canonical analog), minus that page's DOM control wiring.
+// canonical analog), minus that dev page's control harness (scrubber / nudges /
+// regenerate / seed) — the Phase-3 post is a READ-ONLY render (UI-SPEC S2).
 import * as Phaser from 'phaser';
 import { AUTO, Game } from 'phaser';
 import { render, type RenderHandle } from '../engine/render';
-import { calm } from '../engine/genomes';
-import type { DayVector } from '../engine/contracts';
+import { calm, chaotic, crystalline } from '../engine/genomes';
+import type { Genome, StyleTemplate, RingRecord } from '../engine/contracts';
 import { techno } from '../styles/techno';
-import { generateDayVectors } from '../sim';
+import { crystalline as crystallineStyle } from '../styles/crystalline';
+import {
+  OrganismResponseSchema,
+  type GenomeId,
+  type OrganismResponse,
+} from '../shared/api';
 import { PhaserPainter } from './cosmos/PhaserPainter';
 
 // The post webroot stage (game.html parent div).
 const PARENT = 'game-container';
 
-// A fixed seed → a deterministic, well-told multi-shell universe for the spike.
-// Re-using the simulator gives a REAL Scene (genesis core + frozen shells +
-// frontier), so the device test exercises the same geometry the production
-// mount will, not a throwaway single-ring fixture.
-const SPIKE_SEED = 1;
+/** Resolve a config genome id → its engine genome (behaviour DATA). */
+const GENOMES: Record<GenomeId, Genome> = {
+  calm,
+  chaotic,
+  crystalline,
+};
 
 /**
- * The simulator emits oldest-first (day 1 at index 0). Synthesis wants the live
- * frontier (newest day) at index 0 (radius pow(0.85,0)=1). Reverse once here —
- * identical to cosmos-dev/main.ts's `frontierFirst`.
+ * Resolve a config style id → its engine StyleTemplate (look DATA). Only `techno`
+ * is authored this phase (the Crystalline LOOK is a techno-id variant); the
+ * contract's `comic`/`pixel` ids are not yet implemented, so they fall back to
+ * the techno look rather than ever yielding a broken canvas (V5 / UI-SPEC S4).
  */
-function frontierFirst(seed: number): DayVector[] {
-  return [...generateDayVectors({ seed })].reverse();
+const STYLES: Record<string, StyleTemplate> = {
+  techno,
+  // The crystalline style module carries id:'techno' but a distinct ice-blue look.
+  // It is offered only via the genome preset, not the StyleId enum — kept here so
+  // a future StyleId can map to it without an engine change.
+  crystalline: crystallineStyle,
+};
+
+/**
+ * The simulator/server emit oldest-first (day 1 / genesis at index 0). Synthesis
+ * wants the live frontier (newest day) at index 0 (radius pow(0.85,0)=1). Reverse
+ * once here — identical to cosmos-dev/main.ts's `frontierFirst`. RingRecord
+ * extends DayVector, so the reversed array drops straight into `render()`.
+ */
+function frontierFirst(rings: RingRecord[]): RingRecord[] {
+  return [...rings].reverse();
 }
 
-/** Boot Phaser + mount the fixed-fixture Scene through the engine `render()`. */
-function boot(): RenderHandle {
+/** Build the Phaser game config (mirrors cosmos-dev/main.ts; mobile DPR cap 2). */
+function gameConfig(): Phaser.Types.Core.GameConfig {
   // DPR cap at 2 (PNT-03): never render at more than 2× device pixels — keeps the
-  // fill-rate budget sane on high-DPR mobile (the spike's whole point is mobile).
+  // fill-rate budget sane on high-DPR mobile.
   const dpr = Math.min(window.devicePixelRatio || 1, 2);
-
-  const config: Phaser.Types.Core.GameConfig = {
-    type: AUTO, // WebGL-preferred (PNT-01), Canvas2D fallback — the A1 probe.
+  return {
+    type: AUTO, // WebGL-preferred (PNT-01), Canvas2D fallback.
     parent: PARENT,
     backgroundColor: '#04030a',
     scale: {
@@ -65,15 +86,94 @@ function boot(): RenderHandle {
       height: window.innerHeight,
     },
   };
+}
 
-  const days = frontierFirst(SPIKE_SEED);
+// ── Overlay state machine (UI-SPEC S3) ───────────────────────────────────────
+// Exactly one of loading / cold-start / error is visible at a time (or none, once
+// a populated universe is rendered). All copy lives in game.html behind i18n
+// keys; we only toggle the [hidden] attribute — never inject language text here.
+type OverlayState = 'loading' | 'coldstart' | 'error' | 'none';
 
-  // render() is the single orchestration seam — never synthesize() here.
-  const game = new Game(config);
+function setOverlay(state: OverlayState): void {
+  const ids: Record<Exclude<OverlayState, 'none'>, string> = {
+    loading: 'state-loading',
+    coldstart: 'state-coldstart',
+    error: 'state-error',
+  };
+  for (const [key, id] of Object.entries(ids)) {
+    const el = document.getElementById(id);
+    if (el) el.hidden = key !== state;
+  }
+}
+
+/** Live render stack — torn down before a retry re-render (no leaked game/loop). */
+let game: Phaser.Game | null = null;
+let handle: RenderHandle | null = null;
+
+function teardown(): void {
+  // The engine render() destroy handle is the single teardown seam (ENG-04):
+  // painter.destroy() → game.destroy() fires the Scene SHUTDOWN/DESTROY events.
+  handle?.destroy();
+  handle = null;
+  game = null;
+}
+
+/**
+ * Mount the universe for a parsed envelope. Cold-start (0 rings) renders the
+ * genesis-core-only universe AND shows the Genesis overlay — intentional, never
+ * empty/broken (D-04). Otherwise the real accumulated rings render frontier-first.
+ */
+function mountUniverse(data: OrganismResponse): void {
+  teardown();
+
+  const genome = GENOMES[data.genome];
+  // Config style id wins for paint; fall back to techno for an unimplemented id.
+  const style = STYLES[data.style] ?? techno;
+  const days = frontierFirst(data.rings);
+
+  // render() is the single orchestration seam — never synthesize() here. With
+  // zero rings, render()/synthesis produces the genesis-core-only Scene (D-04).
+  game = new Game(gameConfig());
   const painter = new PhaserPainter(game);
-  return render(days, calm, techno, painter);
+  handle = render(days, genome, style, painter);
+
+  setOverlay(data.rings.length === 0 ? 'coldstart' : 'none');
+}
+
+/**
+ * loadCosmos — fetch the community's universe and render it (RESEARCH Pattern 1).
+ *
+ * Same-origin `fetch('/api/organism')` (NO postMessage — Pitfall 1); the response
+ * is `safeParse`d at the UI boundary so a malformed/hostile payload or a network
+ * failure routes to the muted-ink error overlay (with retry) rather than throwing
+ * or painting a broken canvas (CLAUDE.md §6 / T-03-12). The loading overlay is
+ * shown until the fetch resolves.
+ */
+async function loadCosmos(): Promise<void> {
+  setOverlay('loading');
+  try {
+    const res = await fetch('/api/organism');
+    const json: unknown = await res.json();
+    const parsed = OrganismResponseSchema.safeParse(json);
+    if (!parsed.success) {
+      // A bad payload (or a non-ok status body that isn't a valid envelope) is an
+      // error state — never a thrown exception, never a broken render.
+      setOverlay('error');
+      return;
+    }
+    mountUniverse(parsed.data);
+  } catch {
+    // Network/offline/JSON failure → the muted-ink error overlay (no alarm-red).
+    setOverlay('error');
+  }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  boot();
+  // The retry affordance re-runs the whole fetch→parse→render flow.
+  const retry = document.getElementById('state-error-retry');
+  retry?.addEventListener('click', () => {
+    void loadCosmos();
+  });
+
+  void loadCosmos();
 });

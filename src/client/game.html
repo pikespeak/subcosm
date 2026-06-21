@@ -13,6 +13,36 @@
   <body>
     <div id="app">
       <div id="game-container"></div>
+
+      <!-- S3 state overlays (UI-SPEC). Exactly one is visible at a time; game.ts
+           toggles the [hidden] attribute. Copy carries its i18n key in
+           data-i18n so the host can localise; the English source is the visible
+           fallback. Errors use MUTED INK only — never alarm-red. All overlays
+           reuse the locked `.hud` chrome (translucent-dark panel + blur). -->
+
+      <!-- Loading: forming-while-fetching (never a failure spinner). -->
+      <div id="state-loading" class="state-overlay" role="status" aria-live="polite" hidden>
+        <p class="state-line" data-i18n="state.loading">Forming your universe…</p>
+      </div>
+
+      <!-- Cold-start / day-1 (D-04): NOT empty/error — the genesis core renders
+           beneath this; the copy reads the first-star Genesis intent. -->
+      <div id="state-coldstart" class="state-overlay state-coldstart" hidden>
+        <h2 class="state-heading" data-i18n="state.coldstart.heading">Genesis</h2>
+        <p class="state-line" data-i18n="state.coldstart.body">
+          Your cosmos begins here. The first star ignites with your community's first post.
+        </p>
+      </div>
+
+      <!-- Error / offline: muted ink, problem + next step, retry (no accent). -->
+      <div id="state-error" class="state-overlay" role="alert" hidden>
+        <p class="state-line" data-i18n="state.error">
+          Can't reach the cosmos right now. Pull to retry.
+        </p>
+        <button id="state-error-retry" type="button" class="state-retry" data-i18n="state.error.retry">
+          Retry
+        </button>
+      </div>
     </div>
     <script type="module" src="game.ts"></script>
   </body>
