@@ -72,7 +72,7 @@
 
 #### Devvit Data Layer (DEV)
 
-- [ ] **DEV-01**: A Devvit Web app scaffolds and hosts the engine as the post webroot (interactive post). Verify current template + CLI at scaffold (`devvit new`).
+- [x] **DEV-01**: A Devvit Web app scaffolds and hosts the engine as the post webroot (interactive post). Verify current template + CLI at scaffold (`devvit new`).
 - [x] **DEV-02**: Event triggers (post/comment create, etc.) increment Redis daily counters; unique contributors via SET, top threads via ZSET. (No vote trigger exists — see DEV-03.)
 - [x] **DEV-03**: A **conflict composite** is derived at tick time from comment-rate / reply-depth proxies + a score snapshot (no streaming vote deltas).
 - [x] **DEV-04**: A scheduler **tick** freezes the frontier, runs the genome transform → writes a Ring record (DayVector + seed, including `genomeVersion`), resets counters, opens the next frontier. An **hourly UTC sweeper** finds due communities via IANA timezone with `hash(subId)%60` jitter (DST-safe).
@@ -176,7 +176,7 @@
 | QA-01 | Phase 2: Visual Engine + Simulator | Complete |
 | QA-02 | Phase 2: Visual Engine + Simulator | Complete |
 | QA-03 | Phase 2: Visual Engine + Simulator | Complete |
-| DEV-01 | Phase 3: Devvit Scaffold + Data Layer | Pending |
+| DEV-01 | Phase 3: Devvit Scaffold + Data Layer | Complete |
 | DEV-02 | Phase 3: Devvit Scaffold + Data Layer | Complete |
 | DEV-03 | Phase 3: Devvit Scaffold + Data Layer | Complete |
 | DEV-04 | Phase 3: Devvit Scaffold + Data Layer | Complete |

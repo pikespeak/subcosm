@@ -6,15 +6,15 @@ current_phase: 03
 current_phase_name: Devvit Scaffold + Data Layer
 status: executing
 stopped_at: Completed 03-04-PLAN.md (install settings boundary + hourly DST-safe sweeper)
-last_updated: "2026-06-21T15:31:59.959Z"
+last_updated: "2026-06-21T15:46:05.967Z"
 last_activity: 2026-06-21
 last_activity_desc: Phase 03 execution started
 progress:
   total_phases: 6
-  completed_phases: 3
+  completed_phases: 4
   total_plans: 15
-  completed_plans: 15
-  percent: 50
+  completed_plans: 16
+  percent: 67
 ---
 
 # Project State
@@ -29,7 +29,7 @@ See: .planning/PROJECT.md (updated 2026-06-19)
 ## Current Position
 
 Phase: 03 (Devvit Scaffold + Data Layer) — EXECUTING
-Plan: 4 of 5
+Plan: 5 of 5
 Status: Ready to execute
 Last activity: 2026-06-21 — Phase 03 execution started
 
@@ -70,6 +70,7 @@ Progress: [██████████] 100%
 | Phase 03 P02 | 8min | 3 tasks | 10 files |
 | Phase 03 P03 | 10min | 3 tasks | 14 files |
 | Phase 03 P04 | 13min | 3 tasks | 12 files |
+| Phase 03 P05 | 6min | 2 tasks | 11 files |
 
 ## Accumulated Context
 
@@ -107,6 +108,9 @@ Recent decisions affecting current work:
 - [Phase 03]: subs:registry is a ZSET-as-set (zAdd/zRange) — Devvit 0.13.4 SDK has no sAdd/sMembers/sCard
 - [Phase 03]: Sweeper reads each community's IANA tz from the organism:{sub}:config snapshot (readSnapshot), not settings.get (which is context-scoped, cannot fetch an arbitrary sub)
 - [Phase 03]: DST-safe local midnight via native Intl.DateTimeFormat + deterministic FNV-1a hash(subId)%60 jitter (no Math.random)
+- [Phase ?]: OrganismResponse is a shared z.infer envelope whose rings reuse RingRecordSchema — server .parse + client safeParse share one contract
+- [Phase ?]: src/shared/api.ts kept client-safe (engine contracts + zod only); GenomeIdEnum declared in shared, not imported from server, to preserve bundle safety
+- [Phase ?]: /api/organism uses context-scoped readConfig() (not readConfig(sub)) per the 03-04 SDK correction; sub from context.subredditId for readAllRings (V4)
 
 ### Pending Todos
 
@@ -132,6 +136,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-06-21T15:31:59.953Z
+Last session: 2026-06-21T15:45:06.485Z
 Stopped at: Completed 03-04-PLAN.md (install settings boundary + hourly DST-safe sweeper)
 Resume file: .planning/phases/03-devvit-scaffold-data-layer/03-02-PLAN.md

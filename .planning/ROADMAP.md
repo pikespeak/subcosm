@@ -18,7 +18,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 1: Engine Foundation** - Zod contracts (including goal + personal-layer fields), seeded RNG, genome/style-as-data template engine, and deterministic synthesis — the typed core everything else depends on (completed 2026-06-19)
 - [x] **Phase 2: Visual Engine + Simulator** - Techno Canvas2D paint at mock parity, camera + depth scrubber + legibility readout (including day's goal), steering nudges, data simulator, and the dev harness — the complete standalone visual demo (completed 2026-06-19)
 - [x] **Phase 2.1: Visual Depth & Animation Polish** (INSERTED) - Rework shell depth/spacing geometry so earlier/frozen days read distinctly (no central blob), make the frontier ignite data-driven from day metrics, and make every ring read visibly populated — the deferred visual-quality pass from 02-05, before any Reddit code (completed 2026-06-20)
-- [ ] **Phase 3: Devvit Scaffold + Data Layer** - Devvit Web app scaffold, Reddit triggers → Redis aggregation, hourly UTC scheduler tick, genome at install via settings — the Reddit wiring
+- [x] **Phase 3: Devvit Scaffold + Data Layer** - Devvit Web app scaffold, Reddit triggers → Redis aggregation, hourly UTC scheduler tick, genome at install via settings — the Reddit wiring (completed 2026-06-21)
 - [ ] **Phase 4: Live Game** - Live frontier fills during the day, freezes overnight irreversibly, the tick scores the day against its goal (GAME-02/03/04), and a pinned reveal post shows what the community's universe became — the full retention loop
 - [ ] **Phase 5: Submit** - Mobile polish, onboarding (including goal→steer→reveal loop legibility), published app listing, public playable demo post, Devpost write-up — the submission package
 
@@ -125,7 +125,7 @@ Plans:
   3. The hourly UTC sweeper fires the daily tick at the correct local day boundary, writes a Ring record with `genomeVersion` and explicit `ringCount`, resets counters, and opens the next frontier — verified in a test subreddit
   4. A mod installing the app sees a settings page to choose genome preset + style; the chosen config drives that community's universe with no code changes
 
-**Plans**: 4/5 plans executed
+**Plans**: 5/5 plans complete
 **Wave 1**
 
 - [x] 03-01-PLAN.md — Wave-0 spike: WebGL-in-iframe-on-mobile + first trigger payload capture + devvit.json 0.13.4 conformance (DEV-01, DEV-02)
@@ -144,7 +144,7 @@ Plans:
 
 **Wave 5** *(blocked on Wave 4 completion)*
 
-- [ ] 03-05-PLAN.md — GET /api/organism + data-driven game.ts: fetch → render real universe with cold-start/error/loading states (DEV-01, DEV-05)
+- [x] 03-05-PLAN.md — GET /api/organism + data-driven game.ts: fetch → render real universe with cold-start/error/loading states (DEV-01, DEV-05)
 
 ### Phase 4: Live Game
 
@@ -186,6 +186,6 @@ Plans:
 | 1. Engine Foundation | 3/3 | Complete    | 2026-06-19 |
 | 2. Visual Engine + Simulator | 5/5 | Complete    | 2026-06-19 |
 | 2.1. Visual Depth & Animation Polish | 3/2 | Complete    | 2026-06-20 |
-| 3. Devvit Scaffold + Data Layer | 4/5 | In Progress|  |
+| 3. Devvit Scaffold + Data Layer | 5/5 | Complete   | 2026-06-21 |
 | 4. Live Game | 0/TBD | Not started | - |
 | 5. Submit | 0/TBD | Not started | - |
