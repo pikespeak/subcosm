@@ -1,6 +1,9 @@
 {
   "$schema": "https://developers.reddit.com/schema/config-file.v1.json",
   "name": "subcosm-universe",
+  "dev": {
+    "subreddit": "subcosm_test_om"
+  },
   "post": {
     "dir": "dist/client",
     "entrypoints": {
