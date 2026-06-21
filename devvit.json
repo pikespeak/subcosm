@@ -46,10 +46,43 @@
     "onPostCreate": "/internal/triggers/on-post-create",
     "onCommentCreate": "/internal/triggers/on-comment-create"
   },
+  "settings": {
+    "subreddit": {
+      "genome": {
+        "type": "select",
+        "label": "Universe character",
+        "helpText": "Calm = orderly & inherited · Chaotic = volatile & high-contrast · Crystalline = symmetric & enduring.",
+        "options": [
+          { "label": "Calm", "value": "calm" },
+          { "label": "Chaotic", "value": "chaotic" },
+          { "label": "Crystalline", "value": "crystalline" }
+        ],
+        "defaultValue": "calm"
+      },
+      "style": {
+        "type": "select",
+        "label": "Visual style",
+        "helpText": "The look every member sees. One style per community.",
+        "options": [{ "label": "Techno", "value": "techno" }],
+        "defaultValue": "techno"
+      },
+      "timezone": {
+        "type": "string",
+        "label": "Community timezone",
+        "helpText": "Each day freezes at your community's local midnight (IANA zone, e.g. America/New_York).",
+        "defaultValue": "UTC",
+        "validationEndpoint": "/internal/settings/validate-timezone"
+      }
+    }
+  },
   "scheduler": {
     "tasks": {
       "tick": {
         "endpoint": "/internal/scheduler/tick"
+      },
+      "sweeper": {
+        "endpoint": "/internal/scheduler/sweeper",
+        "cron": "0 * * * *"
       }
     }
   },
