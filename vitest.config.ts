@@ -8,9 +8,14 @@ import { defineConfig } from 'vitest/config';
 // Phaser-free client modules belong here; Phaser-bearing client code is not a
 // target of this runner.
 //
-// Server: only the PURE server modules belong here — the central Redis
-// key-builder (no Devvit import) and the Zod trigger contracts (pure schemas).
-// Devvit-bearing server route handlers are NOT a target of this runner.
+// Server: the PURE server modules belong here — the central Redis key-builder
+// and the Zod trigger contracts (no Devvit import), plus the pure D-02
+// conflict-composite. The Redis-accumulation modules (counters / frontierDay)
+// import `@devvit/web/server` but their tests `vi.mock` that module to an
+// in-memory fake, so NO real Devvit runtime is loaded by this runner — the
+// "Phaser-free / no real Devvit" invariant holds (the mock replaces the import
+// before it resolves). Devvit-bearing route handlers themselves are still NOT a
+// target of this runner.
 export default defineConfig({
   test: {
     include: [
@@ -20,6 +25,9 @@ export default defineConfig({
       'src/client/cosmos/ignite.test.ts',
       'src/server/core/redisKeys.test.ts',
       'src/server/contracts/triggers.test.ts',
+      'src/server/core/conflict.test.ts',
+      'src/server/core/counters.test.ts',
+      'src/server/core/frontierDay.test.ts',
     ],
     environment: 'node',
     passWithNoTests: true,
