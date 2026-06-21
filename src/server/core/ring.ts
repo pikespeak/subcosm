@@ -27,8 +27,14 @@ import { RingRecordSchema, type RingRecord } from '../../engine/contracts';
 // `RingRecordSchema.parse` validates. The round-trip is lossless for the
 // RingRecord surface and is unit-covered (ring.test.ts).
 
-/** The composite (JSON-encoded) fields — everything else is a primitive. */
-const JSON_FIELDS = ['topThreads', 'steering'] as const;
+/**
+ * The composite (JSON-encoded) fields — everything else is a primitive. `outcome`
+ * (the GAME-02 scoring object) is JSON-encoded too: without it here, the read path
+ * would hit the `Number(value)` branch → NaN → RingRecordSchema.parse fails
+ * (RESEARCH Pitfall 5 / T-04-01 mitigation). serializeScalars already
+ * JSON.stringifies the object and skips it when undefined (the live frontier).
+ */
+const JSON_FIELDS = ['topThreads', 'steering', 'outcome'] as const;
 
 /** Serialize a validated RingRecord into Redis hash string fields. */
 function serializeScalars(ring: RingRecord): Record<string, string> {

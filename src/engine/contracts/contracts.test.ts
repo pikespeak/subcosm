@@ -110,10 +110,23 @@ describe('contracts: invalid input is rejected', () => {
 // --- Game-loop hook fields (GAME-01) -------------------------------------
 
 describe('contracts: game-loop hook fields exist', () => {
-  test('DayVector accepts an outcome field', () => {
-    const withOutcome = { ...validDayVector, outcome: { score: 7 } };
+  test('DayVector accepts a firmed outcome field (OutcomeSchema)', () => {
+    // Phase 4 firmed `outcome` from the loose z.unknown() placeholder into the
+    // typed OutcomeSchema (GAME-02): it now requires a real scoring object.
+    const outcome = {
+      goal: {
+        type: 'conflictBelow' as const,
+        targetParam: 'conflict',
+        threshold: 0.4,
+        direction: 'below' as const,
+      },
+      measured: 0.31,
+      achieved: true,
+      degree: 0.5,
+    };
+    const withOutcome = { ...validDayVector, outcome };
     const parsed = DayVectorSchema.parse(withOutcome);
-    expect(parsed.outcome).toEqual({ score: 7 });
+    expect(parsed.outcome).toEqual(outcome);
     // The field exists on the schema shape even when omitted.
     expect('outcome' in DayVectorSchema.shape).toBe(true);
   });

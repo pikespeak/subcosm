@@ -148,7 +148,7 @@ describe('runTick — freeze', () => {
       RingRecordSchema.parse({
         ...Object.fromEntries(
           Object.entries(raw).map(([k, v]) =>
-            k === 'topThreads' || k === 'steering'
+            k === 'topThreads' || k === 'steering' || k === 'outcome'
               ? [k, JSON.parse(v)]
               : k === 'date' || k === 'dominantTheme'
                 ? [k, v]
@@ -169,6 +169,67 @@ describe('runTick — freeze', () => {
       conflictComposite({ posts: 6, comments: 20, replies: 8 }),
       10,
     );
+  });
+});
+
+describe('runTick — scoring (GAME-02 / LIVE-03)', () => {
+  test('the frozen ring carries an outcome scored from its DayVector', async () => {
+    await seedAccumulators(SUB, DAY);
+    await runTick(SUB, DAY);
+    const raw = hashes.get(keys.ring(SUB, 1))!;
+    // outcome is JSON-encoded on write; it must be present and parse to an Outcome.
+    expect(raw['outcome']).toBeDefined();
+    const outcome = JSON.parse(raw['outcome']!);
+    expect(typeof outcome.achieved).toBe('boolean');
+    expect(outcome.degree).toBeGreaterThanOrEqual(0);
+    expect(outcome.degree).toBeLessThanOrEqual(1);
+    // default genome is Calm → conflictBelow 0.4; the goal travels with the outcome.
+    expect(outcome.goal).toEqual(calm.dailyGoal);
+  });
+
+  test('the outcome equals score(dayVector, genome) deterministically', async () => {
+    await seedAccumulators(SUB, DAY);
+    await runTick(SUB, DAY);
+    const raw = hashes.get(keys.ring(SUB, 1))!;
+    const outcome = JSON.parse(raw['outcome']!);
+    // Re-derive from the stored DayVector scalars + the Calm genome (LIVE-03):
+    // any client re-running score() on the ring gets the identical verdict.
+    const { score } = await import('../../engine/score');
+    const dayVector = {
+      day: Number(raw['day']),
+      date: raw['date']!,
+      posts: Number(raw['posts']),
+      comments: Number(raw['comments']),
+      contributors: Number(raw['contributors']),
+      scoreSum: Number(raw['scoreSum']),
+      topThreads: JSON.parse(raw['topThreads']!),
+      conflict: Number(raw['conflict']),
+      momentum: Number(raw['momentum']),
+      diversity: Number(raw['diversity']),
+      dominantTheme: raw['dominantTheme']!,
+      steering: JSON.parse(raw['steering']!),
+      seed: Number(raw['seed']),
+    };
+    expect(outcome).toEqual(score(dayVector, calm));
+  });
+
+  test('the stored ring (with outcome) parses through RingRecordSchema', async () => {
+    await seedAccumulators(SUB, DAY);
+    await runTick(SUB, DAY);
+    const raw = hashes.get(keys.ring(SUB, 1))!;
+    expect(() =>
+      RingRecordSchema.parse(
+        Object.fromEntries(
+          Object.entries(raw).map(([k, v]) =>
+            k === 'topThreads' || k === 'steering' || k === 'outcome'
+              ? [k, JSON.parse(v)]
+              : k === 'date' || k === 'dominantTheme'
+                ? [k, v]
+                : [k, Number(v)],
+          ),
+        ),
+      ),
+    ).not.toThrow();
   });
 });
 

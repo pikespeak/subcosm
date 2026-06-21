@@ -28,7 +28,8 @@ import { conflictComposite } from './conflict';
 import { writeRing } from './ring';
 import { RingRecordSchema, type RingRecord } from '../../engine/contracts';
 import { calm, chaotic, crystalline } from '../../engine/genomes';
-import type { Genome } from '../../engine/contracts';
+import { score } from '../../engine/score';
+import type { DayVector, Genome } from '../../engine/contracts';
 
 // Genome preset registry, keyed by the id stored in organism:{sub}:config.genome
 // (the install snapshot, written in 03-04). A new preset is a data entry here —
@@ -58,17 +59,16 @@ function hashSeed(subId: string, day: number, genomeVersion: number): number {
 }
 
 /**
- * Resolve the community's genome version from its configured preset. Reads the
- * genome id from organism:{sub}:config (03-04 install snapshot) and returns that
- * preset's `.version`. Defaults to the Calm preset's version (`calm.version`,
- * not a hardcoded literal — the default tracks the preset) when the config key
- * is absent or the id is unrecognised (e.g. a tick fires before any install
- * snapshot exists).
+ * Resolve the community's full genome from its configured preset. Reads the genome
+ * id from organism:{sub}:config (03-04 install snapshot) and returns that preset
+ * object — both its `.version` (for the seed) and its `.dailyGoal` (for scoring)
+ * come from this single config read. Defaults to the Calm preset (`calm`, not a
+ * hardcoded literal — the default tracks the preset) when the config key is absent
+ * or the id is unrecognised (e.g. a tick fires before any install snapshot exists).
  */
-async function resolveGenomeVersion(subId: string): Promise<number> {
+async function resolveGenome(subId: string): Promise<Genome> {
   const id = await redis.hGet(keys.config(subId), 'genome');
-  const preset = (id && PRESETS[id]) || calm;
-  return preset.version;
+  return (id && PRESETS[id]) || calm;
 }
 
 /**
@@ -83,8 +83,10 @@ export async function runTick(subId: string, day: number): Promise<void> {
   const last = Number((await redis.get(keys.lastTickDay(subId))) ?? 0) || 0;
   if (last >= day) return;
 
-  // 2. Resolve genomeVersion BEFORE the seed (the seed depends on it).
-  const genomeVersion = await resolveGenomeVersion(subId);
+  // 2. Resolve the full genome BEFORE the seed (the seed depends on its version,
+  //    and scoring needs its dailyGoal — one config read serves both).
+  const genome = await resolveGenome(subId);
+  const genomeVersion = genome.version;
 
   // 3. Read back the day's accumulators (the 03-02 keys). Unique contributors via
   //    zCard — the ZSET-as-set from 03-02 (the Devvit SDK has no sCard).
@@ -120,8 +122,11 @@ export async function runTick(subId: string, day: number): Promise<void> {
 
   const seed = hashSeed(subId, day, genomeVersion);
 
-  // 4. Build the record then parse at the single build boundary (generator.ts idiom).
-  const record: RingRecord = RingRecordSchema.parse({
+  // 4. Build the DayVector ONCE, score it, then parse the SAME object spread with
+  //    { outcome, genomeVersion } at the single build boundary (generator.ts idiom).
+  //    score() is a one-shot PURE call at the tick (RESEARCH Anti-Patterns: never
+  //    per-frame, never inside synthesis) — it adds no entropy / no I/O.
+  const dayVector: DayVector = {
     day,
     date: isoDateForDay(day),
     posts,
@@ -135,6 +140,15 @@ export async function runTick(subId: string, day: number): Promise<void> {
     dominantTheme: 'community', // genome-driven theming lands later; neutral here
     steering: { branch: 0, symmetry: 0, hue: 0 }, // aggregated nudges wired later
     seed,
+  };
+
+  // Deterministic verdict from the frozen DayVector + the genome's fixed goal
+  // (GAME-02 / LIVE-03) — any client re-derives the identical outcome from the ring.
+  const outcome = score(dayVector, genome);
+
+  const record: RingRecord = RingRecordSchema.parse({
+    ...dayVector,
+    outcome,
     genomeVersion,
   });
 

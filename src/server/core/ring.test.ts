@@ -134,6 +134,34 @@ describe('readAllRings', () => {
     expect(hGetAllCalls).toEqual([keys.ring(SUB, 1), keys.ring(SUB, 2)]);
   });
 
+  // Pitfall 5: a ring carrying a populated `outcome` object must survive the
+  // serialize → deserialize → parse round-trip — the read-back outcome deep-equals
+  // the written one (not NaN, not "[object Object]"). This is the T-04-01 mitigation:
+  // 'outcome' must be in JSON_FIELDS so deserializeScalars JSON.parses it.
+  test('round-trips a ring carrying an outcome object losslessly (Pitfall 5)', async () => {
+    const withOutcome = makeRing({
+      day: 3,
+      seed: 33,
+      outcome: {
+        goal: {
+          type: 'conflictBelow',
+          targetParam: 'conflict',
+          threshold: 0.4,
+          direction: 'below',
+        },
+        measured: 0.31,
+        achieved: true,
+        degree: 0.5,
+      },
+    });
+    await writeRing(SUB, withOutcome);
+
+    const rings = await readAllRings(SUB);
+    expect(rings).toHaveLength(1);
+    expect(rings[0]).toEqual(withOutcome);
+    expect(rings[0]!.outcome).toEqual(withOutcome.outcome);
+  });
+
   test('reads exactly ringCount hashes via keys.ring (no scan)', async () => {
     await writeRing(SUB, makeRing({ day: 1 }));
     await writeRing(SUB, makeRing({ day: 2 }));
