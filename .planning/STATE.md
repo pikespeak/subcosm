@@ -6,14 +6,14 @@ current_phase: 03
 current_phase_name: Devvit Scaffold + Data Layer
 status: executing
 stopped_at: Phase 3 Wave 0 (03-01) complete — WebGL-on-mobile ✓, trigger shapes captured; 1/5 plans done
-last_updated: "2026-06-21T14:55:20.371Z"
+last_updated: "2026-06-21T15:12:28.801Z"
 last_activity: 2026-06-21
 last_activity_desc: Phase 03 execution started
 progress:
   total_phases: 6
   completed_phases: 3
   total_plans: 15
-  completed_plans: 13
+  completed_plans: 14
   percent: 50
 ---
 
@@ -29,7 +29,7 @@ See: .planning/PROJECT.md (updated 2026-06-19)
 ## Current Position
 
 Phase: 03 (Devvit Scaffold + Data Layer) — EXECUTING
-Plan: 2 of 5
+Plan: 3 of 5
 Status: Ready to execute
 Last activity: 2026-06-21 — Phase 03 execution started
 
@@ -68,6 +68,7 @@ Progress: [██████████] 100%
 | Phase 02.1 P01 | ~10min | 3 tasks | 4 files |
 | Phase 02.1 P02 | 9min | 4 tasks | 4 files |
 | Phase 03 P02 | 8min | 3 tasks | 10 files |
+| Phase 03 P03 | 10min | 3 tasks | 14 files |
 
 ## Accumulated Context
 
@@ -101,6 +102,7 @@ Recent decisions affecting current work:
 - [Phase ?]: [Phase 02.1]: Plan 02.1-02 (VIS-ANIM): pure unit-tested igniteParams (no-strobe bound pulse in [0.60,0.96], conflict->amplitude/hardness, energy->tempo) below the unchanged reduced-motion gate; D-05 baked per-day frozen-shell signature via per-glow args before bakeShell (zero per-frame cost); paint reads only Scene metrics (ENG-02), no rng; synthesis snapshot untouched (paint-only); tuning constants [ASSUMED], checkpoint APPROVED
 - [Phase ?]: 03-02: Contributor SET implemented as a ZSET (zAdd/zCard) — Devvit SDK 0.13.4 has no sAdd/sCard; 03-03/03-04 read unique contributors via zCard(keys.contributors(sub,day))
 - [Phase ?]: 03-02: frontierDay(sub)=(ringCount ?? 0)+1 is the single day-index source for both triggers (write) and sweeper (freeze); handlers never inline ringCount+1
+- [Phase 03]: 03-03: contributors read via zCard (ZSET-as-set), not sCard; ring seed = pure FNV-1a hash(subId,day,genomeVersion); genomeVersion from config.genome preset.version (default calm.version); runTick idempotent via lastTickDay watermark
 
 ### Pending Todos
 
@@ -126,6 +128,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-06-21T14:55:11.055Z
+Last session: 2026-06-21T15:12:28.793Z
 Stopped at: Phase 3 Wave 0 (03-01) complete — WebGL-on-mobile ✓, trigger shapes captured; 1/5 plans done
 Resume file: .planning/phases/03-devvit-scaffold-data-layer/03-02-PLAN.md
