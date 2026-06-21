@@ -82,11 +82,31 @@ export const STAR_BASELINE = 10;
 // gentle STAR_BASELINE term lifts the slope so even the quietest day reads as a
 // populated cluster while busy days stay markedly denser. Cap (112) unchanged. PURE,
 // monotonic non-decreasing in `posts` — same args → same count (determinism preserved).
-function starCount(posts: number, density: number): number {
+export function starCount(posts: number, density: number): number {
   return Math.max(
     STAR_FLOOR,
     Math.min(112, Math.round(STAR_BASELINE + posts * density)),
   );
+}
+
+/**
+ * deriveArms — the arm (symmetry) count for a non-genesis shell, extracted from
+ * `synthesize` into a single PURE source of truth so the scorer (score.ts) chases
+ * the EXACT integer synthesis paints (LIVE-03 — one implementation, no drift).
+ *
+ * Mock heuristic `conflict>.7?1:(posts>300?3:2)` with the literals replaced by the
+ * genome symmetry knob: a high-conflict day clumps (knob-1), a very busy day grows
+ * an extra arm (knob+1), otherwise the ordered knob count. Reads only day fields +
+ * `genome.baseVar.symmetry`; ZERO rng() (Pitfall 1) — moving this expression out of
+ * the loop does not touch the per-day RNG stream, so element output stays byte-identical.
+ */
+export function deriveArms(day: DayVector, genome: Genome): number {
+  const symmetryKnob = genome.baseVar?.symmetry ?? 2;
+  return day.conflict > 0.7
+    ? Math.max(1, Math.round(symmetryKnob - 1))
+    : day.posts > 300
+      ? Math.max(1, Math.round(symmetryKnob + 1))
+      : Math.max(1, Math.round(symmetryKnob));
 }
 
 // ---- VIS-DEPTH geometry (D-01 / D-02) — PURE, no rng() (RESEARCH Pitfall 1) ----
@@ -209,7 +229,8 @@ export function synthesize(days: DayVector[], genome: Genome): Scene {
   // an under-specified preset still renders sanely.
   const density = genome.baseVar?.density ?? 0.3;
   const baseSpread = genome.baseVar?.spread ?? 0.18;
-  const symmetryKnob = genome.baseVar?.symmetry ?? 2;
+  // symmetry/arm count now lives in the shared deriveArms helper (one source of
+  // truth with the scorer); no local symmetry knob needed here.
   const spreadGain = genome.volatility * 0.55; // conflict→spread, mock used 0.55
 
   const N = days.length;
@@ -230,14 +251,10 @@ export function synthesize(days: DayVector[], genome: Genome): Scene {
 
     if (!isGenesis) {
       const n = starCount(day.posts, density);
-      // Arms: mock `conflict>.7?1:(posts>300?3:2)`. Replace the hard thresholds
-      // with the genome symmetry knob, still modulated by conflict + density.
-      const arms =
-        day.conflict > 0.7
-          ? Math.max(1, Math.round(symmetryKnob - 1))
-          : day.posts > 300
-            ? Math.max(1, Math.round(symmetryKnob + 1))
-            : Math.max(1, Math.round(symmetryKnob));
+      // Arms via the shared deriveArms helper — the SAME integer the scorer reads
+      // (LIVE-03, one source of truth). Behaviour-preserving: identical expression,
+      // no rng() touched, so the element stream stays byte-identical.
+      const arms = deriveArms(day, genome);
       // Spread: mock `0.18 + conflict*0.55`, both literals genome-driven now.
       const spread = baseSpread + day.conflict * spreadGain;
       const clumps = Math.max(1, Math.round(1 + day.conflict * 5));
