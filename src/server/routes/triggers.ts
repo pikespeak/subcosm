@@ -6,8 +6,16 @@ import {
   CommentCreatePayloadSchema,
   PostCreatePayloadSchema,
 } from '../contracts/triggers';
+import { bumpComment, bumpPost } from '../core/counters';
+import { frontierDay } from '../core/frontierDay';
 
 export const triggers = new Hono();
+
+// The app's own account id (`subcosm-universe`, captured in the 03-01 spike).
+// The scaffold post auto-created on install fires `onPostCreate` as this author;
+// it is app machinery, NOT community activity, so it is skipped when counting
+// (03-01-SUMMARY edge note) — otherwise every install would seed a phantom post.
+const APP_ACCOUNT_ID = 't2_2gtt4hhdg3';
 
 triggers.post('/on-app-install', async (c) => {
   try {
@@ -33,38 +41,45 @@ triggers.post('/on-app-install', async (c) => {
   }
 });
 
-// onPostCreate / onCommentCreate — DEV-02 accumulation groundwork.
+// onPostCreate / onCommentCreate — DEV-02/DEV-03 daily accumulation.
 //
-// SPIKE SCOPE (plan 03-01): these handlers prove the create-triggers fire and
-// CAPTURE the real 0.13.4 payload shape (OQ2/A2) — they Zod-parse the body at
-// the BOUNDARY (T-03-01/V5) and `console.log` the parsed payload so the
-// developer can record the real field nesting (esp. `comment.parentId` /
-// thread-root for reply-depth) from the playtest console. The Redis counters
-// (incrBy / sAdd / zIncrBy) are NOT written here — accumulation lands in plan
-// 03-02 once the captured shape tightens `CommentCreatePayloadSchema`.
+// Flow (RESEARCH Pattern 2, plan 03-02): BOUNDARY `.parse()` the raw body
+// (T-03-01/V5) → resolve the write day via the single `frontierDay(sub)` helper
+// (NEVER inline `ringCount+1`) → accumulate into Redis via counters.ts
+// (`bumpPost`/`bumpComment`). The handler only ACCUMULATES proxies; the
+// `conflict` composite is derived later, at tick time (D-02), from these
+// accumulated counts — it is not computed here.
 //
 // `sub` is derived from `context.subredditId` server-side, NEVER from the
 // payload (V4 — a forged sub must not let one community write another's keys).
+// When the context carries no sub (should not happen for a real trigger) we log
+// and no-op rather than write under an `undefined` key.
 //
-// Tolerance (threat "Malformed/extra-field trigger payload"): on a parse
-// failure we LOG and still return 200 `{status:'success'}` — a slightly-off
-// platform field must never error the trigger and stall the whole stream. The
-// `.passthrough()` schema already tolerates extra fields; the catch covers a
+// Tolerance (threat T-03-01 "malformed/extra-field trigger payload"): on a parse
+// (or write) failure we LOG and still return 200 `{status:'success'}` — a
+// slightly-off platform field must never error the trigger and stall the whole
+// stream. The `.passthrough()` schema tolerates extra fields; the catch covers a
 // genuinely malformed body.
 
 triggers.post('/on-post-create', async (c) => {
   const sub = context.subredditId; // platform-trusted (V4) — never client input
   try {
     const payload = PostCreatePayloadSchema.parse(await c.req.json()); // BOUNDARY parse
-    // SPIKE: log the real shape so the developer can capture it during playtest.
-    console.log(
-      `[spike onPostCreate] sub=${sub ?? '(none)'} payload=${JSON.stringify(payload)}`
-    );
-    // No Redis writes this plan (accumulation = plan 03-02).
+    if (!sub) {
+      console.warn('[onPostCreate] no subredditId in context — skipping accumulation');
+      return c.json<TriggerResponse>({ status: 'success', message: 'no-sub' }, 200);
+    }
+    // Skip the app's own auto-created scaffold post (03-01 edge note) — it is app
+    // machinery, not community activity.
+    if (payload.author.id === APP_ACCOUNT_ID) {
+      return c.json<TriggerResponse>({ status: 'success', message: 'app-post-skipped' }, 200);
+    }
+    const day = await frontierDay(sub); // single source of the day index
+    await bumpPost(sub, day, payload);
     return c.json<TriggerResponse>({ status: 'success', message: 'ok' }, 200);
   } catch (error) {
-    // Tolerate a malformed payload — log, never error the trigger.
-    console.error(`[spike onPostCreate] parse failed sub=${sub ?? '(none)'}: ${error}`);
+    // Tolerate a malformed payload / transient write error — log, never 500.
+    console.error(`[onPostCreate] failed sub=${sub ?? '(none)'}: ${error}`);
     return c.json<TriggerResponse>({ status: 'success', message: 'ignored' }, 200);
   }
 });
@@ -73,15 +88,16 @@ triggers.post('/on-comment-create', async (c) => {
   const sub = context.subredditId; // platform-trusted (V4) — never client input
   try {
     const payload = CommentCreatePayloadSchema.parse(await c.req.json()); // BOUNDARY parse
-    // SPIKE: log the real shape (esp. comment.parentId / thread root) to capture.
-    console.log(
-      `[spike onCommentCreate] sub=${sub ?? '(none)'} payload=${JSON.stringify(payload)}`
-    );
-    // No Redis writes this plan (accumulation = plan 03-02).
+    if (!sub) {
+      console.warn('[onCommentCreate] no subredditId in context — skipping accumulation');
+      return c.json<TriggerResponse>({ status: 'success', message: 'no-sub' }, 200);
+    }
+    const day = await frontierDay(sub); // single source of the day index
+    await bumpComment(sub, day, payload);
     return c.json<TriggerResponse>({ status: 'success', message: 'ok' }, 200);
   } catch (error) {
-    // Tolerate a malformed payload — log, never error the trigger.
-    console.error(`[spike onCommentCreate] parse failed sub=${sub ?? '(none)'}: ${error}`);
+    // Tolerate a malformed payload / transient write error — log, never 500.
+    console.error(`[onCommentCreate] failed sub=${sub ?? '(none)'}: ${error}`);
     return c.json<TriggerResponse>({ status: 'success', message: 'ignored' }, 200);
   }
 });
