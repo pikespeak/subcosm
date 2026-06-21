@@ -4,6 +4,7 @@
 // z.infer of its schema. Downstream code imports from
 // `src/engine/contracts` rather than reaching into individual files.
 export * from './DayVector';
+export * from './Outcome';
 export * from './RingRecord';
 export * from './Scene';
 export * from './Genome';

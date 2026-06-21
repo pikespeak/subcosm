@@ -5,6 +5,7 @@
 // .parse() runs at the (future) sim->engine boundary (Phase 2); inside the
 // engine we trust the inferred type.
 import { z } from 'zod';
+import { OutcomeSchema } from './Outcome';
 
 export const SteeringSchema = z.object({
   branch: z.number(),
@@ -35,8 +36,9 @@ export const DayVectorSchema = z.object({
 
   seed: z.number().int(), // hash(subId, day, genomeVersion)
 
-  // GAME-01 scoring hook. Loosely typed in Phase 1 (schema-only, no scoring);
-  // the precise shape is firmed in Phase 4 (RESEARCH A3).
-  outcome: z.unknown().optional(),
+  // GAME-02 scoring result. Firmed in Phase 4 (RESEARCH A3) from the Phase-1
+  // placeholder to the typed OutcomeSchema: a FROZEN ring carries its outcome
+  // (achieved + degree); the live frontier may omit it (still being scored).
+  outcome: OutcomeSchema.optional(),
 });
 export type DayVector = z.infer<typeof DayVectorSchema>;
