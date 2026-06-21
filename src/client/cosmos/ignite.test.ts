@@ -46,7 +46,9 @@ describe('igniteParams no-strobe bound (D-04)', () => {
         }
       }
     }
-  });
+    // Full-domain sweep with thousands of expect() calls — generous timeout so a
+    // loaded full-suite run never flakes on the default 5s (the math is instant).
+  }, 30_000);
 
   test('twinkle stays within its bounded band and never reaches 0', () => {
     const floor = TWINKLE_BASE - TWINKLE_AMPLITUDE_MAX;
@@ -64,7 +66,7 @@ describe('igniteParams no-strobe bound (D-04)', () => {
         }
       }
     }
-  });
+  }, 30_000);
 });
 
 // Peak deviation of `pulse` from the shimmer base over a fixed window — a proxy

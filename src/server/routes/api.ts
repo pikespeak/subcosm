@@ -49,12 +49,6 @@ api.get('/organism', async (c) => {
       readConfig(),
     ]);
 
-    // TEMP (UAT): log every successful read so the playtest terminal shows what
-    // /api/organism returns (rings/genome/style) — pairs with the error log below.
-    console.log(
-      `[api/organism] sub=${subredditId} rings=${rings.length} genome=${cfg.genome} style=${cfg.style}`
-    );
-
     // Parse on the way out — the server response cannot drift from the shared
     // contract the client safeParses (and rings re-validate against RingRecord).
     return c.json(
