@@ -157,13 +157,22 @@ async function loadCosmos(): Promise<void> {
     const parsed = OrganismResponseSchema.safeParse(json);
     if (!parsed.success) {
       // A bad payload (or a non-ok status body that isn't a valid envelope) is an
-      // error state — never a thrown exception, never a broken render.
+      // error state — never a thrown exception, never a broken render. Log the
+      // cause (HTTP status + body + parse issues) so a failure is diagnosable.
+      console.error('[loadCosmos] /api/organism is not a valid OrganismResponse', {
+        status: res.status,
+        body: json,
+        issues: parsed.error.issues,
+      });
+      teardown(); // don't leave a stale universe sitting behind the error overlay
       setOverlay('error');
       return;
     }
     mountUniverse(parsed.data);
-  } catch {
+  } catch (err) {
     // Network/offline/JSON failure → the muted-ink error overlay (no alarm-red).
+    console.error('[loadCosmos] fetch/JSON failed', err);
+    teardown(); // don't leave a stale universe sitting behind the error overlay
     setOverlay('error');
   }
 }
