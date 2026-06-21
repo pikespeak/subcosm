@@ -161,12 +161,12 @@ Plans:
   5. When the goal is achieved, the frozen ring carries a persistent visual reward (special star glyph / era badge) that is visible when scrubbing to that ring in the universe — and it renders identically on every client from the same Ring record
   6. Loading the post on a second client after the tick renders an identical frozen ring to the first client, confirming determinism holds across the Redis → engine seam
 
-**Plans**: 4 plans
+**Plans**: 1/4 plans executed
 **Mode:** mvp
 
 **Wave 1**
 
-- [ ] 04-01-PLAN.md — Deterministic-scoring spine: firm Outcome contract + pure score() re-using synthesis math + achievability test + tick scoring + outcome Redis round-trip fix (GAME-02, LIVE-03)
+- [x] 04-01-PLAN.md — Deterministic-scoring spine: firm Outcome contract + pure score() re-using synthesis math + achievability test + tick scoring + outcome Redis round-trip fix (GAME-02, LIVE-03)
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
@@ -204,5 +204,5 @@ Plans:
 | 2. Visual Engine + Simulator | 5/5 | Complete    | 2026-06-19 |
 | 2.1. Visual Depth & Animation Polish | 3/2 | Complete    | 2026-06-20 |
 | 3. Devvit Scaffold + Data Layer | 5/5 | Complete    | 2026-06-21 |
-| 4. Live Game | 0/4 | Not started | - |
+| 4. Live Game | 1/4 | In Progress|  |
 | 5. Submit | 0/TBD | Not started | - |
