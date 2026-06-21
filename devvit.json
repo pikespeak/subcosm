@@ -42,6 +42,27 @@
         "location": "subreddit",
         "forUserType": "moderator",
         "endpoint": "/internal/debug/day"
+      },
+      {
+        "label": "Subcosm: Seed demo universe",
+        "description": "TEMP (UAT): grow 6 varied shells via the real freeze path",
+        "location": "subreddit",
+        "forUserType": "moderator",
+        "endpoint": "/internal/debug/seed"
+      },
+      {
+        "label": "Subcosm: Force tick (freeze day)",
+        "description": "TEMP (UAT): freeze the current frontier day now",
+        "location": "subreddit",
+        "forUserType": "moderator",
+        "endpoint": "/internal/debug/tick"
+      },
+      {
+        "label": "Subcosm: Reset community",
+        "description": "TEMP (UAT): wipe rings + counters (keeps install config)",
+        "location": "subreddit",
+        "forUserType": "moderator",
+        "endpoint": "/internal/debug/reset"
       }
     ]
   },
