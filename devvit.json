@@ -46,6 +46,13 @@
     "onPostCreate": "/internal/triggers/on-post-create",
     "onCommentCreate": "/internal/triggers/on-comment-create"
   },
+  "scheduler": {
+    "tasks": {
+      "tick": {
+        "endpoint": "/internal/scheduler/tick"
+      }
+    }
+  },
   "scripts": {
     "build": "vite build",
     "dev": "vite build --watch"
