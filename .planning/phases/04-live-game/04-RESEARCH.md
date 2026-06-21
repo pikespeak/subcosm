@@ -494,7 +494,12 @@ both client and server produce the identical glyph (LIVE-03).
 | A4 | A set-if-not-exists guard (`revealDone:{sub}:{day}`) is available to make reveal-post creation exactly-once | Pitfall 3 | Without it, a scheduler retry could double-post. Confirm the SDK's `set` existence option on-device. |
 | A5 | Adding `outcome` to `JSON_FIELDS` is the only ring.ts change needed for the outcome round-trip | Pitfall 5 | If the serializer differs, rings fail to read. Low risk — verified the serializer logic directly. |
 
-## Open Questions
+## Open Questions (RESOLVED — each routed to a plan task)
+
+> Plan-check W-1 resolution: none of these is left invisible to execution.
+> - OQ1 (normalization) → **04-01 T2** achievability unit test + must_have (tune normalization, not thresholds).
+> - OQ2 (exactly-once primitive) → **04-04 T1** `revealDone:{sub}:{day}` nx-guard, confirmed on the 04-03/04-04 on-device checkpoint.
+> - OQ3 (single `steerGain` fold) → **04-02 T2** explicit "applied exactly once" acceptance criterion.
 
 1. **Density/symmetry goal achievability (the normalization).**
    - What we know: `starCount` → 18..112; `deriveArms` → small integer; `conflict` → 0..1 direct. Goals: density>0.7, symmetry>5, conflict<0.4.
