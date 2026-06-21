@@ -161,7 +161,24 @@ Plans:
   5. When the goal is achieved, the frozen ring carries a persistent visual reward (special star glyph / era badge) that is visible when scrubbing to that ring in the universe — and it renders identically on every client from the same Ring record
   6. Loading the post on a second client after the tick renders an identical frozen ring to the first client, confirming determinism holds across the Redis → engine seam
 
-**Plans**: TBD
+**Plans**: 4 plans
+**Mode:** mvp
+
+**Wave 1**
+
+- [ ] 04-01-PLAN.md — Deterministic-scoring spine: firm Outcome contract + pure score() re-using synthesis math + achievability test + tick scoring + outcome Redis round-trip fix (GAME-02, LIVE-03)
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
+- [ ] 04-02-PLAN.md — Live-nudge slice: steer endpoint + atomic budget gate + steer-hash hIncrBy aggregation + nudge UI + HUD goal-tracking + single-fold steer at the tick (LIVE-01, GAME-03, GAME-05 enforce)
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
+- [ ] 04-03-PLAN.md — Realtime de-risking spike + broadcast/subscribe wiring: colon-free per-post channel, server realtime.send, client connectRealtime, blocking on-device D-03a check with locked D-03b fallback (LIVE-01)
+
+**Wave 4** *(blocked on Wave 1 + Wave 3 completion)*
+
+- [ ] 04-04-PLAN.md — Retention-hook slice: exactly-once pinned reveal post + paint-only deterministic reward glyph + blocking cross-client determinism check (LIVE-02, GAME-04, LIVE-03)
 
 ### Phase 5: Submit
 
@@ -186,6 +203,6 @@ Plans:
 | 1. Engine Foundation | 3/3 | Complete    | 2026-06-19 |
 | 2. Visual Engine + Simulator | 5/5 | Complete    | 2026-06-19 |
 | 2.1. Visual Depth & Animation Polish | 3/2 | Complete    | 2026-06-20 |
-| 3. Devvit Scaffold + Data Layer | 5/5 | Complete   | 2026-06-21 |
-| 4. Live Game | 0/TBD | Not started | - |
+| 3. Devvit Scaffold + Data Layer | 5/5 | Complete    | 2026-06-21 |
+| 4. Live Game | 0/4 | Not started | - |
 | 5. Submit | 0/TBD | Not started | - |
