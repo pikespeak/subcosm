@@ -35,6 +35,13 @@
         "location": "subreddit",
         "forUserType": "moderator",
         "endpoint": "/internal/menu/example-form"
+      },
+      {
+        "label": "Subcosm: Dump day state",
+        "description": "TEMP (UAT): toast the live frontier-day Redis accumulators",
+        "location": "subreddit",
+        "forUserType": "moderator",
+        "endpoint": "/internal/debug/day"
       }
     ]
   },

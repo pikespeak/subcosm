@@ -7,6 +7,7 @@ import { menu } from './routes/menu';
 import { triggers } from './routes/triggers';
 import { scheduler } from './routes/scheduler';
 import { settings } from './routes/settings';
+import { debug } from './routes/debug'; // TEMP (UAT): remove before submit
 
 const app = new Hono();
 const internal = new Hono();
@@ -16,6 +17,7 @@ internal.route('/form', forms);
 internal.route('/triggers', triggers);
 internal.route('/scheduler', scheduler);
 internal.route('/settings', settings);
+internal.route('/debug', debug); // TEMP (UAT): remove before submit
 
 app.route('/api', api);
 app.route('/internal', internal);
