@@ -34,6 +34,9 @@ export default defineConfig({
       'src/server/contracts/settings.test.ts',
       'src/server/core/schedule.test.ts',
       'src/server/core/config.test.ts',
+      // The shared OrganismResponse contract (pure zod + engine contract — no
+      // Devvit/Phaser import, so it belongs in this Phaser-free runner).
+      'src/shared/api.test.ts',
     ],
     environment: 'node',
     passWithNoTests: true,

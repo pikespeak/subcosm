@@ -9,6 +9,13 @@
 
     "rootDir": "../src/shared"
   },
+  // The shared SOURCE project: prod contract modules only. Test files are
+  // excluded here and type-checked by the sibling tools/tsconfig.shared-tests.json
+  // project (mirrors the engine/server source/tests split). The engine project is
+  // referenced because the OrganismResponse contract reuses RingRecordSchema from
+  // src/engine/contracts (the engine is Devvit-free, so the shared client-safe
+  // contract stays client-safe).
   "include": ["../src/shared/**/*"],
-  "exclude": []
+  "exclude": ["../src/shared/**/*.test.ts"],
+  "references": [{ "path": "./tsconfig.engine.json" }]
 }

@@ -30,7 +30,13 @@ export default defineConfig([
       ecmaVersion: 2023,
       globals: globals.browser,
       parserOptions: {
-        project: ['./tools/tsconfig.shared.json'],
+        // Shared SOURCE project + the shared-TESTS project (the latter owns the
+        // *.test.ts files, which the source project excludes) — mirrors the
+        // server/engine source+tests pairing.
+        project: [
+          './tools/tsconfig.shared.json',
+          './tools/tsconfig.shared-tests.json',
+        ],
         tsconfigRootDir: import.meta.dirname,
       },
     },

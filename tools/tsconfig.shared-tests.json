@@ -1,0 +1,18 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "lib": ["WebWorker", "ES2023"],
+    "outDir": "../dist/types/shared-tests",
+    "tsBuildInfoFile": "../dist/types/shared-tests/tsconfig.tsbuildinfo",
+    "rootDir": "../src/shared"
+  },
+  // Type-checks the shared tests (vitest). Emit (composite requires it) is
+  // declarations only, parked under dist/types/shared-tests — never inside the
+  // source tree and never consumed at runtime. Mirrors tsconfig.server-tests.json.
+  "include": ["../src/shared/**/*.test.ts"],
+  "exclude": [],
+  "references": [
+    { "path": "./tsconfig.shared.json" },
+    { "path": "./tsconfig.engine.json" }
+  ]
+}
