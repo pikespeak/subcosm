@@ -149,8 +149,18 @@ function mountUniverse(data: OrganismResponse): void {
  * or painting a broken canvas (CLAUDE.md §6 / T-03-12). The loading overlay is
  * shown until the fetch resolves.
  */
+/** TEMP (UAT): mirror client render diagnostics to the server/playtest terminal. */
+function report(payload: Record<string, unknown>): void {
+  void fetch('/api/client-log', {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify(payload),
+  }).catch(() => {});
+}
+
 async function loadCosmos(): Promise<void> {
   setOverlay('loading');
+  report({ stage: 'start' });
   try {
     const res = await fetch('/api/organism');
     const json: unknown = await res.json();
@@ -159,6 +169,7 @@ async function loadCosmos(): Promise<void> {
       // A bad payload (or a non-ok status body that isn't a valid envelope) is an
       // error state — never a thrown exception, never a broken render. Log the
       // cause (HTTP status + body + parse issues) so a failure is diagnosable.
+      report({ stage: 'parse-fail', status: res.status, issues: parsed.error.issues, body: json });
       console.error('[loadCosmos] /api/organism is not a valid OrganismResponse', {
         status: res.status,
         body: json,
@@ -168,10 +179,14 @@ async function loadCosmos(): Promise<void> {
       setOverlay('error');
       return;
     }
+    report({ stage: 'parsed', rings: parsed.data.rings.length, genome: parsed.data.genome, style: parsed.data.style });
     mountUniverse(parsed.data);
+    report({ stage: 'mounted', rings: parsed.data.rings.length });
   } catch (err) {
-    // Network/offline/JSON failure → the muted-ink error overlay (no alarm-red).
-    console.error('[loadCosmos] fetch/JSON failed', err);
+    // Network/offline/JSON failure OR a synchronous mount/render throw → the
+    // muted-ink error overlay (no alarm-red). Report the message so we know which.
+    report({ stage: 'threw', message: err instanceof Error ? `${err.name}: ${err.message}` : String(err) });
+    console.error('[loadCosmos] failed', err);
     teardown(); // don't leave a stale universe sitting behind the error overlay
     setOverlay('error');
   }

@@ -16,6 +16,14 @@ type ErrorResponse = {
 
 export const api = new Hono();
 
+// POST /api/client-log — TEMP (UAT): surface client-side render diagnostics in the
+// playtest terminal (the webview console isn't visible there). Remove before submit.
+api.post('/client-log', async (c) => {
+  const body = await c.req.json().catch(() => null);
+  console.log('[client-log]', JSON.stringify(body));
+  return c.json({ ok: true }, 200);
+});
+
 // GET /api/organism — the D-01 fetch-on-load read path (DEV-01 / DEV-05).
 //
 // Returns the community's accumulated Ring records (read through the SINGLE
