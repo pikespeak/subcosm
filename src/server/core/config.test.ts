@@ -112,6 +112,29 @@ describe('readConfig — the single settings boundary parse (current install con
 
     await expect(readConfig()).rejects.toThrow();
   });
+
+  test('defaults UNSET settings to calm/techno/UTC (fresh install never saved them)', async () => {
+    // settingsStore is empty → settings.get returns undefined for all three. A
+    // fresh install must still render (genesis cold-start), not crash the boundary.
+    const cfg = await readConfig();
+    expect(cfg).toEqual({ genome: 'calm', style: 'techno', timezone: 'UTC' });
+  });
+
+  test('defaults an empty-string setting (not just undefined) to the install default', async () => {
+    settingsStore.genome = '';
+    settingsStore.style = '   ';
+    settingsStore.timezone = '';
+
+    const cfg = await readConfig();
+    expect(cfg).toEqual({ genome: 'calm', style: 'techno', timezone: 'UTC' });
+  });
+
+  test('a PRESENT-but-invalid value still throws — only UNSET values are defaulted', async () => {
+    settingsStore.genome = 'sparkly'; // present + invalid → must NOT be defaulted
+    settingsStore.style = 'techno';
+    // timezone unset → defaulted to UTC, but the bad genome still rejects.
+    await expect(readConfig()).rejects.toThrow();
+  });
 });
 
 describe('readSnapshot — per-sub config read for the sweeper (Redis snapshot, not settings)', () => {

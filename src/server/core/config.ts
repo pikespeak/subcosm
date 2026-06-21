@@ -22,13 +22,31 @@
 // caller (V4) — never client input.
 import { redis, settings } from '@devvit/web/server';
 import { keys } from './redisKeys';
-import { SettingsSchema, type Settings } from '../contracts/settings';
+import { SettingsSchema, GENOME_IDS, type Settings } from '../contracts/settings';
+import { StyleIdEnum } from '../../engine/contracts/StyleTemplate';
+
+/**
+ * Canonical install defaults — mirror the devvit.json `defaultValue`s, but sourced
+ * from the schema's own id lists so they can't drift. Devvit does NOT auto-apply a
+ * setting's `defaultValue` to `settings.get`: a fresh install where the mod never
+ * opened+saved the settings panel returns `undefined` for the select fields. These
+ * defaults keep an unconfigured community renderable (genesis cold-start) instead
+ * of crashing the read boundary.
+ */
+const DEFAULT_GENOME: string = GENOME_IDS[0]; // 'calm'
+const DEFAULT_STYLE: string = StyleIdEnum.options[0] ?? 'techno'; // first canonical style
+const DEFAULT_TIMEZONE = 'UTC';
+
+/** Use the raw setting when it is a non-empty string, else the install default. */
+const orDefault = (value: unknown, fallback: string): string =>
+  typeof value === 'string' && value.trim() !== '' ? value : fallback;
 
 /**
  * readConfig — the single SETTINGS-read boundary parse, for the CURRENT install
- * context. Reads genome/style/timezone via `settings.get` (in parallel) and
- * returns the parsed `Settings`. Throws (rejects at the boundary, V5) when any
- * value is missing/invalid.
+ * context. Reads genome/style/timezone via `settings.get` (in parallel), applies
+ * the canonical defaults for any UNSET value (a fresh install never saved them),
+ * and returns the parsed `Settings`. A PRESENT-but-invalid value still throws
+ * (rejected at the boundary, V5) — only absent values are defaulted.
  *
  * NB on scope: the Devvit 0.13.4 `settings.get(name)` is scoped to the *current
  * request's* installation/subreddit context — it takes no sub argument and cannot
@@ -44,8 +62,13 @@ export async function readConfig(): Promise<Settings> {
     settings.get('style'),
     settings.get('timezone'),
   ]);
-  // BOUNDARY parse — a bogus zone / unknown id throws here, never drives the app.
-  return SettingsSchema.parse({ genome, style, timezone });
+  // Default UNSET values (fresh install), then BOUNDARY parse — a present-but-bogus
+  // zone / unknown id still throws here, never drives the app.
+  return SettingsSchema.parse({
+    genome: orDefault(genome, DEFAULT_GENOME),
+    style: orDefault(style, DEFAULT_STYLE),
+    timezone: orDefault(timezone, DEFAULT_TIMEZONE),
+  });
 }
 
 /**
