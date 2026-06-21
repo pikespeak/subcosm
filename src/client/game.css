@@ -74,6 +74,15 @@ body {
   color: var(--ink);
 }
 
+/* The [hidden] attribute MUST win over `.state-overlay { display: flex }`. They
+ * have equal specificity, so the later author rule (display:flex) was overriding
+ * the UA `[hidden] { display:none }` — every overlay stayed visible and they
+ * stacked (the Genesis + error panels showed together over the cosmos). Scoping
+ * `[hidden]` to the class raises specificity so toggling `el.hidden` truly hides. */
+.state-overlay[hidden] {
+  display: none;
+}
+
 /* The cold-start panel sits over the genesis core — keep it from masking it. */
 .state-coldstart {
   background: rgba(5, 4, 12, 0.62);
