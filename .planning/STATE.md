@@ -2,18 +2,18 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-current_phase: 3
+current_phase: 03
 current_phase_name: Devvit Scaffold + Data Layer
 status: executing
 stopped_at: Phase 3 Wave 0 (03-01) complete — WebGL-on-mobile ✓, trigger shapes captured; 1/5 plans done
-last_updated: "2026-06-21T14:11:17.237Z"
-last_activity: 2026-06-20
-last_activity_desc: Phase 02.1 complete, transitioned to Phase 3
+last_updated: "2026-06-21T14:55:20.371Z"
+last_activity: 2026-06-21
+last_activity_desc: Phase 03 execution started
 progress:
   total_phases: 6
   completed_phases: 3
   total_plans: 15
-  completed_plans: 12
+  completed_plans: 13
   percent: 50
 ---
 
@@ -24,14 +24,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-06-19)
 
 **Core value:** The community's real activity becomes a beautiful, legible, deterministic universe — one engine, provably different worlds from different data + config
-**Current focus:** Phase 02.1 — Visual Depth & Animation Polish
+**Current focus:** Phase 03 — Devvit Scaffold + Data Layer
 
 ## Current Position
 
-Phase: 3 — Devvit Scaffold + Data Layer
-Plan: Not started
+Phase: 03 (Devvit Scaffold + Data Layer) — EXECUTING
+Plan: 2 of 5
 Status: Ready to execute
-Last activity: 2026-06-20 — Phase 02.1 complete, transitioned to Phase 3
+Last activity: 2026-06-21 — Phase 03 execution started
 
 Progress: [██████████] 100%
 
@@ -67,6 +67,7 @@ Progress: [██████████] 100%
 | Phase 02 P05 | ~14min | 2 tasks + checkpoint | 6 files |
 | Phase 02.1 P01 | ~10min | 3 tasks | 4 files |
 | Phase 02.1 P02 | 9min | 4 tasks | 4 files |
+| Phase 03 P02 | 8min | 3 tasks | 10 files |
 
 ## Accumulated Context
 
@@ -98,6 +99,8 @@ Recent decisions affecting current work:
 - [Phase ?]: [Phase 02.1]: Plan 02.1-01 (VIS-DEPTH): clamped-min-gap shellRadius (Pattern 1A, base 0.92, blend 0.45/0.55, MIN_GAP 0.9/N) replaces pow(0.85,idx) — no central blob; per-shell weight age-fade with LEGIBILITY_FLOOR 0.35 mapped in paint; elements byte-unchanged (zero new rng); checkpoint APPROVED
 - [Phase ?]: [Phase 02.1]: simulator sparsity vs mock (src/sim/beats.ts magnitudes) deferred to new Phase 2.2 (universe richness/density) — NOT a VIS-DEPTH defect (star elements byte-identical)
 - [Phase ?]: [Phase 02.1]: Plan 02.1-02 (VIS-ANIM): pure unit-tested igniteParams (no-strobe bound pulse in [0.60,0.96], conflict->amplitude/hardness, energy->tempo) below the unchanged reduced-motion gate; D-05 baked per-day frozen-shell signature via per-glow args before bakeShell (zero per-frame cost); paint reads only Scene metrics (ENG-02), no rng; synthesis snapshot untouched (paint-only); tuning constants [ASSUMED], checkpoint APPROVED
+- [Phase ?]: 03-02: Contributor SET implemented as a ZSET (zAdd/zCard) — Devvit SDK 0.13.4 has no sAdd/sCard; 03-03/03-04 read unique contributors via zCard(keys.contributors(sub,day))
+- [Phase ?]: 03-02: frontierDay(sub)=(ringCount ?? 0)+1 is the single day-index source for both triggers (write) and sweeper (freeze); handlers never inline ringCount+1
 
 ### Pending Todos
 
@@ -123,6 +126,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-06-21T14:11:17.224Z
+Last session: 2026-06-21T14:55:11.055Z
 Stopped at: Phase 3 Wave 0 (03-01) complete — WebGL-on-mobile ✓, trigger shapes captured; 1/5 plans done
 Resume file: .planning/phases/03-devvit-scaffold-data-layer/03-02-PLAN.md
