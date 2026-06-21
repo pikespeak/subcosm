@@ -8,6 +8,7 @@ import {
 } from '../contracts/triggers';
 import { bumpComment, bumpPost } from '../core/counters';
 import { frontierDay } from '../core/frontierDay';
+import { readConfig, registerCommunity } from '../core/config';
 
 export const triggers = new Hono();
 
@@ -21,6 +22,26 @@ triggers.post('/on-app-install', async (c) => {
   try {
     const post = await createPost();
     const input = await c.req.json<OnAppInstallRequest>();
+
+    // Register the community so the hourly sweeper can enumerate it, and snapshot
+    // its install config (genome/style/timezone) to organism:{sub}:config so the
+    // sweeper reads the IANA tz (and the tick the genome) without re-hitting the
+    // settings store. `sub` is the platform-trusted subreddit id (V4) — never
+    // client input. A read/register failure (e.g. settings not yet populated on a
+    // very early install) must NOT regress the post-create, so it is best-effort:
+    // we log and continue. (devvit.json gives every field a default — calm/techno/
+    // UTC — so a real install carries a parseable config.)
+    const sub = context.subredditId;
+    if (sub) {
+      try {
+        const cfg = await readConfig();
+        await registerCommunity(sub, cfg);
+      } catch (registerError) {
+        console.error(
+          `[onAppInstall] community register failed sub=${sub}: ${registerError}`
+        );
+      }
+    }
 
     return c.json<TriggerResponse>(
       {
