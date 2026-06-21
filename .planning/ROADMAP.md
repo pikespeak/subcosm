@@ -125,7 +125,7 @@ Plans:
   3. The hourly UTC sweeper fires the daily tick at the correct local day boundary, writes a Ring record with `genomeVersion` and explicit `ringCount`, resets counters, and opens the next frontier — verified in a test subreddit
   4. A mod installing the app sees a settings page to choose genome preset + style; the chosen config drives that community's universe with no code changes
 
-**Plans**: 3/5 plans executed
+**Plans**: 4/5 plans executed
 **Wave 1**
 
 - [x] 03-01-PLAN.md — Wave-0 spike: WebGL-in-iframe-on-mobile + first trigger payload capture + devvit.json 0.13.4 conformance (DEV-01, DEV-02)
@@ -140,7 +140,7 @@ Plans:
 
 **Wave 4** *(blocked on Wave 3 completion)*
 
-- [ ] 03-04-PLAN.md — Install settings (genome/style/IANA tz, i18n-validated) + hourly UTC sweeper firing local-midnight ticks (DEV-04, DEV-06)
+- [x] 03-04-PLAN.md — Install settings (genome/style/IANA tz, i18n-validated) + hourly UTC sweeper firing local-midnight ticks (DEV-04, DEV-06)
 
 **Wave 5** *(blocked on Wave 4 completion)*
 
@@ -186,6 +186,6 @@ Plans:
 | 1. Engine Foundation | 3/3 | Complete    | 2026-06-19 |
 | 2. Visual Engine + Simulator | 5/5 | Complete    | 2026-06-19 |
 | 2.1. Visual Depth & Animation Polish | 3/2 | Complete    | 2026-06-20 |
-| 3. Devvit Scaffold + Data Layer | 3/5 | In Progress|  |
+| 3. Devvit Scaffold + Data Layer | 4/5 | In Progress|  |
 | 4. Live Game | 0/TBD | Not started | - |
 | 5. Submit | 0/TBD | Not started | - |

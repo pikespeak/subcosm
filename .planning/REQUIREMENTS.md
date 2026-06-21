@@ -77,7 +77,7 @@
 - [x] **DEV-03**: A **conflict composite** is derived at tick time from comment-rate / reply-depth proxies + a score snapshot (no streaming vote deltas).
 - [x] **DEV-04**: A scheduler **tick** freezes the frontier, runs the genome transform → writes a Ring record (DayVector + seed, including `genomeVersion`), resets counters, opens the next frontier. An **hourly UTC sweeper** finds due communities via IANA timezone with `hash(subId)%60` jitter (DST-safe).
 - [x] **DEV-05**: Ring records are indexed by an explicit `ringCount` in `organism:{sub}` (Redis has no key scan); no images stored — only ~25 scalars + seed per ring.
-- [ ] **DEV-06**: A mod configures the **Genome** at install via Devvit settings (preset + style); the chosen style/genome drives that community's universe end-to-end.
+- [x] **DEV-06**: A mod configures the **Genome** at install via Devvit settings (preset + style); the chosen style/genome drives that community's universe end-to-end.
 
 #### Live Front & Reveal (LIVE)
 
@@ -181,7 +181,7 @@
 | DEV-03 | Phase 3: Devvit Scaffold + Data Layer | Complete |
 | DEV-04 | Phase 3: Devvit Scaffold + Data Layer | Complete |
 | DEV-05 | Phase 3: Devvit Scaffold + Data Layer | Complete |
-| DEV-06 | Phase 3: Devvit Scaffold + Data Layer | Pending |
+| DEV-06 | Phase 3: Devvit Scaffold + Data Layer | Complete |
 | LIVE-01 | Phase 4: Live Game | Pending |
 | LIVE-02 | Phase 4: Live Game | Pending |
 | LIVE-03 | Phase 4: Live Game | Pending |
