@@ -1,12 +1,18 @@
 // input — the navigation input layer over the CameraController (CAM-02, D-01).
 //
-// Four coexisting gestures, all funneled through the ONE CameraController so the
-// DOM slider, click-focus, wheel, and pinch never disagree (single source of view
-// state — D-01):
+// Coexisting gestures, all funneled through the ONE CameraController so the DOM
+// slider, click-focus, wheel, pinch, and drag never disagree (single source of
+// view state — D-01):
 //   1. scroll-wheel  → CameraController.zoom(delta)
 //   2. TRACKPAD pinch (desktop/laptop ctrl+wheel) → CameraController.zoom(delta)
 //   3. two-pointer pinch (HAND-ROLLED, touch) → CameraController.setZoom(...)
-//   4. click / tap a shell → hit-test to the nearest shell radius → focusShell(day)
+//   4. one-finger DRAG (touch/mouse) → CameraController.pan(dx, dy)
+//   5. click / tap a shell → hit-test to the nearest shell radius → focusShell(day)
+//
+// A tap and the end of a pinch/drag both surface as POINTER_UP. We track per-gesture
+// "moved" + "multi-touch" flags so ONLY a clean tap (no drag, no second finger)
+// focuses a shell — otherwise lifting the fingers after a pinch would fire focusShell
+// and reset the zoom the user just pinched to.
 //
 // Browsers deliver a TRACKPAD pinch as a native `wheel` event with `ctrlKey===true`
 // (NOT as two pointers). Without explicit handling the browser performs its default
@@ -90,47 +96,110 @@ export function attachInput(
   scene.events.once(Phaser.Scenes.Events.SHUTDOWN, detachTrackpadPinch);
   scene.events.once(Phaser.Scenes.Events.DESTROY, detachTrackpadPinch);
 
-  // --- 2. HAND-ROLLED two-pointer pinch -------------------------------------
-  // Phaser tracks only 1 active pointer by default; enable a 2nd (D-01).
+  // --- 2. TOUCH gestures: one-finger DRAG → pan, two-finger PINCH → zoom -----
+  // Phaser tracks only 1 active pointer by default; enable a 2nd for pinch (D-01).
   scene.input.addPointer(1);
+
   let pinchStartDist = 0; // pointer-distance when the pinch began (0 = no pinch)
   let pinchStartZoom = 1; // the controller's zoom target when the pinch began
+  let panLastX = 0; // last screen x of the active one-finger drag
+  let panLastY = 0; // last screen y of the active one-finger drag
+  let panStartX = 0; // screen x where the current touch first went down
+  let panStartY = 0; // screen y where the current touch first went down
+  let panPrimed = false; // a single finger is down and panLast is initialized
+  let gestureMoved = false; // the gesture dragged/pinched past the slop → not a tap
+  let gestureMultiTouch = false; // ≥2 fingers were seen this gesture → a pinch
+
+  // Movement (px) beyond which a touch is a DRAG, not a tap. Below it, a release
+  // focuses the nearest shell; at/above it the release is swallowed so a drag (or
+  // the tail of a pinch) never snaps the camera back to a shell's zoom.
+  const TAP_SLOP = 8;
 
   const activePointers = (): Phaser.Input.Pointer[] =>
     [scene.input.pointer1, scene.input.pointer2].filter((p) => p && p.isDown);
 
-  scene.input.on(Phaser.Input.Events.POINTER_MOVE, () => {
-    const pts = activePointers();
-    if (pts.length < 2) {
-      pinchStartDist = 0; // dropped below two fingers → end the pinch
-      return;
+  scene.input.on(Phaser.Input.Events.POINTER_DOWN, (pointer: Phaser.Input.Pointer) => {
+    const n = activePointers().length;
+    if (n >= 2) {
+      // Second finger down → this is a pinch; baseline captured on the next move.
+      gestureMultiTouch = true;
+      panPrimed = false;
+    } else if (n === 1) {
+      // First finger of a fresh gesture — prime the pan origin.
+      gestureMoved = false;
+      gestureMultiTouch = false;
+      panStartX = pointer.x;
+      panStartY = pointer.y;
+      panLastX = pointer.x;
+      panLastY = pointer.y;
+      panPrimed = true;
     }
-    const dist = Phaser.Math.Distance.Between(pts[0]!.x, pts[0]!.y, pts[1]!.x, pts[1]!.y);
-    if (pinchStartDist === 0) {
-      // Pinch just began: capture the baseline distance + zoom.
-      pinchStartDist = dist;
-      pinchStartZoom = controller.zoomTarget;
-      return;
-    }
-    // Map the distance RATIO to an absolute zoom (fingers apart → zoom in).
-    const ratio = dist / pinchStartDist;
-    controller.setZoom(pinchStartZoom * ratio);
   });
 
-  const endPinch = (): void => {
-    if (activePointers().length < 2) pinchStartDist = 0;
-  };
-  scene.input.on(Phaser.Input.Events.POINTER_UP, endPinch);
+  scene.input.on(Phaser.Input.Events.POINTER_MOVE, () => {
+    const pts = activePointers();
 
-  // --- 3. click / tap a shell → focus the nearest shell ---------------------
-  // A genuine click (not the end of a pinch) hit-tests the pointer's distance
-  // from the universe center against each shell's px radius and focuses the
-  // nearest one — keeping the slider in sync via the controller's listener.
+    if (pts.length >= 2) {
+      // two-finger pinch → absolute zoom (hand-rolled; Phaser 4 ships no pinch).
+      gestureMultiTouch = true;
+      gestureMoved = true;
+      panPrimed = false;
+      const dist = Phaser.Math.Distance.Between(pts[0]!.x, pts[0]!.y, pts[1]!.x, pts[1]!.y);
+      if (pinchStartDist === 0) {
+        // Pinch just began: capture the baseline distance + zoom.
+        pinchStartDist = dist;
+        pinchStartZoom = controller.zoomTarget;
+        return;
+      }
+      // Map the distance RATIO to an absolute zoom (fingers apart → zoom in).
+      const ratio = dist / pinchStartDist;
+      controller.setZoom(pinchStartZoom * ratio);
+      return;
+    }
+
+    if (pts.length === 1) {
+      // one-finger drag → pan. Any single-finger move ends a pinch baseline.
+      const p = pts[0]!;
+      pinchStartDist = 0;
+      if (!panPrimed) {
+        panStartX = p.x;
+        panStartY = p.y;
+        panLastX = p.x;
+        panLastY = p.y;
+        panPrimed = true;
+        return; // first sample only establishes the origin (no jump)
+      }
+      const dx = p.x - panLastX;
+      const dy = p.y - panLastY;
+      panLastX = p.x;
+      panLastY = p.y;
+      if (dx !== 0 || dy !== 0) controller.pan(dx, dy);
+      if (Math.hypot(p.x - panStartX, p.y - panStartY) > TAP_SLOP) gestureMoved = true;
+      return;
+    }
+
+    // 0 active pointers
+    pinchStartDist = 0;
+    panPrimed = false;
+  });
+
+  // --- 3. release: a CLEAN TAP focuses the nearest shell --------------------
+  // A pinch or a drag is NOT a tap — swallowing those releases is what stops the
+  // end of a pinch from firing focusShell and resetting the just-pinched zoom.
   scene.input.on(Phaser.Input.Events.POINTER_UP, (pointer: Phaser.Input.Pointer) => {
-    if (activePointers().length >= 1) return; // still pinching / dragging
+    if (activePointers().length >= 1) return; // fingers still down → wait
+    const wasPinch = gestureMultiTouch;
+    const wasDrag = gestureMoved;
+    // Reset gesture state for the next touch.
+    pinchStartDist = 0;
+    panPrimed = false;
+    gestureMultiTouch = false;
+    gestureMoved = false;
+    if (wasPinch || wasDrag) return; // pinch/drag tail → never focus (would reset zoom)
+
     const frame = getFrame();
-    // Convert the screen point to world space so the hit-test respects the
-    // camera zoom (CAM-01: we ask Phaser's camera, never hand-roll the matrix).
+    // Convert the screen point to world space so the hit-test respects the camera
+    // zoom + pan (CAM-01: we ask Phaser's camera, never hand-roll the matrix).
     const world = scene.cameras.main.getWorldPoint(pointer.x, pointer.y);
     const clickR = Phaser.Math.Distance.Between(world.x, world.y, frame.cx, frame.cy);
 

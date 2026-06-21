@@ -56,6 +56,9 @@ export class CameraController {
   /** The world-space center the universe is laid around (viewport center). */
   private centerX = 0;
   private centerY = 0;
+  /** One-finger-drag pan offset in WORLD units, applied on top of the center. */
+  private panX = 0;
+  private panY = 0;
 
   /** Index into `cosmos.shells` of the currently focused shell (0 = frontier). */
   private focusIndex = 0;
@@ -84,11 +87,37 @@ export class CameraController {
     return this.cosmos.shells[this.focusIndex]?.day ?? 0;
   }
 
-  /** Center the camera on the universe origin (call on create/resize). */
+  /** Center the camera on the universe origin (call on create/resize). Resets pan. */
   setCenter(x: number, y: number): void {
     this.centerX = x;
     this.centerY = y;
-    this.camera.centerOn(x, y);
+    this.panX = 0;
+    this.panY = 0;
+    this.applyCenter();
+  }
+
+  /** Center the Phaser camera on the origin plus the active pan offset. */
+  private applyCenter(): void {
+    this.camera.centerOn(this.centerX + this.panX, this.centerY + this.panY);
+  }
+
+  /**
+   * pan(dxScreen, dyScreen) — one-finger drag (CAM-02). Translates the VIEW by a
+   * screen-space delta (converted to world units via the live zoom) so the cosmos
+   * follows the finger. Camera-only (CAM-01): never mutates the Scene, never
+   * re-synthesizes. Clamped to ±half a viewport so the universe center can't be
+   * dragged out into the void.
+   */
+  pan(dxScreen: number, dyScreen: number): void {
+    const zoom = this.camera.zoom || MIN_ZOOM;
+    // Content follows the finger: dragging right shifts the centered world point left.
+    this.panX -= dxScreen / zoom;
+    this.panY -= dyScreen / zoom;
+    const maxX = (this.camera.width * 0.5) / zoom;
+    const maxY = (this.camera.height * 0.5) / zoom;
+    this.panX = Phaser.Math.Clamp(this.panX, -maxX, maxX);
+    this.panY = Phaser.Math.Clamp(this.panY, -maxY, maxY);
+    this.applyCenter();
   }
 
   /** Subscribe to focus changes (slider + HUD). Returns an unsubscribe fn. */
@@ -142,7 +171,10 @@ export class CameraController {
     if (clamped === this.focusIndex) return;
     this.focusIndex = clamped;
     this.targetZoom = this.zoomTargetFor(clamped);
-    this.camera.centerOn(this.centerX, this.centerY);
+    // Focusing a shell recenters — clear any one-finger pan offset (tap = recenter).
+    this.panX = 0;
+    this.panY = 0;
+    this.applyCenter();
     this.emit();
   }
 
