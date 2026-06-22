@@ -5,8 +5,8 @@ milestone_name: milestone
 current_phase: 05
 current_phase_name: submit
 status: executing
-stopped_at: "Phase 5 context gathered (7 decisions locked: seeding, onboarding, devpost, mobile+UAT, aesthetic, force-tick, splash)"
-last_updated: "2026-06-22T10:03:05.522Z"
+stopped_at: "Phase 5 executing: 05-02 done; 05-01 Tasks1-2 done (publish deferred to end, finished build); 05-03 Task1 splash committed (e94de12), Task2 coachmark PENDING. Publish/demo/UAT/Devpost bundled at end. Session limit hit twice (reset 15:20)."
+last_updated: "2026-06-22T13:22:23.354Z"
 last_activity: 2026-06-22
 last_activity_desc: Phase 05 execution started
 progress:
@@ -155,6 +155,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-06-22T10:02:33.706Z
-Stopped at: Phase 5 context gathered (7 decisions locked: seeding, onboarding, devpost, mobile+UAT, aesthetic, force-tick, splash)
+Last session: 2026-06-22T13:22:23.336Z
+Stopped at: Phase 5 executing: 05-02 done; 05-01 Tasks1-2 done (publish deferred to end, finished build); 05-03 Task1 splash committed (e94de12), Task2 coachmark PENDING. Publish/demo/UAT/Devpost bundled at end. Session limit hit twice (reset 15:20).
 Resume file: .planning/phases/05-submit/05-CONTEXT.md
