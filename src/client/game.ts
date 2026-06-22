@@ -77,6 +77,18 @@ function frontierFirst(rings: RingRecord[]): RingRecord[] {
   return [...rings].reverse();
 }
 
+/**
+ * The target frame cadence the frontier animation is capped to (D-05 / SUB-03).
+ * 60fps == a ~16.67ms target frame duration; Phaser's TimeStep frame-skip honours
+ * this by skipping a step whenever the elapsed delta is below the target, so the
+ * per-frame paint cost is bounded and the cadence stays consistent across refresh
+ * rates (a 120Hz panel still advances at 60, not 120 — RESEARCH Q7: the webview
+ * caps at 60, never chase >60). The shimmer math (ignite.ts) is wall-clock-driven
+ * (`Math.sin(time * tempo)`), NOT per-frame-increment, so capping the FPS changes
+ * the cadence, never the animation speed.
+ */
+const TARGET_FPS = 60;
+
 /** Build the Phaser game config (mirrors cosmos-dev/main.ts; mobile DPR cap 2). */
 function gameConfig(): Phaser.Types.Core.GameConfig {
   // DPR cap at 2 (PNT-03): never render at more than 2× device pixels — keeps the
@@ -86,6 +98,10 @@ function gameConfig(): Phaser.Types.Core.GameConfig {
     type: AUTO, // WebGL-preferred (PNT-01), Canvas2D fallback.
     parent: PARENT,
     backgroundColor: '#04030a',
+    // Frame-skip guard (D-05): cap the rAF/TimeStep cadence to the 60fps target
+    // frame duration so the per-frame cost is bounded and the speed is identical
+    // across refresh rates. Phaser skips a step when delta < target (RESEARCH Q7).
+    fps: { target: TARGET_FPS, min: 30, limit: TARGET_FPS, smoothStep: true },
     scale: {
       mode: Phaser.Scale.RESIZE,
       autoCenter: Phaser.Scale.CENTER_BOTH,
@@ -95,6 +111,51 @@ function gameConfig(): Phaser.Types.Core.GameConfig {
       height: window.innerHeight,
     },
   };
+}
+
+// ── rAF visibility idle (D-05 / SUB-03) ───────────────────────────────────────
+// When the post iframe is hidden (tab switch, scrolled far off-screen, app
+// backgrounded) the browser already throttles rAF, but an explicit idle stops the
+// frontier loop doing ANY wasted paint work and guarantees no per-frame cost while
+// hidden. Registered on mount, REMOVED in teardown() so a re-mount never leaks a
+// listener (mirrors the disconnectRealtime teardown discipline). The handler reads
+// the live `game` ref so it always targets the current TimeStep.
+//
+// NOTE on the static first frame (RESEARCH Pitfall 5): iOS throttles rAF in a
+// cross-origin iframe to ~30fps until the user interacts, so the FIRST impression
+// must look good STATIC. layout() in CosmosScene always draws one static REST frame
+// up front (IGNITE_REST — the sine's zero-crossing), and there is no autoplay intro
+// animation here, so the first painted frame is already the intended static look;
+// the live ignite shimmer is purely additive once the loop runs.
+let onVisibilityChange: (() => void) | null = null;
+
+/** Idle the frontier rAF loop while the document is hidden; resume when visible. */
+function startVisibilityIdle(): void {
+  // Defensive: if a prior listener somehow survived, drop it before adding a new
+  // one (single source of truth — never two competing handlers).
+  stopVisibilityIdle();
+  onVisibilityChange = (): void => {
+    const loop = game?.loop;
+    if (!loop) return;
+    if (document.hidden) {
+      // sleep() stops Request Animation Frame and toggles `running` off — zero
+      // per-frame work while hidden (Phaser TimeStep.sleep).
+      loop.sleep();
+    } else {
+      // wake(seamless) resumes without a time jump so the wall-clock shimmer
+      // continues from where it visually was (no strobe on resume).
+      loop.wake(true);
+    }
+  };
+  document.addEventListener('visibilitychange', onVisibilityChange);
+}
+
+/** Remove the visibilitychange listener (called from teardown — no leak on re-mount). */
+function stopVisibilityIdle(): void {
+  if (onVisibilityChange) {
+    document.removeEventListener('visibilitychange', onVisibilityChange);
+    onVisibilityChange = null;
+  }
 }
 
 // ── Overlay state machine (UI-SPEC S3) ───────────────────────────────────────
@@ -138,6 +199,10 @@ let steerChannelName: string | null = null;
 let appliedMean: Record<SteerParam, number> = { branch: 0, symmetry: 0, hue: 0 };
 
 function teardown(): void {
+  // Remove the rAF visibility-idle listener BEFORE the game is destroyed so a late
+  // visibilitychange can never reach a torn-down TimeStep, and a re-mount registers
+  // exactly one fresh listener (no leak across re-mounts — D-05).
+  stopVisibilityIdle();
   // Disconnect the live-steer realtime channel BEFORE tearing down the render
   // stack so a late onMessage cannot reach a destroyed handle. disconnectRealtime
   // is the supported teardown (Connection.disconnect() is @deprecated — RESEARCH
@@ -186,6 +251,9 @@ function mountUniverse(data: OrganismResponse): void {
   // identical on every client (LIVE-03). No raw outcome touches paint (ENG-02): paint
   // reads only the Scene-derived `shell.goalAchieved`.
   game = new Game(gameConfig());
+  // Idle the frontier rAF loop while the post iframe is hidden (D-05). Registered
+  // here on every mount; teardown() removes it so re-mounts never leak a listener.
+  startVisibilityIdle();
   const painter = new PhaserPainter(game);
   handle = render(days, genome, style, painter);
 
