@@ -25,54 +25,19 @@
 import { redis, reddit } from '@devvit/web/server';
 import { keys } from './redisKeys';
 import { conflictComposite } from './conflict';
+import { hashSeed } from './seed';
+import { resolveGenome } from './genome';
 import { writeRing } from './ring';
 import { createRevealPost } from './post';
 import { readSteerAggregate } from './steer';
 import { RingRecordSchema, type RingRecord } from '../../engine/contracts';
-import { calm, chaotic, crystalline } from '../../engine/genomes';
 import { score } from '../../engine/score';
 import type { DayVector, Genome } from '../../engine/contracts';
 import type { SteerAggregate } from '../../shared/api';
 
-// Genome preset registry, keyed by the id stored in organism:{sub}:config.genome
-// (the install snapshot, written in 03-04). A new preset is a data entry here —
-// never an engine code change (the template-engine bet). `calm` is the default
-// when no config snapshot exists yet or the stored id is unrecognised.
-const PRESETS: Record<string, Genome> = { calm, chaotic, crystalline };
-
 /** Clamp helpers — same idiom as src/sim/generator.ts. */
 const clamp01 = (n: number): number => Math.min(1, Math.max(0, n));
 const clampSigned = (n: number): number => Math.min(1, Math.max(-1, n));
-
-/**
- * Deterministic FNV-1a 32-bit hash of `${subId}:${day}:${genomeVersion}`,
- * returned as a signed 32-bit int (DayVectorSchema requires z.number().int()).
- * Pure + seedless — NEVER Math.random (CLAUDE.md determinism): the same inputs
- * always yield the same seed, so a frozen ring is reproducible.
- */
-function hashSeed(subId: string, day: number, genomeVersion: number): number {
-  const input = `${subId}:${day}:${genomeVersion}`;
-  let h = 0x811c9dc5; // FNV offset basis
-  for (let i = 0; i < input.length; i++) {
-    h ^= input.charCodeAt(i);
-    // FNV prime 16777619, via Math.imul to stay in 32-bit.
-    h = Math.imul(h, 0x01000193);
-  }
-  return h | 0; // signed 32-bit int
-}
-
-/**
- * Resolve the community's full genome from its configured preset. Reads the genome
- * id from organism:{sub}:config (03-04 install snapshot) and returns that preset
- * object — both its `.version` (for the seed) and its `.dailyGoal` (for scoring)
- * come from this single config read. Defaults to the Calm preset (`calm`, not a
- * hardcoded literal — the default tracks the preset) when the config key is absent
- * or the id is unrecognised (e.g. a tick fires before any install snapshot exists).
- */
-async function resolveGenome(subId: string): Promise<Genome> {
-  const id = await redis.hGet(keys.config(subId), 'genome');
-  return (id && PRESETS[id]) || calm;
-}
 
 /**
  * foldSteering — collapse the per-day steer aggregate into the frozen DayVector's

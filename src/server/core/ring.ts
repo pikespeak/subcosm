@@ -54,6 +54,16 @@ function isJsonField(key: string): key is (typeof JSON_FIELDS)[number] {
   return (JSON_FIELDS as readonly string[]).includes(key);
 }
 
+/**
+ * Reverse `serializeScalars` into the raw (pre-parse) RingRecord shape. Exported
+ * as `deserializeRing` so a caller (e.g. a backfill test, or any consumer that
+ * reads a raw ring hash) can reconstruct the pre-parse shape through the SAME
+ * round-trip the read boundary uses — never a divergent hand-rolled reverse.
+ */
+export function deserializeRing(raw: Record<string, string>): unknown {
+  return deserializeScalars(raw);
+}
+
 /** Reverse `serializeScalars` into the raw (pre-parse) RingRecord shape. */
 function deserializeScalars(raw: Record<string, string>): unknown {
   const out: Record<string, unknown> = {};

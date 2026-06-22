@@ -19,6 +19,9 @@
     },
     {
       "path": "./tsconfig.engine.json"
+    },
+    {
+      "path": "./tsconfig.sim.json"
     }
   ]
 }

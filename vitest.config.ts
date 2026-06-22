@@ -35,6 +35,12 @@ export default defineConfig({
       'src/server/contracts/settings.test.ts',
       'src/server/core/schedule.test.ts',
       'src/server/core/config.test.ts',
+      // The D-01 backfill (direct ring-write history seeding) — vi.mocks
+      // @devvit/web/server to an in-memory fake redis + reddit spy, so no real
+      // Devvit runtime is loaded (same discipline as tick.test.ts).
+      'src/server/core/backfill.test.ts',
+      // The mod-menu action boundary schema (D-01/D-08) — pure zod, no Devvit.
+      'src/server/contracts/menuActions.test.ts',
       // The shared OrganismResponse contract (pure zod + engine contract — no
       // Devvit/Phaser import, so it belongs in this Phaser-free runner).
       'src/shared/api.test.ts',

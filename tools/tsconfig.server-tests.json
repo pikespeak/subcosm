@@ -15,6 +15,7 @@
   "exclude": [],
   "references": [
     { "path": "./tsconfig.server.json" },
-    { "path": "./tsconfig.shared.json" }
+    { "path": "./tsconfig.shared.json" },
+    { "path": "./tsconfig.sim.json" }
   ]
 }
