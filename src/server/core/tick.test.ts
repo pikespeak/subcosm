@@ -233,6 +233,80 @@ describe('runTick — scoring (GAME-02 / LIVE-03)', () => {
   });
 });
 
+describe('runTick — steer fold (OQ3 / D-08)', () => {
+  /** Seed the per-day steer hash directly (as recordNudge's hIncrBy would leave it). */
+  function seedSteer(
+    sub: string,
+    day: number,
+    agg: { branch?: number; symmetry?: number; hue?: number; count: number },
+  ): void {
+    const fields: Record<string, string> = { count: String(agg.count) };
+    if (agg.branch !== undefined) fields['branch'] = String(agg.branch);
+    if (agg.symmetry !== undefined) fields['symmetry'] = String(agg.symmetry);
+    if (agg.hue !== undefined) fields['hue'] = String(agg.hue);
+    hashes.set(keys.steer(sub, day), fields);
+  }
+
+  test('an unsteered day folds to zero steering (no steer hash)', async () => {
+    await seedAccumulators(SUB, DAY);
+    await runTick(SUB, DAY);
+    const raw = hashes.get(keys.ring(SUB, 1))!;
+    expect(JSON.parse(raw['steering']!)).toEqual({ branch: 0, symmetry: 0, hue: 0 });
+  });
+
+  test('folds the aggregate MEAN × steerGain into the frozen steering, once', async () => {
+    await seedAccumulators(SUB, DAY);
+    // Two symmetry nudges summing to 1.0 over count 2 → mean 0.5; Calm steerGain.symmetry = 0.5.
+    seedSteer(SUB, DAY, { symmetry: 1.0, count: 2 });
+    await runTick(SUB, DAY);
+    const raw = hashes.get(keys.ring(SUB, 1))!;
+    const steering = JSON.parse(raw['steering']!);
+    // mean 0.5 × gain 0.5 = 0.25, applied exactly once.
+    expect(steering.symmetry).toBeCloseTo(0.25, 10);
+    // branch has no Calm steerGain entry → defaults to gain 1; mean 0 → 0.
+    expect(steering.branch).toBeCloseTo(0, 10);
+    // hue uses a fixed unit gain; no hue nudge → 0.
+    expect(steering.hue).toBeCloseTo(0, 10);
+  });
+
+  test('hue folds at a fixed unit gain (mean, no steerGain knob)', async () => {
+    await seedAccumulators(SUB, DAY);
+    // hue 1.2 over count 3 → mean 0.4 × unit gain 1 = 0.4.
+    seedSteer(SUB, DAY, { hue: 1.2, count: 3 });
+    await runTick(SUB, DAY);
+    const raw = hashes.get(keys.ring(SUB, 1))!;
+    expect(JSON.parse(raw['steering']!).hue).toBeCloseTo(0.4, 10);
+  });
+
+  test('deletes the steer hash on freeze so the next frontier starts unsteered', async () => {
+    await seedAccumulators(SUB, DAY);
+    seedSteer(SUB, DAY, { branch: 0.5, count: 1 });
+    await runTick(SUB, DAY);
+    expect(hashes.has(keys.steer(SUB, DAY))).toBe(false);
+    expect(delCalls).toContain(keys.steer(SUB, DAY));
+  });
+
+  test('the folded steering survives the ring round-trip parse', async () => {
+    await seedAccumulators(SUB, DAY);
+    seedSteer(SUB, DAY, { symmetry: 0.6, count: 2 });
+    await runTick(SUB, DAY);
+    const raw = hashes.get(keys.ring(SUB, 1))!;
+    expect(() =>
+      RingRecordSchema.parse(
+        Object.fromEntries(
+          Object.entries(raw).map(([k, v]) =>
+            k === 'topThreads' || k === 'steering' || k === 'outcome'
+              ? [k, JSON.parse(v)]
+              : k === 'date' || k === 'dominantTheme'
+                ? [k, v]
+                : [k, Number(v)],
+          ),
+        ),
+      ),
+    ).not.toThrow();
+  });
+});
+
 describe('runTick — genomeVersion resolution', () => {
   test('defaults to the Calm preset version when no config is set', async () => {
     await seedAccumulators(SUB, DAY);

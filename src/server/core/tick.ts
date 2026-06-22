@@ -26,10 +26,12 @@ import { redis } from '@devvit/web/server';
 import { keys } from './redisKeys';
 import { conflictComposite } from './conflict';
 import { writeRing } from './ring';
+import { readSteerAggregate } from './steer';
 import { RingRecordSchema, type RingRecord } from '../../engine/contracts';
 import { calm, chaotic, crystalline } from '../../engine/genomes';
 import { score } from '../../engine/score';
 import type { DayVector, Genome } from '../../engine/contracts';
+import type { SteerAggregate } from '../../shared/api';
 
 // Genome preset registry, keyed by the id stored in organism:{sub}:config.genome
 // (the install snapshot, written in 03-04). A new preset is a data entry here —
@@ -69,6 +71,34 @@ function hashSeed(subId: string, day: number, genomeVersion: number): number {
 async function resolveGenome(subId: string): Promise<Genome> {
   const id = await redis.hGet(keys.config(subId), 'genome');
   return (id && PRESETS[id]) || calm;
+}
+
+/**
+ * foldSteering — collapse the per-day steer aggregate into the frozen DayVector's
+ * `steering` field, applying the genome's steerGain EXACTLY ONCE (OQ3, D-08).
+ *
+ * For each param the contribution is `MEAN × gain` where `mean = sum / count`
+ * (count 0 → 0, i.e. an unsteered day folds to the zero steering it had before).
+ * The gain mapping MIRRORS render.ts's STEER_KNOB so the live re-synth and the
+ * freeze fold use the identical scale (no double-count): branch → steerGain.branch,
+ * symmetry → steerGain.symmetry, hue → a fixed unit gain (ParamEnum has no hue, so
+ * a hue nudge only shifts the deterministic hue HINT mean). The seed excludes
+ * steering (`hash(subId, day, genomeVersion)`), so folding the mean does NOT break
+ * determinism — the same aggregate always folds to the same steering.
+ */
+function foldSteering(
+  agg: SteerAggregate,
+  genome: Genome,
+): { branch: number; symmetry: number; hue: number } {
+  const mean = (sum: number): number => (agg.count > 0 ? sum / agg.count : 0);
+  const branchGain = genome.steerGain.branch ?? 1;
+  const symmetryGain = genome.steerGain.symmetry ?? 1;
+  const HUE_GAIN = 1; // ParamEnum has no hue knob → fixed unit gain (matches render.ts).
+  return {
+    branch: mean(agg.branch) * branchGain,
+    symmetry: mean(agg.symmetry) * symmetryGain,
+    hue: mean(agg.hue) * HUE_GAIN,
+  };
 }
 
 /**
@@ -122,6 +152,14 @@ export async function runTick(subId: string, day: number): Promise<void> {
 
   const seed = hashSeed(subId, day, genomeVersion);
 
+  // Fold the day's aggregated live nudges into the frozen frontier's steering,
+  // applying steerGain ONCE (OQ3 / D-08). readSteerAggregate reads the per-day
+  // steer hash (absent → all zeros); foldSteering collapses it to MEAN × gain with
+  // the SAME mapping render.ts's live re-synth uses (no double-count). The seed
+  // excludes steering, so this fold preserves determinism.
+  const steerAgg = await readSteerAggregate(subId, day);
+  const steering = foldSteering(steerAgg, genome);
+
   // 4. Build the DayVector ONCE, score it, then parse the SAME object spread with
   //    { outcome, genomeVersion } at the single build boundary (generator.ts idiom).
   //    score() is a one-shot PURE call at the tick (RESEARCH Anti-Patterns: never
@@ -138,7 +176,7 @@ export async function runTick(subId: string, day: number): Promise<void> {
     momentum,
     diversity,
     dominantTheme: 'community', // genome-driven theming lands later; neutral here
-    steering: { branch: 0, symmetry: 0, hue: 0 }, // aggregated nudges wired later
+    steering, // aggregated live nudges folded × steerGain (OQ3, applied once)
     seed,
   };
 
@@ -163,6 +201,12 @@ export async function runTick(subId: string, day: number): Promise<void> {
     keys.counter(subId, 'replies'),
     keys.contributors(subId, day),
     keys.threads(subId, day),
+    // Clear the folded steer hash so the next frontier starts unsteered (D-08): the
+    // aggregate has been folded into the frozen ring above, so it must NOT carry
+    // over. Per-USER budget keys are NOT enumerable without a key scan (DEV-05 — no
+    // scan), so they self-expire via the TTL backstop set in recordNudge rather than
+    // being deleted here (they are day-scoped, so the next day uses a fresh key).
+    keys.steer(subId, day),
   );
   await redis.set(keys.lastTickDay(subId), String(day));
 }
