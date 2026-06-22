@@ -65,6 +65,24 @@
           <span id="hud-goal" class="hud-v"></span>
           <span id="hud-track" class="hud-track" data-i18n="hud.track.label"></span>
         </p>
+        <!-- Goal-progress meter (GAME-03 legible): a 0..1 bar of how close the live
+             frontier is to today's goal. game.ts/hud.ts set only the fill width +
+             the data-state (achieved) + aria-valuenow — no language text injected
+             (T-02-11). The fill eases by default; under prefers-reduced-motion the
+             `.hud-meter-fill--reduced` class hud.ts adds disables the transition
+             (PNT-04 — static, no strobe). -->
+        <div
+          id="hud-meter"
+          class="hud-meter"
+          role="progressbar"
+          aria-valuemin="0"
+          aria-valuemax="100"
+          aria-valuenow="0"
+          aria-label="Goal progress"
+          data-i18n-aria-label="hud.meter.label"
+        >
+          <span id="hud-meter-fill" class="hud-meter-fill"></span>
+        </div>
       </div>
 
       <!-- Live-nudge controls (LIVE-01 / GAME-05). Three frontier axes + a

@@ -19,6 +19,8 @@
 // acting-user re-synth) while this readout tracks the day vs its goal, so the
 // player sees BOTH their immediate contribution and where the day stands (GAME-03).
 import { score } from '../../engine/score';
+import { goalMeter } from './revealPreview';
+import { prefersReducedMotion } from './reduced-motion';
 import type { DayVector, Genome } from '../../engine/contracts';
 
 /** The HUD container + the value nodes it substitutes into (queried once). */
@@ -27,6 +29,8 @@ const HUD_PARAM = 'hud-param'; // the targetParam noun (e.g. "conflict")
 const HUD_MEASURED = 'hud-measured'; // the current metric value
 const HUD_GOAL = 'hud-goal'; // the threshold + direction (e.g. "< 0.40")
 const HUD_TRACK = 'hud-track'; // the on-track indicator glyph + state
+const HUD_METER_FILL = 'hud-meter-fill'; // the goal-progress bar fill (0..1 width)
+const HUD_METER = 'hud-meter'; // the meter track (carries the achieved data-state)
 
 /** Format a metric to a stable, legible precision (integers stay integers). */
 function fmt(n: number): string {
@@ -74,5 +78,29 @@ export function updateHud(frontier: DayVector | undefined, genome: Genome): void
     track.dataset.state = achieved ? 'ontrack' : 'offtrack';
   }
 
+  // Goal-progress meter (GAME-03 made causal + legible): a 0..1 bar of how close
+  // the live frontier is to the goal. Reuses the SAME engine score() (via goalMeter)
+  // so a nudge that biases the frontier's steering visibly moves the fill — the
+  // player sees their contribution land. Reduced-motion: snap the width with NO
+  // transition (PNT-04 — no animated travel); otherwise the CSS transition eases it.
+  const meter = goalMeter(frontier, genome);
+  const meterTrack = document.getElementById(HUD_METER);
+  const meterFill = document.getElementById(HUD_METER_FILL);
+  if (meterTrack) {
+    meterTrack.dataset.state = meter.achieved ? 'ontrack' : 'offtrack';
+    meterTrack.setAttribute('aria-valuenow', String(Math.round(meter.progress01 * 100)));
+  }
+  if (meterFill) {
+    // prefers-reduced-motion → no eased travel: toggle a class the CSS keys off so
+    // the width updates instantly (single static frame, no strobe).
+    meterFill.classList.toggle('hud-meter-fill--reduced', prefersReducedMotion());
+    meterFill.style.width = `${clamp01(meter.progress01) * 100}%`;
+  }
+
   root.hidden = false;
+}
+
+/** Clamp a fraction into [0,1] for the meter width (defensive — never NaN/over). */
+function clamp01(v: number): number {
+  return v < 0 ? 0 : v > 1 ? 1 : v;
 }

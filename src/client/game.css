@@ -207,6 +207,45 @@ body {
   color: #5ad7ff;
 }
 
+/* ── Goal-progress meter (GAME-03 made causal + legible) ───────────────────────
+ * A slim 0..1 bar showing how close the live frontier is to today's goal. The
+ * fill width is driven by goalMeter() (the same engine score() the tick freezes),
+ * so a nudge that biases the frontier visibly moves it. The fill eases by default
+ * (a calm travel as the value changes); under prefers-reduced-motion the
+ * `.hud-meter-fill--reduced` class hud.ts adds removes the transition (no animated
+ * travel, PNT-04). Off-track = muted cool; on-track (achieved) = the cyan signature
+ * shifting toward the warm-gold goal accent — legible over the cosmos. */
+.hud-meter {
+  position: relative;
+  height: 6px;
+  margin-top: 2px;
+  border-radius: 3px;
+  overflow: hidden;
+  background: rgba(150, 130, 220, 0.16);
+  border: 1px solid var(--hair);
+}
+
+.hud-meter-fill {
+  display: block;
+  height: 100%;
+  width: 0;
+  border-radius: 3px;
+  /* Off-track: a muted cool fill. */
+  background: linear-gradient(90deg, #3a6fa5, #5ad7ff);
+  transition: width 280ms ease-out;
+}
+
+/* Achieved: shift the fill toward the warm genesis-gold accent (the "goal met"
+ * signature) so crossing the line reads instantly. */
+.hud-meter[data-state='ontrack'] .hud-meter-fill {
+  background: linear-gradient(90deg, #5ad7ff, var(--gold));
+}
+
+/* Reduced-motion (PNT-04): no eased travel — the width snaps to the value. */
+.hud-meter-fill--reduced {
+  transition: none;
+}
+
 /* Nudge controls: bottom-center, three steer axes + a budget line. */
 .nudge-controls {
   left: 50%;
@@ -414,5 +453,11 @@ body {
     animation: none;
     backdrop-filter: none;
     -webkit-backdrop-filter: none;
+  }
+  /* The goal meter snaps instead of easing when the OS requests reduced motion
+   * (the JS `.hud-meter-fill--reduced` class covers the same; this is the CSS-only
+   * fallback for clients whose stylesheet sees the preference directly). */
+  .hud-meter-fill {
+    transition: none;
   }
 }
