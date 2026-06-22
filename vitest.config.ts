@@ -38,6 +38,9 @@ export default defineConfig({
       // The shared OrganismResponse contract (pure zod + engine contract — no
       // Devvit/Phaser import, so it belongs in this Phaser-free runner).
       'src/shared/api.test.ts',
+      // The colon-free realtime channel-name helper (LIVE-01 — pure string math,
+      // no Devvit/Phaser import).
+      'src/shared/channel.test.ts',
     ],
     environment: 'node',
     passWithNoTests: true,

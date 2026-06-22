@@ -63,6 +63,31 @@ export const SteerAggregateSchema = z.object({
 export type SteerAggregate = z.infer<typeof SteerAggregateSchema>;
 
 /**
+ * SteerMsgSchema — the realtime broadcast payload (LIVE-01 / D-03).
+ *
+ * The server `realtime.send`s the NEW absolute aggregate (summed contributions +
+ * count) over the per-post channel after each accepted nudge; every OTHER open
+ * viewer's client `safeParse`s this message at the onMessage boundary before
+ * applying it. It is an UNTRUSTED-on-the-wire payload (T-04-09): the client MUST
+ * `safeParse` + clamp before re-synthesizing, and a malformed message is IGNORED,
+ * never thrown on.
+ *
+ * Same shape as `SteerAggregate` (absolute sums + count, NOT deltas) so a receiver
+ * reconciles its frontier to the absolute steered MEAN (= sum/count) — the acting
+ * user does not double-apply their own echoed broadcast (reconcile-to-absolute, not
+ * add-delta). Plain numbers only → a valid `JsonValue` for the realtime wire.
+ * Client-safe (zod only — no server import, bundle safety CLAUDE.md §6).
+ */
+export const SteerMsgSchema = z.object({
+  branch: z.number(),
+  symmetry: z.number(),
+  hue: z.number(),
+  count: z.number(),
+});
+/** The parsed realtime steer message — `z.infer` only (no hand interface, §1). */
+export type SteerMsg = z.infer<typeof SteerMsgSchema>;
+
+/**
  * OrganismResponseSchema — the `GET /api/organism` envelope (DEV-01 / DEV-05).
  *
  * `rings` reuse the engine `RingRecordSchema` so the wire shape is exactly what

@@ -1,5 +1,6 @@
 import { Hono } from 'hono';
-import { context, redis, reddit } from '@devvit/web/server';
+import { context, redis, reddit, realtime } from '@devvit/web/server';
+import { steerChannel } from '../../shared/channel';
 import type {
   DecrementResponse,
   IncrementResponse,
@@ -98,7 +99,7 @@ api.get('/organism', async (c) => {
 // `{ accepted:false, remaining:0 }` so the UI disables the controls (D-04a). Only
 // a missing context id (400) or a malformed body (400) is an error.
 api.post('/steer', async (c) => {
-  const { subredditId, userId } = context;
+  const { subredditId, userId, postId } = context;
 
   // V4: ids from trusted context only. A missing id is a 400 (i18n key), never a
   // fallback to body-supplied identity.
@@ -130,6 +131,34 @@ api.post('/steer', async (c) => {
       body.amount,
       genome.actionCap,
     );
+
+    // LIVE-01 / D-03: on an ACCEPTED nudge, broadcast the NEW absolute aggregate
+    // over the colon-free per-post realtime channel so every OTHER open viewer
+    // re-synthesizes the frontier near-real-time (the acting user already
+    // re-synthed locally, D-04). The broadcast is the absolute summed aggregate
+    // (+ count), NOT the delta — receivers reconcile to the absolute steered MEAN
+    // (= sum/count), so the acting user does not double-apply their own echo.
+    //
+    // BEST-EFFORT, NEVER FATAL (RESEARCH Pitfall 1 / T-04-12): the Redis steer hash
+    // is the source of truth and the D-03b reload path (GET /organism) reconciles
+    // on load/reconnect — so a realtime failure (or an absent postId) is LOGGED but
+    // does NOT 500 the nudge. `realtime.send` is server-only; clients are
+    // subscribe-only (T-04-10). The channel name is built from the trusted
+    // context.postId (T-04-11). `await`ed in its own try so a send error cannot
+    // bubble into the route's outer catch and turn an accepted nudge into a 400.
+    if (accepted && postId) {
+      try {
+        const aggregate = await readSteerAggregate(subredditId, day);
+        await realtime.send(steerChannel(postId), aggregate);
+      } catch (broadcastError) {
+        // Degrade gracefully — the nudge still succeeded and persisted; only the
+        // live push failed. Other viewers will reconcile on their next reload.
+        console.error(
+          `API Steer realtime broadcast failed for sub ${subredditId}:`,
+          broadcastError
+        );
+      }
+    }
 
     // Parse on the way out — the response cannot drift from the contract the client
     // safeParses. A refusal (accepted:false) is a normal 200.
