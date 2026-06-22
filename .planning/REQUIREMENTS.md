@@ -98,7 +98,7 @@
 ### C. Submission & Polish (required to enter)
 
 - [ ] **SUB-01**: App is **published** with an app listing on developer.reddit.com.
-- [ ] **SUB-02**: A **public demo post** on a subreddit runs the game, self-explanatory and playable (judging is primarily based on this).
+- [x] **SUB-02**: A **public demo post** on a subreddit runs the game, self-explanatory and playable (judging is primarily based on this).
 - [ ] **SUB-03**: Mobile experience is polished (target ~60fps in the post viewport; bonus points).
 - [ ] **SUB-04**: Onboarding makes the loop legible at a glance — both the cosmos loop and the goal→steer→reveal game loop; cold-start day looks intentional, not broken-empty.
 - [ ] **SUB-05**: Compliant with Devvit Rules; aesthetics read self-authored (not AI-slop / generic neon fractal).
@@ -189,7 +189,7 @@
 | GAME-03 | Phase 4: Live Game | Complete |
 | GAME-04 | Phase 4: Live Game | Complete |
 | SUB-01 | Phase 5: Submit | Pending |
-| SUB-02 | Phase 5: Submit | Pending |
+| SUB-02 | Phase 5: Submit | Complete |
 | SUB-03 | Phase 5: Submit | Pending |
 | SUB-04 | Phase 5: Submit | Pending |
 | SUB-05 | Phase 5: Submit | Pending |

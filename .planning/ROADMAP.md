@@ -198,12 +198,12 @@ Plans:
   4. Cold-start day-1 (one ring, maybe one star) looks intentional and beautiful — not broken or empty
   5. The Devpost write-up at `docs/devpost-submission.md` is complete with media gallery, demo link, and the correct contest category tags; the submission is submitted before the deadline
 
-**Plans**: 5 plans
+**Plans**: 1/5 plans executed
 
 **Wave 1**
 
 - [ ] 05-01-PLAN.md — Publish Unlisted + hook-first README + verify the app-listing link (SUB-01 timeline de-risk)
-- [ ] 05-02-PLAN.md — Demo-control server tooling: backfill (D-01) + force-tick (D-08) mod menu actions (SUB-02)
+- [x] 05-02-PLAN.md — Demo-control server tooling: backfill (D-01) + force-tick (D-08) mod menu actions (SUB-02)
 
 **Wave 2** *(blocked on 05-02)*
 
@@ -226,4 +226,4 @@ Plans:
 | 2.1. Visual Depth & Animation Polish | 3/2 | Complete    | 2026-06-20 |
 | 3. Devvit Scaffold + Data Layer | 5/5 | Complete    | 2026-06-21 |
 | 4. Live Game | 5/5 | Complete    | 2026-06-22 |
-| 5. Submit | 0/5 | Planned | - |
+| 5. Submit | 1/5 | In Progress|  |

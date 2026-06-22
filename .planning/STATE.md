@@ -2,18 +2,18 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-current_phase: 5
-current_phase_name: Submit
-status: ready
+current_phase: 05
+current_phase_name: submit
+status: executing
 stopped_at: "Phase 5 context gathered (7 decisions locked: seeding, onboarding, devpost, mobile+UAT, aesthetic, force-tick, splash)"
-last_updated: "2026-06-22T08:39:40.600Z"
+last_updated: "2026-06-22T10:03:05.522Z"
 last_activity: 2026-06-22
-last_activity_desc: Phase 04 complete, transitioned to Phase 5
+last_activity_desc: Phase 05 execution started
 progress:
   total_phases: 6
   completed_phases: 5
-  total_plans: 20
-  completed_plans: 21
+  total_plans: 25
+  completed_plans: 22
   percent: 83
 ---
 
@@ -24,14 +24,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-06-19)
 
 **Core value:** The community's real activity becomes a beautiful, legible, deterministic universe — one engine, provably different worlds from different data + config
-**Current focus:** Phase 5 — Submit (Phase 4 complete; on-device UAT deferred to Phase 5 demo)
+**Current focus:** Phase 05 — submit
 
 ## Current Position
 
-Phase: 5 — Submit
-Plan: Not started
-Status: Phase 4 COMPLETE (5/5 plans, 246 tests green; GAME-03 closed). On-device UAT for criteria 4-6 + realtime deferred to Phase 5 demo (user decision). Phase 5 (Submit) not started — next: /gsd-discuss-phase 5 or /gsd-plan-phase 5.
-Last activity: 2026-06-22 — Phase 04 complete, transitioned to Phase 5
+Phase: 05 (submit) — EXECUTING
+Plan: 2 of 5
+Status: Ready to execute
+Last activity: 2026-06-22 — Phase 05 execution started
 
 Progress: [██████████] 100%
 
@@ -78,6 +78,7 @@ Progress: [██████████] 100%
 | Phase 04 P03 | 4min | 3 tasks | 6 files |
 | Phase 04 P04 | 10min | 3 tasks | 8 files |
 | Phase 04 P05 | 25min | 3 tasks | 2 files |
+| Phase 05 P02 | ~10min | 3 tasks | 13 files |
 
 ## Accumulated Context
 
@@ -126,6 +127,8 @@ Recent decisions affecting current work:
 - [Phase ?]: Reward glyph: per-shell goalAchieved wired in synthesis from outcome.achieved; paint-only accent (stable max-energy element, constant REWARD_HUE, no rng) baked with the frozen shell — pure function of the record, identical on every client
 - [Phase ?]: 04-05: score() reads the already-folded day.steering as a bounded contribution (STEER_BIAS_CAP=0.15 × goal span); GAME-03 steering→outcome link is now real — SUPERSEDES the 04-02 'scored measure does not depend on steering' decision
 - [Phase ?]: 04-05: I-5 enforced by saturate-then-clamp — extreme steering can never exceed the cap, so steering moves only borderline days, never flips a clear day
+- [Phase ?]: [Phase 05]: 05-02: D-01 backfill writes the deterministic 30-day arc (DEMO_SEED 0x535542, full day 1..30) as frozen rings via writeRing ONLY — shared hashSeed + resolveGenome extracted to seed.ts/genome.ts, dominantTheme:'community', score + RingRecordSchema.parse; idempotent via ringCount>0 skip; ZERO reveal posts
+- [Phase ?]: [Phase 05]: 05-02: mod-menu /backfill + /force-tick boundary-parse MenuActionRequestSchema and trust ONLY context.subredditId + server-side frontierDay (V4/Q6); force-tick = frontierDay->runTick, idempotent; both KEPT mod-gated features (D-08)
 
 ### Pending Todos
 
@@ -152,6 +155,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-06-22T08:39:40.591Z
+Last session: 2026-06-22T10:02:33.706Z
 Stopped at: Phase 5 context gathered (7 decisions locked: seeding, onboarding, devpost, mobile+UAT, aesthetic, force-tick, splash)
 Resume file: .planning/phases/05-submit/05-CONTEXT.md
