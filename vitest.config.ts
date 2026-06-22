@@ -27,6 +27,10 @@ export default defineConfig({
       // motion. Pure logic over injectable seams — no Phaser/DOM, so it belongs
       // in this Phaser-free runner (same discipline as ignite.test.ts).
       'src/client/cosmos/coachmark.test.ts',
+      // The in-session reveal-preview + goal-meter logic (SUB-02/SUB-04). Pure
+      // logic over the engine score() — no Phaser/DOM/rng/timers, so it belongs in
+      // this Phaser-free runner (same discipline as ignite.test.ts / coachmark).
+      'src/client/cosmos/revealPreview.test.ts',
       'src/server/core/redisKeys.test.ts',
       'src/server/contracts/triggers.test.ts',
       'src/server/core/conflict.test.ts',
