@@ -231,3 +231,15 @@ Plans:
 | 3. Devvit Scaffold + Data Layer | 5/5 | Complete    | 2026-06-21 |
 | 4. Live Game | 5/5 | Complete    | 2026-06-22 |
 | 5. Submit | 4/6 | In Progress|  |
+
+## Backlog
+
+### Phase 999.1: Connected multiverse — link galaxies via subreddit mentions (BACKLOG)
+
+**Goal:** Auto-link galaxy-cosmoses when one subreddit is mentioned in another community's comments. The daily comment-ingestion path already reads comments — extend it to detect mentions of OTHER subreddits (e.g. "r/othersub"). If the mentioned target (a) is a real subreddit AND (b) also runs Subcosm (installed / opted-in), create a link between the two cosmoses. Players travel galaxy→galaxy; an emergent connected tree/network forms, turning many galaxies into one shared bigger universe. Guards before linking: validate it is a subreddit + confirm participation/opt-in. Builds on the existing comment-reading path; relates to multiverse-vision + ROADMAP North-star (subreddits as galaxies, opt-in links) + the CAM-04 embeddable-camera/outer-zoom-tier constraint. Post-MVP / post-submission — NOT current hackathon scope.
+**Requirements:** TBD
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD (promote with /gsd-review-backlog when ready)
+
