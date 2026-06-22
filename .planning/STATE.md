@@ -5,16 +5,16 @@ milestone_name: milestone
 current_phase: 05
 current_phase_name: submit
 status: executing
-stopped_at: "Phase 5 executing: 05-02 done; 05-01 Tasks1-2 done (publish deferred to end, finished build); 05-03 CODE DONE — Task1 splash (e94de12) + Task2 coachmark (e7cd577) committed, all DoD gates green (276 tests). Task3 on-device legibility checkpoint UAT-DEFERRED to demo session. Publish/demo/UAT/Devpost bundled at end."
-last_updated: "2026-06-22T13:30:00.000Z"
+stopped_at: "Phase 5 executing: 05-02 done; 05-01 Tasks1-2 done (publish deferred to end); 05-03 CODE DONE (splash+coachmark); 05-04 CODE DONE — Task1 perf guards (41e1375: frame-skip + visibilitychange rAF idle + DPR cap) + Task2 bespoke Techno (0fb983c: core cross-flare + curated cyan<->magenta palette + wide light-sans HUD chrome + SUBCOSM brand mark), all DoD gates green (276 tests / type-check / lint / build). Task3 on-device perf+aesthetic checkpoint UAT-DEFERRED to the 05-05 demo session. Publish/demo/UAT(D-06)/Devpost bundled at end."
+last_updated: "2026-06-22T13:41:44.658Z"
 last_activity: 2026-06-22
-last_activity_desc: 05-03 onboarding (splash + coachmark) code complete
+last_activity_desc: Phase 05 execution started
 progress:
   total_phases: 6
   completed_phases: 5
   total_plans: 25
-  completed_plans: 23
-  percent: 87
+  completed_plans: 24
+  percent: 83
 ---
 
 # Project State
@@ -29,7 +29,7 @@ See: .planning/PROJECT.md (updated 2026-06-19)
 ## Current Position
 
 Phase: 05 (submit) — EXECUTING
-Plan: 2 of 5
+Plan: 3 of 5
 Status: Ready to execute
 Last activity: 2026-06-22 — Phase 05 execution started
 
@@ -80,6 +80,7 @@ Progress: [██████████] 100%
 | Phase 04 P05 | 25min | 3 tasks | 2 files |
 | Phase 05 P02 | ~10min | 3 tasks | 13 files |
 | Phase 05 P03 | ~35min | 2 tasks + checkpoint | 6 files |
+| Phase 05 P04 | 6m | 2 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -134,6 +135,7 @@ Recent decisions affecting current work:
 - [Phase 05]: 05-03 (D-02): showCoachmarkOnce() one-time first-run overlay — localStorage 'subcosm.coachmark.seen' show-once gate (re-opens no-op), reduced-motion gate via reduced-motion.ts + .coachmark--reduced class (no strobe), reuses .hud chrome, data-i18n textContent-only copy (T-02-11); shown only over a populated universe (frontier exists)
 - [Phase 05]: 05-03: coachmark made injectable (store/reducedMotion/root seams) so its two gates unit-test in the existing node-environment runner — NO jsdom added (threat model T-05-SC zero new packages); 7 tests green, 276 total
 - [Phase 05]: 05-03: Task3 on-device onboarding-legibility checkpoint (SUB-04) UAT-DEFERRED to the demo session — NOT performed, NOT claimed; folds into D-06 single on-device validation (needs 05-02 backfill seed + a real device)
+- [Phase ?]: [Phase 05]: 05-04: perf via Phaser TimeStep fps.limit (60/30) + visibilitychange sleep()/wake() removed in teardown (no leak); core cross-flare = geometry consts in paint + color-from-ramp (PNT-02; schema closed so no flare fields); palette curated as DATA keeping the 3 test-asserted signature stops; D-07/D-05 on-device feel UAT-DEFERRED to 05-05
 
 ### Pending Todos
 
@@ -161,6 +163,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-06-22T13:30:00.000Z
-Stopped at: 05-03 onboarding CODE DONE — Task1 splash (e94de12) + Task2 coachmark (e7cd577); 276 tests / type-check / lint / build all green. Task3 on-device legibility checkpoint UAT-DEFERRED to the demo session (not performed, not claimed). Still pending in Phase 5: 05-01 publish, demo post, on-device UAT pass (D-06), Devpost.
+Last session: 2026-06-22T13:40:33.731Z
+Stopped at: 05-04 perf + bespoke aesthetic CODE DONE — Task1 perf guards (41e1375: frame-skip fps.limit + visibilitychange rAF sleep/wake + DPR cap) + Task2 Techno signature (0fb983c: genesis-core long cross-flare + curated cyan<->magenta palette + wide light-sans HUD chrome + static SUBCOSM brand mark); 276 tests / type-check / lint / build all green; engine determinism + purity intact (paint-only, no rng, no engine touch). Task3 on-device perf+aesthetic checkpoint UAT-DEFERRED to the 05-05 demo session (not performed, not claimed). Still pending in Phase 5: 05-01 publish, demo post, on-device UAT pass (D-06), Devpost.
 Resume file: .planning/phases/05-submit/05-CONTEXT.md
