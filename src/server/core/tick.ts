@@ -22,10 +22,11 @@
 // (subId, day, genomeVersion) always yields the same seed, so a ring regenerates
 // byte-identically. No images are ever stored (DEV-05 — the RingRecord schema has
 // no image field). `sub` is the platform-trusted subreddit id (V4).
-import { redis } from '@devvit/web/server';
+import { redis, reddit } from '@devvit/web/server';
 import { keys } from './redisKeys';
 import { conflictComposite } from './conflict';
 import { writeRing } from './ring';
+import { createRevealPost } from './post';
 import { readSteerAggregate } from './steer';
 import { RingRecordSchema, type RingRecord } from '../../engine/contracts';
 import { calm, chaotic, crystalline } from '../../engine/genomes';
@@ -190,7 +191,45 @@ export async function runTick(subId: string, day: number): Promise<void> {
     genomeVersion,
   });
 
-  await writeRing(subId, record);
+  // writeRing returns the new ring index `n` — the reveal post celebrates THIS
+  // just-frozen ring (it must render the frozen geometry, so the reveal is created
+  // AFTER the write, never before).
+  const ringIndex = await writeRing(subId, record);
+
+  // 4b. LIVE-02 overnight reveal post, EXACTLY ONCE per community per day (Pitfall 3
+  //     / OQ2 / T-04-13). The scheduler is at-least-once, so a double-fire of the
+  //     tick could otherwise create two pinned reveal posts. Gate on an ATOMIC
+  //     set-if-not-exists `revealDone:{sub}:{day}` flag (the 0.13.4 `redis.set` with
+  //     `{ nx: true }` returns null/undefined when the key already existed, the new
+  //     value string when it was freshly set): only the FIRST winner creates the
+  //     reveal. The flag is decoupled from the lastTickDay freeze guard so the
+  //     reveal is exactly-once independent of the ring-freeze idempotency.
+  //
+  //     A reveal failure must NOT corrupt the freeze: the ring is already written
+  //     (and lastTickDay is set below), so a missed reveal is tolerable while a
+  //     double reveal is not. The whole reveal is wrapped in its own try/catch and
+  //     only logs on failure — runTick stays idempotent.
+  try {
+    const claimed = await redis.set(keys.revealDone(subId, day), '1', {
+      nx: true,
+    });
+    if (claimed) {
+      // Resolve the subreddit NAME from the trusted subreddit id (V4 / T-04-15) —
+      // submitCustomPost needs the name, never a client/scheduler-supplied value.
+      const info = await reddit.getSubredditInfoById(subId as `t5_${string}`);
+      const subredditName = info.name;
+      if (subredditName) {
+        await createRevealPost(subredditName, ringIndex);
+      } else {
+        console.error(
+          `[runTick] reveal skipped: no subreddit name for ${subId} day ${day}`,
+        );
+      }
+    }
+  } catch (err) {
+    // A reveal failure is tolerable (the freeze already committed) — log + continue.
+    console.error(`[runTick] reveal post failed for ${subId} day ${day}: ${err}`);
+  }
 
   // 5. Reset the frozen day's counters/SET/ZSET so the next frontier starts clean
   //    (bounds unbounded per-day growth — T-03-05), then advance the guard. The

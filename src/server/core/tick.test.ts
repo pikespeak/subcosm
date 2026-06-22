@@ -27,8 +27,17 @@ const h = vi.hoisted(() => {
       const v = ints.get(key);
       return v === undefined ? undefined : String(v);
     },
-    async set(key: string, value: string): Promise<void> {
+    async set(
+      key: string,
+      value: string,
+      opts?: { nx?: boolean },
+    ): Promise<string | null> {
+      // Honour set-if-not-exists (the reveal exactly-once guard, OQ2): with nx set
+      // and the key already present, this is a no-op returning null (mirrors the
+      // 0.13.4 `redis.set` contract); otherwise set and return the value.
+      if (opts?.nx && (strings.has(key) || ints.has(key))) return null;
       strings.set(key, value);
+      return value;
     },
     async incrBy(key: string, value: number): Promise<number> {
       const next = (ints.get(key) ?? 0) + value;
@@ -87,17 +96,55 @@ const h = vi.hoisted(() => {
     },
   };
 
-  return { ints, strings, hashes, zsets, delCalls, fakeRedis };
+  // Reveal-post side effect recorder (LIVE-02 / OQ2). Each accepted reveal pushes
+  // its { subredditName, ringIndex, stickied } so the tests can assert exactly-once.
+  const revealCalls: Array<{
+    subredditName: string;
+    ringIndex: number;
+    stickied: boolean;
+  }> = [];
+
+  const fakeReddit = {
+    // Trusted id → name resolution (V4): the tick resolves the subreddit name from
+    // the platform-trusted subId, never a payload. 't5_sub' → 'subcosm_test'.
+    async getSubredditInfoById(id: string): Promise<{ id: string; name: string }> {
+      return { id, name: 'subcosm_test' };
+    },
+    async submitCustomPost(opts: {
+      subredditName: string;
+      title: string;
+      entry?: string;
+      postData?: { ringIndex: number };
+    }): Promise<{ sticky(): Promise<void> }> {
+      const call = {
+        subredditName: opts.subredditName,
+        ringIndex: opts.postData?.ringIndex ?? -1,
+        stickied: false,
+      };
+      revealCalls.push(call);
+      return {
+        async sticky(): Promise<void> {
+          call.stickied = true;
+        },
+      };
+    },
+  };
+
+  return { ints, strings, hashes, zsets, delCalls, revealCalls, fakeRedis, fakeReddit };
 });
 
-vi.mock('@devvit/web/server', () => ({ redis: h.fakeRedis }));
+vi.mock('@devvit/web/server', () => ({
+  redis: h.fakeRedis,
+  reddit: h.fakeReddit,
+}));
 
 import { runTick } from './tick';
 import { keys } from './redisKeys';
 import { RingRecordSchema } from '../../engine/contracts';
 import { calm } from '../../engine/genomes';
 
-const { ints, strings, hashes, zsets, delCalls, fakeRedis } = h;
+const { ints, strings, hashes, zsets, delCalls, revealCalls, fakeRedis, fakeReddit } =
+  h;
 
 const SUB = 't5_sub';
 const DAY = 4;
@@ -123,6 +170,7 @@ beforeEach(() => {
   hashes.clear();
   zsets.clear();
   delCalls.length = 0;
+  revealCalls.length = 0;
 });
 
 describe('runTick — freeze', () => {
@@ -417,5 +465,73 @@ describe('runTick — reset + idempotency', () => {
     await runTick(SUB, DAY + 1);
     expect(ints.get(keys.ringCount(SUB))).toBe(2);
     expect(strings.get(keys.lastTickDay(SUB))).toBe(String(DAY + 1));
+  });
+});
+
+describe('runTick — reveal post (LIVE-02 / OQ2 / T-04-13)', () => {
+  test('creates exactly one pinned reveal post for the just-frozen ring', async () => {
+    await seedAccumulators(SUB, DAY);
+    await runTick(SUB, DAY);
+
+    // Exactly one reveal post, celebrating the ring the tick just wrote (index 1),
+    // pinned, with the subreddit NAME resolved from the trusted id (V4).
+    expect(revealCalls).toHaveLength(1);
+    expect(revealCalls[0]!.ringIndex).toBe(1);
+    expect(revealCalls[0]!.subredditName).toBe('subcosm_test');
+    expect(revealCalls[0]!.stickied).toBe(true);
+
+    // The exactly-once guard flag is set for this day.
+    expect(strings.get(keys.revealDone(SUB, DAY))).toBe('1');
+  });
+
+  test('a scheduler double-fire of the SAME day creates AT MOST one reveal post', async () => {
+    await seedAccumulators(SUB, DAY);
+    await runTick(SUB, DAY);
+    // Re-fire the same day: the lastTickDay guard short-circuits before any reveal.
+    await seedAccumulators(SUB, DAY);
+    await runTick(SUB, DAY);
+
+    expect(revealCalls).toHaveLength(1);
+  });
+
+  test('the reveal nx-guard prevents a second reveal even if the freeze guard is bypassed', async () => {
+    // Simulate the exactly-once flag already claimed (e.g. a prior partial fire set
+    // revealDone but crashed before lastTickDay). A fresh freeze for the day must
+    // write the ring but NOT create a second reveal (the nx-set returns null).
+    strings.set(keys.revealDone(SUB, DAY), '1');
+    await seedAccumulators(SUB, DAY);
+    await runTick(SUB, DAY);
+
+    // Ring still frozen (the freeze is independent of the reveal guard) …
+    expect(ints.get(keys.ringCount(SUB))).toBe(1);
+    // … but NO reveal post, because the day was already revealDone.
+    expect(revealCalls).toHaveLength(0);
+  });
+
+  test('a reveal-post failure does NOT corrupt the freeze (ring written, lastTickDay set)', async () => {
+    // Force submitCustomPost to throw for this one run.
+    const spy = vi
+      .spyOn(fakeReddit, 'submitCustomPost')
+      .mockRejectedValueOnce(new Error('reddit down'));
+
+    await seedAccumulators(SUB, DAY);
+    await expect(runTick(SUB, DAY)).resolves.toBeUndefined(); // never throws
+
+    // The freeze committed despite the reveal failure (tolerable miss, never a crash).
+    expect(ints.get(keys.ringCount(SUB))).toBe(1);
+    expect(strings.get(keys.lastTickDay(SUB))).toBe(String(DAY));
+    expect(revealCalls).toHaveLength(0);
+
+    spy.mockRestore();
+  });
+
+  test('each new day creates its own reveal post (one per community per day)', async () => {
+    await seedAccumulators(SUB, DAY);
+    await runTick(SUB, DAY);
+    await seedAccumulators(SUB, DAY + 1);
+    await runTick(SUB, DAY + 1);
+
+    expect(revealCalls).toHaveLength(2);
+    expect(revealCalls.map((r) => r.ringIndex)).toEqual([1, 2]);
   });
 });
