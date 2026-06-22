@@ -217,6 +217,10 @@ Plans:
 
 - [ ] 05-05-PLAN.md — On-device UAT demo pass (D-06) + public demo post + complete Devpost (SUB-02, SUB-05, SUB-06)
 
+**Wave 5** *(demo hook — in-execution addition 2026-06-22)*
+
+- [ ] 05-06-PLAN.md — In-session reveal preview (judge-triggerable freeze→score→reward, client-local) + live goal-progress meter (SUB-02, SUB-04)
+
 ## Progress
 
 | Phase | Plans Complete | Status | Completed |
