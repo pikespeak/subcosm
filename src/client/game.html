@@ -83,6 +83,56 @@
           <span id="nudge-remaining" class="hud-v"></span>
         </p>
       </div>
+
+      <!-- First-run coachmark (D-02 / SUB-04). A one-time, dismissible overlay
+           that explains BOTH loops to a brand-new visitor: depth = time (genesis
+           core → day-shells → live frontier), the goal line, the nudge/steer
+           control, and the overnight freeze+reveal. coachmark.ts shows it ONCE
+           (persists a 'seen' flag) and gates its reveal animation behind
+           prefers-reduced-motion (PNT-04 — static, no strobe). Reuses the locked
+           `.hud` chrome. Copy carries data-i18n keys (English source is the
+           visible fallback); coachmark.ts toggles only [hidden] + the reduced
+           class — it injects NO language text (T-02-11 / T-05-09). -->
+      <div
+        id="coachmark"
+        class="coachmark"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="coachmark-heading"
+        hidden
+      >
+        <div class="coachmark-panel hud">
+          <h2 id="coachmark-heading" class="coachmark-heading" data-i18n="coachmark.heading">
+            A universe grown from your community
+          </h2>
+          <ul class="coachmark-points">
+            <li class="coachmark-point" data-i18n="coachmark.depth">
+              <span class="coachmark-dot coachmark-dot--core" aria-hidden="true"></span>
+              Depth is time: the genesis core at the center, one shell of stars per day, out to the live frontier.
+            </li>
+            <li class="coachmark-point" data-i18n="coachmark.goal">
+              <span class="coachmark-dot coachmark-dot--goal" aria-hidden="true"></span>
+              Each day has a goal line — read today's target in the HUD.
+            </li>
+            <li class="coachmark-point" data-i18n="coachmark.steer">
+              <span class="coachmark-dot coachmark-dot--steer" aria-hidden="true"></span>
+              Nudge the live frontier with the steer controls to shape the day.
+            </li>
+            <li class="coachmark-point" data-i18n="coachmark.reveal">
+              <span class="coachmark-dot coachmark-dot--reveal" aria-hidden="true"></span>
+              At the daily tick it freezes &amp; reveals overnight — a new shell, forever.
+            </li>
+          </ul>
+          <button
+            id="coachmark-dismiss"
+            type="button"
+            class="coachmark-dismiss"
+            data-i18n="coachmark.dismiss"
+          >
+            Explore the cosmos
+          </button>
+        </div>
+      </div>
     </div>
     <script type="module" src="game.ts"></script>
   </body>

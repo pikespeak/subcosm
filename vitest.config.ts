@@ -23,6 +23,10 @@ export default defineConfig({
       'src/styles/**/*.test.ts',
       'src/sim/**/*.test.ts',
       'src/client/cosmos/ignite.test.ts',
+      // The first-run coachmark gates (D-02): show-once persistence + reduced-
+      // motion. Pure logic over injectable seams — no Phaser/DOM, so it belongs
+      // in this Phaser-free runner (same discipline as ignite.test.ts).
+      'src/client/cosmos/coachmark.test.ts',
       'src/server/core/redisKeys.test.ts',
       'src/server/contracts/triggers.test.ts',
       'src/server/core/conflict.test.ts',

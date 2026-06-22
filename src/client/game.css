@@ -127,11 +127,146 @@ body {
   cursor: pointer;
 }
 
+/* ── First-run coachmark (D-02 / SUB-04) ──────────────────────────────────────
+ * A one-time dismissible overlay that explains both loops over the populated
+ * universe. Full-stage scrim + a centered panel reusing the locked `.hud`
+ * translucent-dark + blur chrome. The reveal is a single gentle fade/rise; under
+ * prefers-reduced-motion (OR the coachmark.ts-applied `.coachmark--reduced`
+ * class) the panel appears statically with NO animation (PNT-04 — no strobe). */
+.coachmark {
+  position: absolute;
+  inset: 0;
+  z-index: 3; /* above the state overlays + HUD */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  box-sizing: border-box;
+  /* A faint scrim so the explainer reads over a bright frontier; the panel itself
+   * carries the legible blur. The scrim captures pointer events so a tap outside
+   * the panel does not steer the cosmos while the coachmark is open. */
+  background: rgba(4, 3, 10, 0.46);
+}
+
+.coachmark[hidden] {
+  display: none;
+}
+
+.coachmark-panel {
+  max-width: min(86vw, 420px);
+  box-sizing: border-box;
+  padding: 20px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background: var(--panel);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid var(--hair);
+  border-radius: 14px;
+  font-family: 'Space Grotesk', system-ui, sans-serif;
+  color: var(--ink);
+  /* The reveal: a single gentle fade + rise (no loop, no strobe). */
+  animation: coachmark-rise 320ms ease-out both;
+}
+
+@keyframes coachmark-rise {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.coachmark-heading {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1.25;
+  color: var(--gold); /* the genesis/brand accent (matches cold-start) */
+}
+
+.coachmark-points {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.coachmark-point {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin: 0;
+  font-family: 'Space Mono', ui-monospace, monospace;
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.5;
+  color: var(--ink);
+}
+
+/* A small static cue dot per point — cyan↔magenta↔gold from the Techno palette,
+ * keyed to the cosmos element each line names. Static fills only (no animation). */
+.coachmark-dot {
+  flex: 0 0 auto;
+  width: 10px;
+  height: 10px;
+  margin-top: 4px;
+  border-radius: 50%;
+  background: var(--muted);
+}
+.coachmark-dot--core {
+  background: var(--gold);
+}
+.coachmark-dot--goal {
+  background: #5ad7ff;
+}
+.coachmark-dot--steer {
+  background: #ff6ad5;
+}
+.coachmark-dot--reveal {
+  background: #b69dff;
+}
+
+/* Dismiss: the single affordance, ≥44px touch target, secondary substrate. */
+.coachmark-dismiss {
+  align-self: stretch;
+  min-height: 44px;
+  margin-top: 4px;
+  padding: 0 24px;
+  background: linear-gradient(#1c1636, #15102a);
+  color: var(--ink);
+  border: 1px solid var(--hair);
+  border-radius: 10px;
+  font-family: 'Space Grotesk', system-ui, sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* Reduced-motion gate (PNT-04 / D-02): NO reveal animation — a single static
+ * frame. Honored via the explicit `.coachmark--reduced` class coachmark.ts adds
+ * (the JS-driven gate); the OS media query below covers the same for clients
+ * whose CSS sees the preference directly. */
+.coachmark--reduced .coachmark-panel {
+  animation: none;
+}
+
 /* Reduced motion: the overlays are already static (no animation declared); the
  * blur is a static effect. Nothing strobes. This block documents intent and
  * removes the backdrop blur where a UA maps reduced-motion to reduced effects. */
 @media (prefers-reduced-motion: reduce) {
   .state-overlay {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+  .coachmark-panel {
+    animation: none;
     backdrop-filter: none;
     -webkit-backdrop-filter: none;
   }

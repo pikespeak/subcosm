@@ -41,6 +41,7 @@ import { steerChannel } from '../shared/channel';
 import { connectRealtime, disconnectRealtime, context } from '@devvit/web/client';
 import { PhaserPainter } from './cosmos/PhaserPainter';
 import { updateHud } from './cosmos/hud';
+import { showCoachmarkOnce } from './cosmos/coachmark';
 
 // The post webroot stage (game.html parent div).
 const PARENT = 'game-container';
@@ -223,6 +224,13 @@ function mountUniverse(data: OrganismResponse): void {
   // throws, log and continue — the acting-user + reload path (D-03b, plan 02) still
   // works (graceful degrade, the locked fallback).
   if (frontier != null) connectSteerRealtime();
+
+  // First-run onboarding (D-02 / SUB-04): show the one-time coachmark ONLY over a
+  // populated universe (a frontier exists) — never on cold-start/loading/error, so
+  // it overlays a cosmos the explainer can actually point at. showCoachmarkOnce
+  // self-gates on the persisted 'seen' flag (re-opens no-op) and respects
+  // prefers-reduced-motion internally.
+  if (frontier != null) showCoachmarkOnce();
 }
 
 /**
