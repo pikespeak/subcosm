@@ -198,7 +198,7 @@ Plans:
   4. Cold-start day-1 (one ring, maybe one star) looks intentional and beautiful — not broken or empty
   5. The Devpost write-up at `docs/devpost-submission.md` is complete with media gallery, demo link, and the correct contest category tags; the submission is submitted before the deadline
 
-**Plans**: 3/5 plans executed
+**Plans**: 4/6 plans executed
 
 **Wave 1**
 
@@ -219,7 +219,7 @@ Plans:
 
 **Wave 5** *(demo hook — in-execution addition 2026-06-22)*
 
-- [ ] 05-06-PLAN.md — In-session reveal preview (judge-triggerable freeze→score→reward, client-local) + live goal-progress meter (SUB-02, SUB-04)
+- [x] 05-06-PLAN.md — In-session reveal preview (judge-triggerable freeze→score→reward, client-local) + live goal-progress meter (SUB-02, SUB-04)
 
 ## Progress
 
@@ -230,4 +230,4 @@ Plans:
 | 2.1. Visual Depth & Animation Polish | 3/2 | Complete    | 2026-06-20 |
 | 3. Devvit Scaffold + Data Layer | 5/5 | Complete    | 2026-06-21 |
 | 4. Live Game | 5/5 | Complete    | 2026-06-22 |
-| 5. Submit | 3/5 | In Progress|  |
+| 5. Submit | 4/6 | In Progress|  |

@@ -100,7 +100,7 @@
 - [ ] **SUB-01**: App is **published** with an app listing on developer.reddit.com.
 - [x] **SUB-02**: A **public demo post** on a subreddit runs the game, self-explanatory and playable (judging is primarily based on this).
 - [x] **SUB-03**: Mobile experience is polished (target ~60fps in the post viewport; bonus points).
-- [ ] **SUB-04**: Onboarding makes the loop legible at a glance — both the cosmos loop and the goal→steer→reveal game loop; cold-start day looks intentional, not broken-empty.
+- [x] **SUB-04**: Onboarding makes the loop legible at a glance — both the cosmos loop and the goal→steer→reveal game loop; cold-start day looks intentional, not broken-empty.
 - [x] **SUB-05**: Compliant with Devvit Rules; aesthetics read self-authored (not AI-slop / generic neon fractal).
 - [ ] **SUB-06**: Devpost write-up complete (`docs/devpost-submission.md`), media gallery + links filled.
 
