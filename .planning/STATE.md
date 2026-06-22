@@ -5,16 +5,16 @@ milestone_name: milestone
 current_phase: 04
 current_phase_name: live-game
 status: executing
-stopped_at: Completed 04-01-PLAN.md (scoring spine)
-last_updated: "2026-06-21T20:57:35.013Z"
-last_activity: 2026-06-21
-last_activity_desc: Phase 04 execution started
+stopped_at: Completed 04-02-PLAN.md (live-nudge vertical slice)
+last_updated: "2026-06-22T05:42:00.000Z"
+last_activity: 2026-06-22
+last_activity_desc: Completed 04-02 (steer endpoint + budget gate + HUD)
 progress:
   total_phases: 6
   completed_phases: 4
   total_plans: 19
-  completed_plans: 17
-  percent: 67
+  completed_plans: 18
+  percent: 71
 ---
 
 # Project State
@@ -29,9 +29,9 @@ See: .planning/PROJECT.md (updated 2026-06-19)
 ## Current Position
 
 Phase: 04 (live-game) — EXECUTING
-Plan: 2 of 4
-Status: Ready to execute
-Last activity: 2026-06-21 — Phase 04 execution started
+Plan: 3 of 4
+Status: Ready to execute (04-01 + 04-02 complete)
+Last activity: 2026-06-22 — Completed 04-02 (live-nudge vertical slice)
 
 Progress: [██████████] 100%
 
@@ -73,6 +73,7 @@ Progress: [██████████] 100%
 | Phase 03 P04 | 13min | 3 tasks | 12 files |
 | Phase 03 P05 | 6min | 2 tasks | 11 files |
 | Phase 04 P01 | 12min | 3 tasks | 12 files |
+| Phase 04 P02 | ~10min | 3 tasks | 13 files |
 
 ## Accumulated Context
 
@@ -113,7 +114,8 @@ Recent decisions affecting current work:
 - [Phase ?]: OrganismResponse is a shared z.infer envelope whose rings reuse RingRecordSchema — server .parse + client safeParse share one contract
 - [Phase ?]: src/shared/api.ts kept client-safe (engine contracts + zod only); GenomeIdEnum declared in shared, not imported from server, to preserve bundle safety
 - [Phase ?]: /api/organism uses context-scoped readConfig() (not readConfig(sub)) per the 03-04 SDK correction; sub from context.subredditId for readAllRings (V4)
-- [Phase ?]: [Phase 04]: 04-01: OutcomeSchema firmed (goal/measured/achieved/degree in [0,1]); DayVector.outcome typed; score(day,genome) PURE re-using synthesis starCount/deriveArms (golden snapshot unchanged); DENSITY_NORM_CAP=55 + symmetry posts>300 path make each goal reachable-but-not-automatic (OQ1) without touching locked D-01 thresholds; 'outcome' in ring JSON_FIELDS for lossless round-trip; runTick scores every frozen ring deterministically (GAME-02/LIVE-03)
+- [Phase 04]: 04-02: live-nudge slice — POST /api/steer (ids from context V4, body SteerRequestSchema.parse V5, amount clamped [-1,1]); recordNudge atomic incrBy budget gate (cap 3, TOCTOU closed) + hIncrBy SUM aggregate (no clobber); tick foldSteering folds aggregate MEAN x steerGain ONCE mirroring render.ts STEER_KNOB (OQ3, seed excludes steering so determinism holds); steer hash deleted on freeze, budget keys self-expire via 48h TTL (no scan); HUD reuses exported score.ts measure (one source of truth); scored metric is activity-driven so nudge biases VISUAL frontier while HUD tracks goal (GAME-03 legible, STR-02 biases-never-dictates); steer schemas client-safe in shared/api.ts; revealDone key reserved for plan 04
+- [Phase 04]: 04-01: OutcomeSchema firmed (goal/measured/achieved/degree in [0,1]); DayVector.outcome typed; score(day,genome) PURE re-using synthesis starCount/deriveArms (golden snapshot unchanged); DENSITY_NORM_CAP=55 + symmetry posts>300 path make each goal reachable-but-not-automatic (OQ1) without touching locked D-01 thresholds; 'outcome' in ring JSON_FIELDS for lossless round-trip; runTick scores every frozen ring deterministically (GAME-02/LIVE-03)
 
 ### Pending Todos
 
@@ -139,6 +141,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-06-21T20:57:35.006Z
-Stopped at: Completed 04-01-PLAN.md (scoring spine)
+Last session: 2026-06-22T05:42:00.000Z
+Stopped at: Completed 04-02-PLAN.md (live-nudge vertical slice)
 Resume file: None
