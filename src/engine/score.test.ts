@@ -10,9 +10,9 @@
 //      — achieved on at least one plausible day and missed on at least one — and
 //      `degree` is always in [0,1], never NaN.
 import { describe, expect, test } from 'vitest';
-import { score } from './score';
+import { score, STEER_BIAS_CAP } from './score';
 import { starCount, deriveArms } from './synthesis';
-import { OutcomeSchema, type DayVector } from './contracts';
+import { OutcomeSchema, type DayVector, type Steering } from './contracts';
 import { calm, chaotic, crystalline } from './genomes';
 import { generateDayVectors } from '../sim/generator';
 
@@ -150,5 +150,156 @@ describe('score — achievability across the sim arc (OQ1)', () => {
     // and missed across the whole gentle sim arc (none exceed 300 posts).
     const simAchieved = days.filter((d) => score(d, crystalline).achieved).length;
     expect(simAchieved).toBe(0);
+  });
+});
+
+// ── GAME-03 + I-5: the steering → scored-outcome link ──────────────────────────
+//
+// The scorer now reads the ALREADY-FOLDED `day.steering` as a BOUNDED, direction-
+// aware contribution (score.ts steerContribution / STEER_BIAS_CAP). These tests
+// prove the link is REAL (a borderline day moves with steering, both directions),
+// that the bound HOLDS (a clear day never flips under MAXIMUM/extreme steering —
+// I-5: biases, never dictates), and that determinism survives a non-zero steering.
+//
+// Lever mapping under test (mirrors score.ts): symmetry goal → steering.symmetry;
+// density / conflict goals → steering.branch. A POSITIVE lever is always the
+// toward-goal nudge; a NEGATIVE lever is away-from-goal.
+describe('score — steering → outcome link (GAME-03)', () => {
+  // The lever each genome's goal reads, and a builder that drives it.
+  const steer = (over: Partial<Steering>): Steering => ({
+    branch: 0,
+    symmetry: 0,
+    hue: 0,
+    ...over,
+  });
+  // A toward-goal (+1) and away-from-goal (-1) full nudge on the goal's lever.
+  const towardLever = (param: string, mag: number): Partial<Steering> =>
+    param === 'symmetry' ? { symmetry: mag } : { branch: mag };
+
+  // BORDERLINE days: just on the MISSING side of each threshold with zero steering.
+  //   calm    conflict 0.45  (misses <0.40 by 0.05  < cap 0.15)
+  //   chaotic 80 posts → density (80*0.4+10-18)/(55-18)=0.648 (misses >0.70 by ~0.05)
+  //   crystalline 5 arms      (misses >5 — equal is not above; +0.6 arm clears it)
+  const borderline: Array<[string, typeof calm, DayVector, string]> = [
+    ['calm (conflict)', calm, makeDay({ conflict: 0.45 }), 'conflict'],
+    ['chaotic (density)', chaotic, makeDay({ posts: 80 }), 'density'],
+    ['crystalline (symmetry)', crystalline, makeDay({ posts: 80, conflict: 0.2 }), 'symmetry'],
+  ];
+
+  test.each(borderline)(
+    'POSITIVE: %s borderline day flips MISS→ACHIEVE under full toward-goal steering',
+    (_label, genome, day, param) => {
+      const goalFavorable = genome.dailyGoal.direction === 'above';
+
+      const unsteered = score({ ...day, steering: steer({}) }, genome);
+      const steered = score(
+        { ...day, steering: steer(towardLever(param, 1)) },
+        genome,
+      );
+
+      // the unsteered borderline day MISSES; the toward-goal nudge flips it.
+      expect(unsteered.achieved).toBe(false);
+      expect(steered.achieved).toBe(true);
+
+      // measured moved in the goal-favorable direction by a measurable amount.
+      if (goalFavorable) {
+        expect(steered.measured).toBeGreaterThan(unsteered.measured);
+      } else {
+        expect(steered.measured).toBeLessThan(unsteered.measured);
+      }
+    },
+  );
+
+  test.each(borderline)(
+    'POSITIVE: %s away-from-goal steering lowers measured (moves AWAY from the goal)',
+    (_label, genome, day, param) => {
+      const goalFavorable = genome.dailyGoal.direction === 'above';
+
+      const unsteered = score({ ...day, steering: steer({}) }, genome);
+      const away = score(
+        { ...day, steering: steer(towardLever(param, -1)) },
+        genome,
+      );
+
+      // an away-from-goal nudge moves measured in the UNfavorable direction.
+      if (goalFavorable) {
+        expect(away.measured).toBeLessThan(unsteered.measured);
+      } else {
+        expect(away.measured).toBeGreaterThan(unsteered.measured);
+      }
+      // and it can never help a borderline-missing day achieve.
+      expect(away.achieved).toBe(false);
+    },
+  );
+
+  // BOUND / never-dictates (I-5): a CLEAR day's verdict is UNCHANGED even under an
+  // EXTREME lever (±10) — proving the saturate-then-clamp holds regardless of input.
+  //   clear-FAILED:  calm conflict 0.95; chaotic 5 posts; crystalline 4 arms (posts<300, conflict<0.7)
+  //   clear-ACHIEVED: calm conflict 0.05; chaotic 350 posts; crystalline 6 arms (posts>300)
+  const clearFailed: Array<[string, typeof calm, DayVector, string]> = [
+    ['calm (conflict 0.95)', calm, makeDay({ conflict: 0.95 }), 'conflict'],
+    ['chaotic (5 posts)', chaotic, makeDay({ posts: 5 }), 'density'],
+    ['crystalline (4 arms)', crystalline, makeDay({ posts: 60, conflict: 0.9 }), 'symmetry'],
+  ];
+  const clearAchieved: Array<[string, typeof calm, DayVector, string]> = [
+    ['calm (conflict 0.05)', calm, makeDay({ conflict: 0.05 }), 'conflict'],
+    ['chaotic (350 posts)', chaotic, makeDay({ posts: 350 }), 'density'],
+    ['crystalline (6 arms)', crystalline, makeDay({ posts: 350, conflict: 0.2 }), 'symmetry'],
+  ];
+
+  test.each(clearFailed)(
+    'BOUND (I-5): %s clear-failed day stays achieved=false under MAXIMUM toward-goal steering (±10 clamps)',
+    (_label, genome, day, param) => {
+      // sanity: it is genuinely failing with zero steering.
+      expect(score({ ...day, steering: steer({}) }, genome).achieved).toBe(false);
+      // extreme toward-goal steering (±10) cannot manufacture a win.
+      const steered = score(
+        { ...day, steering: steer(towardLever(param, 10)) },
+        genome,
+      );
+      expect(steered.achieved).toBe(false);
+    },
+  );
+
+  test.each(clearAchieved)(
+    'BOUND (I-5): %s clear-achieved day stays achieved=true under MAXIMUM away-from-goal steering (±10 clamps)',
+    (_label, genome, day, param) => {
+      // sanity: it is genuinely achieving with zero steering.
+      expect(score({ ...day, steering: steer({}) }, genome).achieved).toBe(true);
+      // extreme away-from-goal steering (±10) cannot throw a clear win.
+      const thrown = score(
+        { ...day, steering: steer(towardLever(param, -10)) },
+        genome,
+      );
+      expect(thrown.achieved).toBe(true);
+    },
+  );
+
+  test('BOUND (I-5): an extreme lever shift never exceeds STEER_BIAS_CAP × goal span', () => {
+    // conflict/density span = 1 → max |shift| = 0.15; symmetry span = 4 → 0.6.
+    const calmDay = makeDay({ conflict: 0.5 });
+    const calmBase = score({ ...calmDay, steering: steer({}) }, calm).measured;
+    const calmExtreme = score({ ...calmDay, steering: steer({ branch: 10 }) }, calm).measured;
+    expect(Math.abs(calmExtreme - calmBase)).toBeLessThanOrEqual(STEER_BIAS_CAP + 1e-9);
+
+    const crysDay = makeDay({ posts: 80, conflict: 0.2 });
+    const crysBase = score({ ...crysDay, steering: steer({}) }, crystalline).measured;
+    const crysExtreme = score({ ...crysDay, steering: steer({ symmetry: 10 }) }, crystalline).measured;
+    const symSpan = 2 * 2; // 2 × SYMMETRY_DEGREE_SPAN
+    expect(Math.abs(crysExtreme - crysBase)).toBeLessThanOrEqual(STEER_BIAS_CAP * symSpan + 1e-9);
+  });
+
+  test('DETERMINISM: a non-zero-steering day → deeply-equal AND byte-identical Outcome', () => {
+    const day = makeDay({ conflict: 0.45, steering: steer({ branch: 0.7, symmetry: 0.3, hue: 0.2 }) });
+    const a = score(day, calm);
+    const b = score(day, calm);
+    expect(a).toEqual(b);
+    expect(JSON.stringify(a)).toBe(JSON.stringify(b));
+  });
+
+  test('zero steering is a no-op: the activity base is unchanged (prior behavior preserved)', () => {
+    // a day with all-zero steering scores exactly as the activity base (offset 0).
+    const day = makeDay({ conflict: 0.31 });
+    expect(score(day, calm).measured).toBe(0.31);
   });
 });
