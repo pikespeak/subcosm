@@ -5,16 +5,16 @@ milestone_name: milestone
 current_phase: 04
 current_phase_name: live-game
 status: executing
-stopped_at: Completed 04-02-PLAN.md (live-nudge vertical slice)
-last_updated: "2026-06-22T05:42:00.000Z"
+stopped_at: Completed 04-03-PLAN.md (realtime live-steer broadcast/subscribe)
+last_updated: "2026-06-22T03:53:55.424Z"
 last_activity: 2026-06-22
-last_activity_desc: Completed 04-02 (steer endpoint + budget gate + HUD)
+last_activity_desc: Completed 04-03 (realtime live-steer broadcast/subscribe; D-03a UAT-deferred)
 progress:
   total_phases: 6
   completed_phases: 4
   total_plans: 19
-  completed_plans: 18
-  percent: 71
+  completed_plans: 19
+  percent: 67
 ---
 
 # Project State
@@ -29,9 +29,9 @@ See: .planning/PROJECT.md (updated 2026-06-19)
 ## Current Position
 
 Phase: 04 (live-game) — EXECUTING
-Plan: 3 of 4
-Status: Ready to execute (04-01 + 04-02 complete)
-Last activity: 2026-06-22 — Completed 04-02 (live-nudge vertical slice)
+Plan: 4 of 4
+Status: Ready to execute (04-01 + 04-02 + 04-03 complete)
+Last activity: 2026-06-22 — Completed 04-03 (realtime live-steer broadcast/subscribe; D-03a on-device check UAT-deferred)
 
 Progress: [██████████] 100%
 
@@ -74,6 +74,7 @@ Progress: [██████████] 100%
 | Phase 03 P05 | 6min | 2 tasks | 11 files |
 | Phase 04 P01 | 12min | 3 tasks | 12 files |
 | Phase 04 P02 | ~10min | 3 tasks | 13 files |
+| Phase 04 P03 | 4min | 3 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -116,6 +117,8 @@ Recent decisions affecting current work:
 - [Phase ?]: /api/organism uses context-scoped readConfig() (not readConfig(sub)) per the 03-04 SDK correction; sub from context.subredditId for readAllRings (V4)
 - [Phase 04]: 04-02: live-nudge slice — POST /api/steer (ids from context V4, body SteerRequestSchema.parse V5, amount clamped [-1,1]); recordNudge atomic incrBy budget gate (cap 3, TOCTOU closed) + hIncrBy SUM aggregate (no clobber); tick foldSteering folds aggregate MEAN x steerGain ONCE mirroring render.ts STEER_KNOB (OQ3, seed excludes steering so determinism holds); steer hash deleted on freeze, budget keys self-expire via 48h TTL (no scan); HUD reuses exported score.ts measure (one source of truth); scored metric is activity-driven so nudge biases VISUAL frontier while HUD tracks goal (GAME-03 legible, STR-02 biases-never-dictates); steer schemas client-safe in shared/api.ts; revealDone key reserved for plan 04
 - [Phase 04]: 04-01: OutcomeSchema firmed (goal/measured/achieved/degree in [0,1]); DayVector.outcome typed; score(day,genome) PURE re-using synthesis starCount/deriveArms (golden snapshot unchanged); DENSITY_NORM_CAP=55 + symmetry posts>300 path make each goal reachable-but-not-automatic (OQ1) without touching locked D-01 thresholds; 'outcome' in ring JSON_FIELDS for lossless round-trip; runTick scores every frozen ring deterministically (GAME-02/LIVE-03)
+- [Phase ?]: 04-03: D-03 realtime live-steer wired — colon-free steerChannel(postId) shared client+server; server realtime.send ABSOLUTE aggregate after each accepted nudge (best-effort guarded, never 500s the nudge); client connectRealtime subscribes synchronously, safeParses onMessage (T-04-09), reconciles-to-absolute via appliedMean baseline so viewers converge and acting user never double-applies own echo; disconnectRealtime on teardown; layer optional -> degrades to D-03b reload fallback no rewrite
+- [Phase ?]: 04-03: Task 3 on-device two-client (incl. mobile) devvit-playtest realtime check (D-03a) AUTO-APPROVED under auto-mode and DEFERRED to UAT — NOT performed on a device; realtime API existence verified via @devvit/realtime d.ts (HIGH), mobile delivery MEDIUM until UAT; D-03b reload fallback is the safety net
 
 ### Pending Todos
 
@@ -141,6 +144,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-06-22T05:42:00.000Z
-Stopped at: Completed 04-02-PLAN.md (live-nudge vertical slice)
+Last session: 2026-06-22T03:53:55.417Z
+Stopped at: Completed 04-03-PLAN.md (realtime live-steer broadcast/subscribe)
 Resume file: None

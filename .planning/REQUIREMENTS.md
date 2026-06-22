@@ -81,7 +81,7 @@
 
 #### Live Front & Reveal (LIVE)
 
-- [ ] **LIVE-01**: The live frontier fills during the day and renders nudges in near-real-time (realtime channel names use `-`, no colons); nudges aggregate into a Redis steer hash.
+- [x] **LIVE-01**: The live frontier fills during the day and renders nudges in near-real-time (realtime channel names use `-`, no colons); nudges aggregate into a Redis steer hash.
 - [ ] **LIVE-02**: At the tick the frontier **freezes irreversibly** and a pinned **reveal/update post** is created ("what your universe became overnight").
 - [x] **LIVE-03**: Client and server render identically from the same Ring record (determinism holds across the seam).
 
@@ -182,7 +182,7 @@
 | DEV-04 | Phase 3: Devvit Scaffold + Data Layer | Complete |
 | DEV-05 | Phase 3: Devvit Scaffold + Data Layer | Complete |
 | DEV-06 | Phase 3: Devvit Scaffold + Data Layer | Complete |
-| LIVE-01 | Phase 4: Live Game | Pending |
+| LIVE-01 | Phase 4: Live Game | Complete |
 | LIVE-02 | Phase 4: Live Game | Pending |
 | LIVE-03 | Phase 4: Live Game | Complete |
 | GAME-02 | Phase 4: Live Game | Complete |

@@ -161,7 +161,7 @@ Plans:
   5. When the goal is achieved, the frozen ring carries a persistent visual reward (special star glyph / era badge) that is visible when scrubbing to that ring in the universe — and it renders identically on every client from the same Ring record
   6. Loading the post on a second client after the tick renders an identical frozen ring to the first client, confirming determinism holds across the Redis → engine seam
 
-**Plans**: 2/4 plans executed
+**Plans**: 3/4 plans executed
 **Mode:** mvp
 
 **Wave 1**
@@ -174,7 +174,7 @@ Plans:
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-- [ ] 04-03-PLAN.md — Realtime de-risking spike + broadcast/subscribe wiring: colon-free per-post channel, server realtime.send, client connectRealtime, blocking on-device D-03a check with locked D-03b fallback (LIVE-01)
+- [x] 04-03-PLAN.md — Realtime de-risking spike + broadcast/subscribe wiring: colon-free per-post channel, server realtime.send, client connectRealtime, blocking on-device D-03a check with locked D-03b fallback (LIVE-01)
 
 **Wave 4** *(blocked on Wave 1 + Wave 3 completion)*
 
@@ -204,5 +204,5 @@ Plans:
 | 2. Visual Engine + Simulator | 5/5 | Complete    | 2026-06-19 |
 | 2.1. Visual Depth & Animation Polish | 3/2 | Complete    | 2026-06-20 |
 | 3. Devvit Scaffold + Data Layer | 5/5 | Complete    | 2026-06-21 |
-| 4. Live Game | 2/4 | In Progress|  |
+| 4. Live Game | 3/4 | In Progress|  |
 | 5. Submit | 0/TBD | Not started | - |
