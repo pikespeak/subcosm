@@ -29,6 +29,7 @@ export default defineConfig({
       'src/server/core/counters.test.ts',
       'src/server/core/frontierDay.test.ts',
       'src/server/core/ring.test.ts',
+      'src/server/core/steer.test.ts',
       'src/server/core/tick.test.ts',
       'src/server/contracts/tickJob.test.ts',
       'src/server/contracts/settings.test.ts',

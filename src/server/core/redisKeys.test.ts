@@ -52,6 +52,24 @@ describe('redisKeys', () => {
     // counter name is its own key under the per-sub counters namespace).
     expect(keys.counter(sub, 'comments')).toBe(`organism:${sub}:counters:comments`);
     expect(keys.lastTickDay(sub)).toBe(`organism:${sub}:lastTickDay`);
+    expect(keys.steer(sub, 4)).toBe(`organism:${sub}:steer:4`);
+    expect(keys.budget(sub, 4, 't2_u')).toBe(`organism:${sub}:budget:4:t2_u`);
+    expect(keys.revealDone(sub, 4)).toBe(`organism:${sub}:revealDone:4`);
     expect(keys.registry()).toBe('subs:registry');
+  });
+
+  test('the 04-02 steer/budget/revealDone keys namespace + never collide', () => {
+    const sub = 't5_s';
+    expect(keys.steer(sub, 1)).toContain(`organism:${sub}`);
+    expect(keys.budget(sub, 1, 't2_a')).toContain(`organism:${sub}`);
+    expect(keys.revealDone(sub, 1)).toContain(`organism:${sub}`);
+    // day-scoped + user-scoped: distinct args never collide.
+    expect(keys.steer(sub, 1)).not.toBe(keys.steer(sub, 2));
+    expect(keys.budget(sub, 1, 't2_a')).not.toBe(keys.budget(sub, 1, 't2_b'));
+    expect(keys.budget(sub, 1, 't2_a')).not.toBe(keys.budget(sub, 2, 't2_a'));
+    expect(keys.revealDone(sub, 1)).not.toBe(keys.revealDone(sub, 2));
+    // pure — identical args return the identical string.
+    expect(keys.steer(sub, 3)).toBe(keys.steer(sub, 3));
+    expect(keys.budget(sub, 3, 't2_a')).toBe(keys.budget(sub, 3, 't2_a'));
   });
 });

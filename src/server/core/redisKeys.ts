@@ -19,6 +19,9 @@
 //   organism:{sub}:ring:{n}           hash  ~25 scalars + seed per frozen ring
 //   organism:{sub}:config             hash  genome/style/timezone snapshot
 //   organism:{sub}:lastTickDay        int   idempotency guard for the daily tick
+//   organism:{sub}:steer:{day}        hash  per-day live steer aggregate (hIncrBy sum + count)
+//   organism:{sub}:budget:{day}:{uid} int   per-user daily ActionBudget counter (incrBy)
+//   organism:{sub}:revealDone:{day}   int   exactly-once daily reveal-post guard (plan 04)
 //   subs:registry                     SET   installed sub ids (sweeper enumerates)
 
 /** A named per-day counter (e.g. 'comments', 'posts', 'replies', 'scoreSum'). */
@@ -63,6 +66,30 @@ export const keys = {
   /** Idempotency guard: the last local day this sub froze a ring (tick double-fire). */
   lastTickDay(sub: string): string {
     return `${ns(sub)}:lastTickDay`;
+  },
+  /**
+   * Per-day live steer aggregate HASH (LIVE-01 / D-04). Nudges hIncrBy the param
+   * fields (branch/symmetry/hue) + a `count` field — concurrent users SUM, never
+   * clobber. The tick folds the mean (sum/count) × steerGain into the frozen ring,
+   * then deletes this key.
+   */
+  steer(sub: string, day: number): string {
+    return `${ns(sub)}:steer:${day}`;
+  },
+  /**
+   * Per-user daily ActionBudget counter (GAME-05 / D-04). incrBy-then-compare
+   * against the genome's actionCap caps a user's nudges/day; carries the userId so
+   * each user has their own counter (and never sees another user's budget).
+   */
+  budget(sub: string, day: number, userId: string): string {
+    return `${ns(sub)}:budget:${day}:${userId}`;
+  },
+  /**
+   * Exactly-once daily reveal-post guard (plan 04). Added now so the key schema is
+   * complete; the reveal handler will incrBy-then-compare to post at most once/day.
+   */
+  revealDone(sub: string, day: number): string {
+    return `${ns(sub)}:revealDone:${day}`;
   },
   /** SET of installed sub ids the hourly sweeper enumerates. */
   registry(): string {
