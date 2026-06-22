@@ -91,7 +91,7 @@
 
 - [x] **GAME-01**: Each day carries a **goal** ("genome quest") as data on the Genome/day (e.g. high symmetry, low conflict, ignite a specific rare gene). It is legible to players at dawn (shown in the readout).
 - [x] **GAME-02**: At the tick the day's shell is **scored against its goal deterministically** (from the DayVector/outcome); achieved ✓/✗ (+ degree) is recorded on the Ring and surfaced in the reveal.
-- [ ] **GAME-03**: Steering nudges measurably move the day toward/away from the goal — the contribution → outcome link is legible (steering still biases the mean only, never dictates; invariant I-5).
+- [x] **GAME-03**: Steering nudges measurably move the day toward/away from the goal — the contribution → outcome link is legible (steering still biases the mean only, never dictates; invariant I-5). *(Closed by 04-05: score.ts reads folded day.steering as a bounded ±0.15 term; I-5 bound + determinism proven by score.test.ts 32/32.)*
 - [x] **GAME-04**: An achieved goal leaves a **persistent reward** on the ring (special star / era badge), visible permanently in the universe.
 - [x] **GAME-05**: Daily player actions (nudges, and later guesses) are a **budgeted, countable per-user resource** (cap/day) on a **personal layer** kept separate from the shared community universe — so fair/cosmetic monetization and ethical retention can bolt on later without reworking synthesis.
 
@@ -186,7 +186,7 @@
 | LIVE-02 | Phase 4: Live Game | Complete |
 | LIVE-03 | Phase 4: Live Game | Complete |
 | GAME-02 | Phase 4: Live Game | Complete |
-| GAME-03 | Phase 4: Live Game | Pending |
+| GAME-03 | Phase 4: Live Game | Complete |
 | GAME-04 | Phase 4: Live Game | Complete |
 | SUB-01 | Phase 5: Submit | Pending |
 | SUB-02 | Phase 5: Submit | Pending |

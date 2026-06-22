@@ -4,17 +4,17 @@ milestone: v1.0
 milestone_name: milestone
 current_phase: 04
 current_phase_name: live-game
-status: planned
-stopped_at: GAME-03 gap plan 04-05 created + plan-checked PASS; ready for `/gsd-execute-phase 4 --gaps-only`. (Criteria 4-6 on-device UAT still pending after gap closure.)
-last_updated: "2026-06-22T06:36:37.848Z"
+status: awaiting_uat
+stopped_at: Phase 4 code-complete (5/5 plans incl. GAME-03 gap closure 04-05; 246 tests green); criteria 4-6 require on-device devvit playtest UAT before the phase is marked complete
+last_updated: "2026-06-22T08:45:00.000Z"
 last_activity: 2026-06-22
-last_activity_desc: Completed 04-03 (realtime live-steer broadcast/subscribe; D-03a on-device check UAT-deferred)
+last_activity_desc: GAME-03 gap closed by 04-05 (bounded steering→score, cap 0.15, I-5 bound proven); re-verified GAME-03 (score.test 32/32); criteria 4-6 on-device UAT pending
 progress:
   total_phases: 6
-  completed_phases: 5
+  completed_phases: 4
   total_plans: 20
-  completed_plans: 21
-  percent: 83
+  completed_plans: 20
+  percent: 67
 ---
 
 # Project State
@@ -28,10 +28,10 @@ See: .planning/PROJECT.md (updated 2026-06-19)
 
 ## Current Position
 
-Phase: 04 (live-game) — EXECUTING
-Plan: 4 of 4
-Status: Ready to execute (04-01 + 04-02 + 04-03 complete)
-Last activity: 2026-06-22 — Completed 04-03 (realtime live-steer broadcast/subscribe; D-03a on-device check UAT-deferred)
+Phase: 04 (live-game) — CODE-COMPLETE, AWAITING UAT
+Plan: 5 of 5 (incl. GAME-03 gap closure 04-05)
+Status: All plans executed + green (246 tests); GAME-03 closed + re-verified. Criteria 4-6 (reveal post / reward glyph / cross-client parity) need on-device devvit playtest UAT — run /gsd-verify-work 4.
+Last activity: 2026-06-22 — GAME-03 gap closed by 04-05; re-verified
 
 Progress: [██████████] 100%
 

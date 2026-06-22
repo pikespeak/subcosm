@@ -1,8 +1,9 @@
 ---
 phase: 04-live-game
 verified: 2026-06-22T04:13:20Z
-status: gaps_found
-score: 4/6 must-haves verified
+status: human_needed
+score: criteria 1-3 code-verified (incl. GAME-03 closed by 04-05); criteria 4-6 on-device UAT pending
+reverified: 2026-06-22T08:45:00Z (GAME-03 gap closed by 04-05; score.test.ts 32/32 green — borderline flip both directions, I-5 bound under extreme steering, determinism)
 behavior_unverified: 0
 overrides_applied: 0
 requirements_coverage:
@@ -10,7 +11,7 @@ requirements_coverage:
   LIVE-02: substrate-verified-ondevice-human-needed
   LIVE-03: substrate-verified-ondevice-human-needed
   GAME-02: satisfied
-  GAME-03: partial-gap
+  GAME-03: satisfied
   GAME-04: substrate-verified-ondevice-human-needed
 gaps:
   - truth: "Steering nudges measurably move the day toward/away from the goal — the contribution → outcome link is real, not just a legible readout (GAME-03, phase-goal clause 'nudges steer it toward the day's goal')"
