@@ -29,10 +29,13 @@ import { techno } from '../styles/techno';
 import { crystalline as crystallineStyle } from '../styles/crystalline';
 import {
   OrganismResponseSchema,
+  SteerResponseSchema,
   type GenomeId,
   type OrganismResponse,
+  type SteerParam,
 } from '../shared/api';
 import { PhaserPainter } from './cosmos/PhaserPainter';
+import { updateHud } from './cosmos/hud';
 
 // The post webroot stage (game.html parent div).
 const PARENT = 'game-container';
@@ -109,6 +112,13 @@ function setOverlay(state: OverlayState): void {
 /** Live render stack — torn down before a retry re-render (no leaked game/loop). */
 let game: Phaser.Game | null = null;
 let handle: RenderHandle | null = null;
+// The live frontier DayVector + active genome — the HUD scores these (the same
+// metric the tick freezes) and the nudge re-synth biases the frontier's mean. Held
+// here so the post-nudge HUD refresh and the budget gate share one source of truth.
+let frontier: RingRecord | null = null;
+let activeGenome: Genome | null = null;
+// Whether the acting user still has budget — gates the nudge controls (D-04a).
+let nudgesRemaining = Infinity;
 
 function teardown(): void {
   // The engine render() destroy handle is the single teardown seam (ENG-04):
@@ -116,6 +126,8 @@ function teardown(): void {
   handle?.destroy();
   handle = null;
   game = null;
+  frontier = null;
+  activeGenome = null;
 }
 
 /**
@@ -137,7 +149,122 @@ function mountUniverse(data: OrganismResponse): void {
   const painter = new PhaserPainter(game);
   handle = render(days, genome, style, painter);
 
+  // Track the live frontier + genome for the HUD + nudge path. days[0] is the
+  // frontier (frontierFirst reversed oldest→newest); on cold start there is no ring.
+  frontier = days[0] ?? null;
+  activeGenome = genome;
+
+  // Goal-tracking readout from the SAME measure the scorer freezes (GAME-03). Only
+  // shown when a frontier exists (a 0-ring genesis renders no readout, never broken).
+  updateHud(frontier ?? undefined, genome);
+
+  // The nudge controls are live only once a frontier exists. Seed the budget
+  // display with the genome's actionCap as the starting hint (the authoritative
+  // per-user remaining arrives on the first nudge response — D-04). nudgesRemaining
+  // starts at the cap so the first tap is never wrongly suppressed.
+  setNudgeControlsVisible(frontier != null);
+  if (frontier != null) setNudgeBudget(genome.actionCap);
+
   setOverlay(data.rings.length === 0 ? 'coldstart' : 'none');
+}
+
+// ── Live-nudge controls (LIVE-01 / GAME-05) ──────────────────────────────────
+// On tap: same-origin POST /api/steer (the ONLY client input is {param, amount});
+// the response is safeParse'd at the UI boundary (never thrown on), the acting-user
+// frontier re-synthesizes immediately (D-04 — no round-trip wait), the budget
+// display updates, and the controls disable at remaining 0 (D-04a). A parse/fetch
+// failure routes to the existing error overlay.
+
+/** A single nudge step per tap — biases the frontier mean (clamped server-side to [-1,1]). */
+const NUDGE_AMOUNT = 0.5;
+
+const NUDGE_BUTTON_IDS: Record<SteerParam, string> = {
+  branch: 'nudge-branch',
+  symmetry: 'nudge-symmetry',
+  hue: 'nudge-hue',
+};
+
+/** Show/hide the nudge panel (hidden on cold start — nothing to steer yet). */
+function setNudgeControlsVisible(visible: boolean): void {
+  const panel = document.getElementById('nudge-controls');
+  if (panel) panel.hidden = !visible;
+}
+
+/** Reflect the remaining budget in the display + disable all controls at 0 (D-04a). */
+function setNudgeBudget(remaining: number): void {
+  nudgesRemaining = remaining;
+  const display = document.getElementById('nudge-remaining');
+  if (display) display.textContent = String(remaining);
+  const disabled = remaining <= 0;
+  for (const id of Object.values(NUDGE_BUTTON_IDS)) {
+    const btn = document.getElementById(id) as HTMLButtonElement | null;
+    if (btn) btn.disabled = disabled;
+  }
+}
+
+/**
+ * Send one nudge for `param`. POSTs the (server-clamped) {param, amount}, safeParses
+ * the response at the UI boundary, and on success re-synthesizes the acting user's
+ * frontier locally (D-04), refreshes the HUD, and updates the budget. A rejected
+ * (over-budget) response still updates the display to disable the controls. A
+ * parse/network failure routes to the error overlay — never a throw (CLAUDE.md §6).
+ */
+async function sendNudge(param: SteerParam): Promise<void> {
+  if (nudgesRemaining <= 0) return; // already exhausted — ignore stray taps.
+  try {
+    const res = await fetch('/api/steer', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ param, amount: NUDGE_AMOUNT }),
+    });
+    const json: unknown = await res.json();
+    const parsed = SteerResponseSchema.safeParse(json);
+    if (!parsed.success) {
+      console.error('[sendNudge] /api/steer is not a valid SteerResponse', {
+        status: res.status,
+        body: json,
+        issues: parsed.error.issues,
+      });
+      setOverlay('error');
+      return;
+    }
+
+    if (parsed.data.accepted) {
+      // Acting-user near-real-time: bias the frontier mean + repaint locally now,
+      // no round-trip wait (D-04). The server has already SUMmed the aggregate.
+      handle?.nudge(param, NUDGE_AMOUNT);
+      // Mirror the engine's frontier steering shift onto our tracked DayVector so a
+      // subsequent HUD refresh stays consistent (the scored metric is activity-
+      // driven, so the value is stable, but keep the copy honest to the re-synth).
+      if (frontier) {
+        frontier = {
+          ...frontier,
+          steering: {
+            ...frontier.steering,
+            [param]: frontier.steering[param] + NUDGE_AMOUNT,
+          },
+        };
+      }
+      if (activeGenome) updateHud(frontier ?? undefined, activeGenome);
+    }
+    // Accepted OR refused: trust the server's remaining (disables at 0, D-04a).
+    setNudgeBudget(parsed.data.remaining);
+  } catch (err) {
+    console.error('[sendNudge] failed', err);
+    setOverlay('error');
+  }
+}
+
+/** Wire each nudge button to its param once (DOMContentLoaded). */
+function wireNudgeControls(): void {
+  for (const [param, id] of Object.entries(NUDGE_BUTTON_IDS) as Array<
+    [SteerParam, string]
+  >) {
+    const btn = document.getElementById(id);
+    btn?.addEventListener('click', () => {
+      void sendNudge(param);
+    });
+  }
 }
 
 /**
@@ -183,6 +310,9 @@ document.addEventListener('DOMContentLoaded', () => {
   retry?.addEventListener('click', () => {
     void loadCosmos();
   });
+
+  // Wire the live-nudge controls once (the buttons persist across re-renders).
+  wireNudgeControls();
 
   void loadCosmos();
 });

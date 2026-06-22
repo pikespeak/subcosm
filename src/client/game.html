@@ -43,6 +43,46 @@
           Retry
         </button>
       </div>
+
+      <!-- HUD goal-tracking readout (GAME-03 / D-07). Shows the live frontier's
+           targetParam metric vs its threshold + an on-track indicator. game.ts
+           substitutes only the VALUES into the keyed value spans; the copy lives
+           behind data-i18n keys (English source is the fallback). Reuses the
+           locked `.hud` chrome. Hidden until a frontier exists. -->
+      <div id="hud-readout" class="hud" role="status" aria-live="polite" hidden>
+        <p class="hud-line" data-i18n="hud.tracking">Tracking today's goal</p>
+        <p class="hud-line hud-metric">
+          <span class="hud-k" data-i18n="hud.metric.label">Now</span>
+          <span id="hud-param" class="hud-v"></span>
+          <span id="hud-measured" class="hud-v"></span>
+          <span class="hud-k" data-i18n="hud.goal.label">Goal</span>
+          <span id="hud-goal" class="hud-v"></span>
+          <span id="hud-track" class="hud-track" data-i18n="hud.track.label"></span>
+        </p>
+      </div>
+
+      <!-- Live-nudge controls (LIVE-01 / GAME-05). Three frontier axes + a
+           budget-remaining display. game.ts POSTs /api/steer on tap, re-synthesizes
+           locally, decrements the budget, and disables all controls at 0 (D-04a).
+           Copy carries data-i18n keys; JS only toggles `disabled` + the count. -->
+      <div id="nudge-controls" class="hud nudge-controls" hidden>
+        <p class="hud-line" data-i18n="nudge.heading">Steer the frontier</p>
+        <div class="nudge-row">
+          <button id="nudge-branch" type="button" class="nudge-btn" data-param="branch" data-i18n="nudge.branch">
+            Scatter
+          </button>
+          <button id="nudge-symmetry" type="button" class="nudge-btn" data-param="symmetry" data-i18n="nudge.symmetry">
+            Symmetry
+          </button>
+          <button id="nudge-hue" type="button" class="nudge-btn" data-param="hue" data-i18n="nudge.hue">
+            Hue
+          </button>
+        </div>
+        <p class="hud-line nudge-budget">
+          <span class="hud-k" data-i18n="nudge.budget.label">Nudges left</span>
+          <span id="nudge-remaining" class="hud-v"></span>
+        </p>
+      </div>
     </div>
     <script type="module" src="game.ts"></script>
   </body>

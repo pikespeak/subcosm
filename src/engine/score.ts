@@ -73,7 +73,7 @@ function degreeBounds(targetParam: string, threshold: number): {
  *   - symmetry → `deriveArms(day, genome)` (the exact integer arm count)
  * Unknown params fall back to `day.conflict` (a safe 0..1 scalar).
  */
-function measure(targetParam: string, day: DayVector, genome: Genome): number {
+export function measure(targetParam: string, day: DayVector, genome: Genome): number {
   switch (targetParam) {
     case 'conflict':
       return day.conflict;
