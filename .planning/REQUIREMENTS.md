@@ -191,6 +191,6 @@
 | SUB-01 | Phase 5: Submit | Pending |
 | SUB-02 | Phase 5: Submit | Complete |
 | SUB-03 | Phase 5: Submit | Pending |
-| SUB-04 | Phase 5: Submit | Pending |
+| SUB-04 | Phase 5: Submit | Code complete (on-device legibility sign-off deferred to demo session) |
 | SUB-05 | Phase 5: Submit | Pending |
 | SUB-06 | Phase 5: Submit | Pending |

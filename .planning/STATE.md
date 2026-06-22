@@ -5,16 +5,16 @@ milestone_name: milestone
 current_phase: 05
 current_phase_name: submit
 status: executing
-stopped_at: "Phase 5 executing: 05-02 done; 05-01 Tasks1-2 done (publish deferred to end, finished build); 05-03 Task1 splash committed (e94de12), Task2 coachmark PENDING. Publish/demo/UAT/Devpost bundled at end. Session limit hit twice (reset 15:20)."
-last_updated: "2026-06-22T13:22:23.354Z"
+stopped_at: "Phase 5 executing: 05-02 done; 05-01 Tasks1-2 done (publish deferred to end, finished build); 05-03 CODE DONE — Task1 splash (e94de12) + Task2 coachmark (e7cd577) committed, all DoD gates green (276 tests). Task3 on-device legibility checkpoint UAT-DEFERRED to demo session. Publish/demo/UAT/Devpost bundled at end."
+last_updated: "2026-06-22T13:30:00.000Z"
 last_activity: 2026-06-22
-last_activity_desc: Phase 05 execution started
+last_activity_desc: 05-03 onboarding (splash + coachmark) code complete
 progress:
   total_phases: 6
   completed_phases: 5
   total_plans: 25
-  completed_plans: 22
-  percent: 83
+  completed_plans: 23
+  percent: 87
 ---
 
 # Project State
@@ -79,6 +79,7 @@ Progress: [██████████] 100%
 | Phase 04 P04 | 10min | 3 tasks | 8 files |
 | Phase 04 P05 | 25min | 3 tasks | 2 files |
 | Phase 05 P02 | ~10min | 3 tasks | 13 files |
+| Phase 05 P03 | ~35min | 2 tasks + checkpoint | 6 files |
 
 ## Accumulated Context
 
@@ -129,6 +130,10 @@ Recent decisions affecting current work:
 - [Phase ?]: 04-05: I-5 enforced by saturate-then-clamp — extreme steering can never exceed the cap, so steering moves only borderline days, never flips a clear day
 - [Phase ?]: [Phase 05]: 05-02: D-01 backfill writes the deterministic 30-day arc (DEMO_SEED 0x535542, full day 1..30) as frozen rings via writeRing ONLY — shared hashSeed + resolveGenome extracted to seed.ts/genome.ts, dominantTheme:'community', score + RingRecordSchema.parse; idempotent via ringCount>0 skip; ZERO reveal posts
 - [Phase ?]: [Phase 05]: 05-02: mod-menu /backfill + /force-tick boundary-parse MenuActionRequestSchema and trust ONLY context.subredditId + server-side frontierDay (V4/Q6); force-tick = frontierDay->runTick, idempotent; both KEPT mod-gated features (D-08)
+- [Phase 05]: 05-03 (D-09): splash card is a fast STATIC hook + inline-SVG cosmos teaser + open/play CTA (requestExpandedMode) — no live render, no external image fetch (RESEARCH Q4 Pitfall 6); starter boilerplate removed
+- [Phase 05]: 05-03 (D-02): showCoachmarkOnce() one-time first-run overlay — localStorage 'subcosm.coachmark.seen' show-once gate (re-opens no-op), reduced-motion gate via reduced-motion.ts + .coachmark--reduced class (no strobe), reuses .hud chrome, data-i18n textContent-only copy (T-02-11); shown only over a populated universe (frontier exists)
+- [Phase 05]: 05-03: coachmark made injectable (store/reducedMotion/root seams) so its two gates unit-test in the existing node-environment runner — NO jsdom added (threat model T-05-SC zero new packages); 7 tests green, 276 total
+- [Phase 05]: 05-03: Task3 on-device onboarding-legibility checkpoint (SUB-04) UAT-DEFERRED to the demo session — NOT performed, NOT claimed; folds into D-06 single on-device validation (needs 05-02 backfill seed + a real device)
 
 ### Pending Todos
 
@@ -145,6 +150,7 @@ None yet.
 | Category | Item | Status | Deferred At |
 |----------|------|--------|-------------|
 | UAT → Phase 5 | Phase-4 on-device UAT — criteria 4-6 (reveal-post ~1min timing, persistent reward glyph, two-client/mobile frozen-render parity) + 04-03 realtime propagation — needs a live tick on a real sub; validate during Phase 5's public demo post (D-03b reload fallback covers realtime). Substrate unit-verified. | Deferred → Phase 5 | 04-UAT (2026-06-22) |
+| UAT → demo session | 05-03 Task 3 on-device onboarding-legibility checkpoint (SUB-04: first-timer understands both loops from splash + coachmark alone; in-feed splash tap, coachmark show-once + re-open no-op, OS reduced-motion static check). Code complete + unit-tested; visual sign-off needs a real device + the 05-02 backfill seed. Folds into the D-06 single on-device validation pass. | Deferred → demo session | 05-03 (2026-06-22) |
 | Polish/Follow-up | VIS-DEPTH — rework shell radius/spacing geometry so earlier/frozen days read distinctly (radius=pow(0.85,idx) crushes old shells into a faint central blob) | Planned-next | 02-05 |
 | Polish/Follow-up | VIS-ANIM — make the frontier ignite pulse data-driven from day metrics (conflict/energy/momentum) instead of a uniform StyleTemplate-constant sine | Planned-next | 02-05 |
 | Stretch | Comic + Pixel StyleTemplates | Stretch only | Roadmap |
@@ -155,6 +161,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-06-22T13:22:23.336Z
-Stopped at: Phase 5 executing: 05-02 done; 05-01 Tasks1-2 done (publish deferred to end, finished build); 05-03 Task1 splash committed (e94de12), Task2 coachmark PENDING. Publish/demo/UAT/Devpost bundled at end. Session limit hit twice (reset 15:20).
+Last session: 2026-06-22T13:30:00.000Z
+Stopped at: 05-03 onboarding CODE DONE — Task1 splash (e94de12) + Task2 coachmark (e7cd577); 276 tests / type-check / lint / build all green. Task3 on-device legibility checkpoint UAT-DEFERRED to the demo session (not performed, not claimed). Still pending in Phase 5: 05-01 publish, demo post, on-device UAT pass (D-06), Devpost.
 Resume file: .planning/phases/05-submit/05-CONTEXT.md
