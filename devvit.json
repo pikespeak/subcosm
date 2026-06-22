@@ -35,6 +35,20 @@
         "location": "subreddit",
         "forUserType": "moderator",
         "endpoint": "/internal/menu/example-form"
+      },
+      {
+        "label": "Seed demo history",
+        "description": "Backfill the deterministic 30-day arc as frozen rings (no posts)",
+        "location": "subreddit",
+        "forUserType": "moderator",
+        "endpoint": "/internal/menu/backfill"
+      },
+      {
+        "label": "Advance day / trigger tick",
+        "description": "Freeze the current frontier and publish the reveal post now",
+        "location": "subreddit",
+        "forUserType": "moderator",
+        "endpoint": "/internal/menu/force-tick"
       }
     ]
   },
