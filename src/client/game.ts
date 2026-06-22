@@ -30,10 +30,15 @@ import { crystalline as crystallineStyle } from '../styles/crystalline';
 import {
   OrganismResponseSchema,
   SteerResponseSchema,
+  SteerMsgSchema,
   type GenomeId,
   type OrganismResponse,
   type SteerParam,
+  type SteerMsg,
+  type SteerAggregate,
 } from '../shared/api';
+import { steerChannel } from '../shared/channel';
+import { connectRealtime, disconnectRealtime, context } from '@devvit/web/client';
 import { PhaserPainter } from './cosmos/PhaserPainter';
 import { updateHud } from './cosmos/hud';
 
@@ -120,7 +125,33 @@ let activeGenome: Genome | null = null;
 // Whether the acting user still has budget — gates the nudge controls (D-04a).
 let nudgesRemaining = Infinity;
 
+// ── Realtime live-steer state (LIVE-01 / D-03) ────────────────────────────────
+// The currently-subscribed channel name — held so teardown() can disconnect it.
+let steerChannelName: string | null = null;
+// The aggregate MEAN already applied to the frontier per param. applyAggregatedSteer
+// reconciles to the ABSOLUTE aggregate (mean = sum / count) by nudging the DELTA
+// between the new target mean and what is already applied — so a viewer converges
+// to the same steered state regardless of how many messages arrived, and the acting
+// user does NOT double-apply their own echoed broadcast (reconcile-to-absolute, not
+// add-delta — RESEARCH Pattern 1). The three nudgeable params only.
+let appliedMean: Record<SteerParam, number> = { branch: 0, symmetry: 0, hue: 0 };
+
 function teardown(): void {
+  // Disconnect the live-steer realtime channel BEFORE tearing down the render
+  // stack so a late onMessage cannot reach a destroyed handle. disconnectRealtime
+  // is the supported teardown (Connection.disconnect() is @deprecated — RESEARCH
+  // Pattern 1). Guarded: a disconnect failure must never break teardown.
+  if (steerChannelName) {
+    try {
+      disconnectRealtime(steerChannelName);
+    } catch (err) {
+      console.error('[teardown] disconnectRealtime failed', err);
+    }
+    steerChannelName = null;
+  }
+  // Reset the applied-mean baseline so a fresh mount reconciles from zero.
+  appliedMean = { branch: 0, symmetry: 0, hue: 0 };
+
   // The engine render() destroy handle is the single teardown seam (ENG-04):
   // painter.destroy() → game.destroy() fires the Scene SHUTDOWN/DESTROY events.
   handle?.destroy();
@@ -166,6 +197,114 @@ function mountUniverse(data: OrganismResponse): void {
   if (frontier != null) setNudgeBudget(genome.actionCap);
 
   setOverlay(data.rings.length === 0 ? 'coldstart' : 'none');
+
+  // Reconcile the applied-mean baseline to the load-time aggregate (D-03b reload
+  // source-of-truth): GET /organism already carries the live steer aggregate, so a
+  // viewer that reloads converges to the current steered state and subsequent
+  // realtime deltas reconcile from THAT baseline (not double-applying what the
+  // load already reflected). The engine renders the served rings as-is; here we
+  // only record what mean is "already accounted for" so applyAggregatedSteer nudges
+  // only the residual on the next message.
+  if (data.steer) {
+    appliedMean = aggregateToMean(data.steer);
+  }
+
+  // LIVE-01 / D-03: subscribe to the per-post steer channel so OTHER viewers'
+  // nudges converge the frontier near-real-time. Subscribe-only (the server is the
+  // sole sender, T-04-10). OPTIONAL layer: if context.postId is absent or connect
+  // throws, log and continue — the acting-user + reload path (D-03b, plan 02) still
+  // works (graceful degrade, the locked fallback).
+  if (frontier != null) connectSteerRealtime();
+}
+
+/**
+ * aggregateToMean — collapse an absolute steer aggregate (summed contributions +
+ * count) to the per-param MEAN the frontier should reflect. mean = sum / count;
+ * an empty aggregate (count 0) is all-zeros (no division by zero). This is the
+ * SAME mean the tick folds (sum / count) — the live view and the frozen ring agree.
+ */
+function aggregateToMean(agg: SteerAggregate | SteerMsg): Record<SteerParam, number> {
+  const n = agg.count > 0 ? agg.count : 1;
+  return {
+    branch: agg.count > 0 ? agg.branch / n : 0,
+    symmetry: agg.count > 0 ? agg.symmetry / n : 0,
+    hue: agg.count > 0 ? agg.hue / n : 0,
+  };
+}
+
+/**
+ * applyAggregatedSteer — reconcile the frontier to the ABSOLUTE aggregate mean
+ * received over realtime (T-04-09 boundary: caller has already safeParse'd). For
+ * each param, nudge the frontier by the DELTA between the new target mean and the
+ * mean already applied — so the frontier converges to the same steered state every
+ * viewer (and the acting user, whose own broadcast echoes back) sees, WITHOUT
+ * double-applying (reconcile-to-absolute, never add-delta). Biases the mean only
+ * via handle.nudge (I-5 — steering biases, never dictates). A zero delta is a
+ * no-op (no needless re-synth).
+ */
+function applyAggregatedSteer(msg: SteerMsg): void {
+  if (!handle) return;
+  const target = aggregateToMean(msg);
+  const params: SteerParam[] = ['branch', 'symmetry', 'hue'];
+  for (const p of params) {
+    const delta = target[p] - appliedMean[p];
+    if (delta !== 0) handle.nudge(p, delta);
+  }
+  appliedMean = target;
+
+  // Keep the tracked frontier DayVector honest to the reconciled mean so a HUD
+  // refresh stays consistent (the scored metric is activity-driven and stable, but
+  // the steering copy must not drift from what the engine now renders).
+  if (frontier) {
+    frontier = {
+      ...frontier,
+      steering: { branch: target.branch, symmetry: target.symmetry, hue: target.hue },
+    };
+  }
+}
+
+/**
+ * connectSteerRealtime — subscribe (SYNCHRONOUSLY, do NOT await — RESEARCH
+ * Pattern 1) to the per-post steer channel. Every onMessage payload is
+ * UNTRUSTED-on-the-wire (T-04-09): safeParse with SteerMsgSchema and ignore a
+ * malformed message (never throw on it), then reconcile + refresh the HUD. The
+ * whole layer is optional: a missing context.postId or a connect throw is logged
+ * and swallowed so the acting-user + reload path (D-03b) still holds.
+ */
+function connectSteerRealtime(): void {
+  const postId = context.postId;
+  if (!postId) {
+    // No post context (e.g. a dev harness) — realtime is simply off; the
+    // acting-user + reload fallback covers it.
+    console.warn('[realtime] no context.postId — live-steer subscribe skipped');
+    return;
+  }
+  const channel = steerChannel(postId);
+  try {
+    connectRealtime<SteerMsg>({
+      channel,
+      onMessage: (raw) => {
+        // The realtime wire is untrusted: safeParse + ignore a malformed payload
+        // (T-04-09 — never throw on a hostile/garbage message). The schema's plain
+        // numbers are the only accepted shape; handle.nudge clamps via the engine.
+        const parsed = SteerMsgSchema.safeParse(raw);
+        if (!parsed.success) {
+          console.error('[realtime] ignoring malformed steer message', {
+            issues: parsed.error.issues,
+          });
+          return;
+        }
+        applyAggregatedSteer(parsed.data);
+        if (activeGenome) updateHud(frontier ?? undefined, activeGenome);
+      },
+    });
+    steerChannelName = channel;
+  } catch (err) {
+    // Realtime unavailable on this client (D-03a degrade): log and continue. The
+    // locked D-03b fallback (acting-user-local + others-on-reload) still works.
+    console.error('[realtime] connectRealtime failed — degrading to reload path', err);
+    steerChannelName = null;
+  }
 }
 
 // ── Live-nudge controls (LIVE-01 / GAME-05) ──────────────────────────────────
@@ -233,6 +372,12 @@ async function sendNudge(param: SteerParam): Promise<void> {
       // Acting-user near-real-time: bias the frontier mean + repaint locally now,
       // no round-trip wait (D-04). The server has already SUMmed the aggregate.
       handle?.nudge(param, NUDGE_AMOUNT);
+      // Advance the applied-mean baseline by this optimistic local nudge so that
+      // when the server echoes our own broadcast back, applyAggregatedSteer
+      // reconciles to the absolute mean WITHOUT double-applying (the echo's delta
+      // against this baseline is ~0; any drift from sum/count is then corrected
+      // exactly by reconcile-to-absolute — RESEARCH Pattern 1).
+      appliedMean = { ...appliedMean, [param]: appliedMean[param] + NUDGE_AMOUNT };
       // Mirror the engine's frontier steering shift onto our tracked DayVector so a
       // subsequent HUD refresh stays consistent (the scored metric is activity-
       // driven, so the value is stable, but keep the copy honest to the re-synth).
