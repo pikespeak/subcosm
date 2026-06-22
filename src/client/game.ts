@@ -176,6 +176,14 @@ function mountUniverse(data: OrganismResponse): void {
 
   // render() is the single orchestration seam — never synthesize() here. With
   // zero rings, render()/synthesis produces the genesis-core-only Scene (D-04).
+  //
+  // GAME-04 / D-06 reward-glyph wiring: each ring in `days` is a full RingRecord
+  // carrying its frozen `outcome` (the GAME-02 scoring object, plan 01). Synthesis
+  // surfaces every day's `outcome.achieved` onto its Shell as `goalAchieved`, and
+  // paint bakes a deterministic reward glyph onto any achieved frozen shell — so the
+  // per-shell achieved flag rides this existing render path into the Scene paint,
+  // identical on every client (LIVE-03). No raw outcome touches paint (ENG-02): paint
+  // reads only the Scene-derived `shell.goalAchieved`.
   game = new Game(gameConfig());
   const painter = new PhaserPainter(game);
   handle = render(days, genome, style, painter);

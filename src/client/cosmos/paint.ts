@@ -24,6 +24,14 @@ import { bakeShell } from './bake';
 /** Texture key for the full-screen vignette (drawn last, NORMAL blend). */
 const VIGNETTE_TEXTURE_KEY = 'cosmos-vignette';
 
+/**
+ * GAME-04 / D-06: the reward-accent hue (0..1 into the StyleTemplate ramp). A high
+ * stop keeps the glyph WITHIN the techno style (warm/bright core end of the palette)
+ * while reading as distinctly brighter than the surrounding shell stars — a constant,
+ * so the accent is a PURE function of the record (identical on every client, LIVE-03).
+ */
+const REWARD_HUE = 0.92;
+
 /** Background space color (UI-SPEC dominant: near-black space stage). */
 export const SPACE_BG = 0x04030a;
 
@@ -114,6 +122,51 @@ function ensureVignette(scene: Phaser.Scene, width: number, height: number): voi
 function usesFacet(style: StyleTemplate): boolean {
   const ref = style.genes['star'] ?? style.genes['facet'];
   return typeof ref === 'string' && ref.includes('facet');
+}
+
+/**
+ * paintRewardAccent — the GAME-04 / D-06 reward glyph: a brighter, distinctly-hued
+ * accent layered onto a single deterministic element of an ACHIEVED frozen shell.
+ *
+ * DETERMINISM (LIVE-03): paint-only, NO rng. The accented element is chosen by a
+ * STABLE reduce (max energy; ties keep the FIRST, the earlier element index) so it
+ * is identical on every client, and the accent color is the fixed `REWARD_HUE`
+ * mapped through the StyleTemplate ramp (`hueToColor`) so it stays within the style.
+ * The accent is a soft additive halo + a bright core dot on the chosen star — it
+ * bakes ONCE with the frozen shell (frozen shells are bake-cached, PNT-03), so it
+ * is permanent when scrubbing to that ring (GAME-04) and never animates (PNT-04 —
+ * a static accent, reduced-motion safe).
+ *
+ * Returns the created objects so they flow into the same bake as the shell stars.
+ */
+function paintRewardAccent(
+  scene: Phaser.Scene,
+  shell: Shell,
+  shellR: number,
+  frame: PaintFrame,
+  ramp: number[],
+): StarObject[] {
+  if (shell.elements.length === 0) return [];
+  const { cx, cy, rMax, band } = frame;
+
+  // Stable element pick: the max-energy element via reduce — ties keep the earlier
+  // index (b.energy > a.energy is strict), so the choice is a pure function of the
+  // element array, identical on every client (LIVE-03). NO rng.
+  const star = shell.elements.reduce((a, b) => (b.energy > a.energy ? b : a));
+
+  const rr = shellR + star.r * band;
+  const x = cx + Math.cos(star.angle) * rr;
+  const y = cy + Math.sin(star.angle) * rr;
+  // Size mirrors drawShell's star sizing so the accent sits ON the star, brighter.
+  const sz = Math.max(2, star.size * rMax * 0.06) * (star.big ? 1.6 : 1);
+  const color = hueToColor(ramp, REWARD_HUE);
+
+  return [
+    // A wide soft halo (the "this day hit the goal" glow) …
+    addGlow(scene, x, y, sz * 3.2, color, 0.55),
+    // … and a bright concentrated core dot on the chosen star.
+    addGlow(scene, x, y, sz * 1.2, color, 1),
+  ];
 }
 
 /**
@@ -220,6 +273,16 @@ function drawShell(
       // Techno: a tiny bright additive dot (the round star core).
       objects.push(addGlow(scene, x, y, sz * (el.big ? 1.7 : 1), color, Math.min(1, energyAlpha + 0.3)));
     }
+  }
+
+  // GAME-04 / D-06: an achieved shell carries a deterministic, paint-only reward
+  // glyph on its brightest (stable max-energy) star. Painted into the SAME object
+  // list so it bakes once with the frozen shell (permanent on scrub-back, PNT-03);
+  // driven only by shell.goalAchieved (resolved from the ring's outcome.achieved —
+  // ENG-02, no raw data) so it is identical on every client (LIVE-03). The live
+  // frontier and unscored days have goalAchieved !== true → no glyph.
+  if (shell.goalAchieved === true) {
+    objects.push(...paintRewardAccent(scene, shell, shellR, frame, ramp));
   }
 
   return objects;

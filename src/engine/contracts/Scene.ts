@@ -50,6 +50,14 @@ export const ShellSchema = z.object({
   // bounded 0..1 scalar (CoreNodeSchema precedent); paint multiplies it into
   // per-glow alpha/size. Present on EVERY shell (genesis included) — fixed-key.
   weight: z.number().min(0).max(1),
+  // GAME-04 / D-06: per-shell achieved verdict, derived PURELY from the day's
+  // outcome.achieved (the GAME-02 scoring object on the frozen RingRecord). Paint
+  // reads ONLY this Scene-derived flag — never raw DayVector fields (ENG-02) — to
+  // bake a deterministic reward glyph onto an achieved frozen shell. `null` when
+  // the day has no scored outcome (the live frontier, genesis, or a pre-scoring
+  // ring) → no glyph. A pure function of the record, so it renders identically on
+  // every client (LIVE-03).
+  goalAchieved: z.boolean().nullable().default(null),
   meta: ShellMetaSchema,
   elements: z.array(ElementSchema),
 });

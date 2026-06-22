@@ -105,6 +105,77 @@ describe('synthesize data-sensitivity (SYN-04)', () => {
   });
 });
 
+describe('synthesize reward-glyph wiring — per-shell goalAchieved (GAME-04 / D-06)', () => {
+  // A minimal scored day: synthesis must surface its outcome.achieved onto the
+  // shell as goalAchieved (the paint reward-glyph driver), PURELY pass-through.
+  function scoredDay(day: number, achieved: boolean): DayVector {
+    return DayVectorSchema.parse({
+      day,
+      date: `2026-02-${String(day).padStart(2, '0')}`,
+      posts: 40,
+      comments: 80,
+      contributors: 20,
+      scoreSum: 120,
+      topThreads: [60, 30, 10],
+      conflict: 0.3,
+      momentum: 0.1,
+      diversity: 0.4,
+      dominantTheme: 'community',
+      steering: { branch: 0, symmetry: 0, hue: 0 },
+      seed: 0x2000 + day,
+      outcome: {
+        goal: calm.dailyGoal,
+        measured: 0.2,
+        achieved,
+        degree: 0.5,
+      },
+    });
+  }
+
+  test('an achieved day surfaces goalAchieved=true; a missed day false', () => {
+    // newest-first: day 3 achieved, day 2 missed, day 1 genesis (no outcome).
+    const days: DayVector[] = [
+      scoredDay(3, true),
+      scoredDay(2, false),
+      DayVectorSchema.parse({
+        day: 1,
+        date: '2026-02-01',
+        posts: 0,
+        comments: 0,
+        contributors: 0,
+        scoreSum: 0,
+        topThreads: [],
+        conflict: 0,
+        momentum: 0,
+        diversity: 0,
+        dominantTheme: 'community',
+        steering: { branch: 0, symmetry: 0, hue: 0 },
+        seed: 0x2001,
+      }),
+    ];
+    const scene = synthesize(days, calm);
+    const byDay = new Map(scene.shells.map((s) => [s.day, s.goalAchieved]));
+    expect(byDay.get(3)).toBe(true);
+    expect(byDay.get(2)).toBe(false);
+    // No outcome on the genesis day → null (no glyph).
+    expect(byDay.get(1)).toBeNull();
+  });
+
+  test('goalAchieved is a deterministic pure function of the record (byte-identical)', () => {
+    const days = [scoredDay(2, true)];
+    const a = synthesize(days, calm);
+    const b = synthesize(days, calm);
+    expect(a.shells[0]!.goalAchieved).toBe(true);
+    expect(JSON.stringify(a)).toBe(JSON.stringify(b)); // identical on every client
+  });
+
+  test('a day with no outcome (live frontier / pre-scoring) yields goalAchieved=null', () => {
+    const scene = synthesize(fixtureDays, calm);
+    // The fixtures carry no outcome → every shell defaults to null (no glyph).
+    for (const shell of scene.shells) expect(shell.goalAchieved).toBeNull();
+  });
+});
+
 describe('synthesize depth geometry + weight (VIS-DEPTH / D-01, D-02)', () => {
   // D-01: every ring individually distinguishable to the core — radius strictly
   // decreasing AND each adjacent pair separated by at least minGapFor(N) (no

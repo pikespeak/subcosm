@@ -311,6 +311,14 @@ export function synthesize(days: DayVector[], genome: Genome): Scene {
       day: day.day,
       radius,
       weight,
+      // GAME-04 / D-06: surface the day's achieved verdict onto the shell so paint
+      // can bake a deterministic reward glyph (ENG-02 — paint reads this Scene flag,
+      // never raw DayVector fields). PURE pass-through of the frozen ring's
+      // outcome.achieved; `null` when the day carries no scored outcome (live
+      // frontier / genesis / pre-scoring ring) → no glyph. NO rng (the element
+      // stream above is untouched, so synthesis output stays byte-identical for any
+      // day that already had a null outcome).
+      goalAchieved: day.outcome?.achieved ?? null,
       meta: {
         date: day.date,
         era: day.dominantTheme,
