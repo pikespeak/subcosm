@@ -127,6 +127,151 @@ body {
   cursor: pointer;
 }
 
+/* ── HUD + nudge chrome (GAME-03 / GAME-05 / D-07) ────────────────────────────
+ * The in-post HUD readout + steer controls, styled with the bespoke SUBCOSM
+ * typography (D-07): a WIDE, LIGHT sans for the labels so the chrome reads as the
+ * brand wordmark (docs/subcosm.png: wide light-tracked "SUBCOSM"), not a default
+ * UI font. The panels reuse the locked translucent-dark + blur treatment so they
+ * stay legible over the cosmos (legibility is mandatory — UI-SPEC). The HUD sits
+ * top-left; the nudge controls bottom-center within thumb reach. */
+.hud {
+  position: absolute;
+  z-index: 2;
+  box-sizing: border-box;
+  max-width: min(86vw, 360px);
+  padding: 12px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background: var(--panel);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid var(--hair);
+  border-radius: 12px;
+  color: var(--ink);
+  /* The brand voice: wide, light sans (the SUBCOSM wordmark treatment). */
+  font-family: 'Space Grotesk', system-ui, sans-serif;
+  font-weight: 300;
+  letter-spacing: 0.04em;
+}
+
+.hud[hidden] {
+  display: none;
+}
+
+#hud-readout {
+  top: 12px;
+  left: 12px;
+}
+
+.hud-line {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 300;
+  line-height: 1.5;
+  letter-spacing: 0.04em;
+}
+
+/* Section labels read as the wordmark: uppercase, wide-tracked, light, muted. */
+.hud-k {
+  margin-right: 6px;
+  font-size: 11px;
+  font-weight: 300;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: var(--muted);
+}
+
+/* Values: the data — slightly heavier + cyan-leaning ink so numbers pop. */
+.hud-v {
+  margin-right: 10px;
+  font-family: 'Space Mono', ui-monospace, monospace;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  color: var(--ink);
+}
+
+.hud-metric {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 2px 0;
+}
+
+/* On-track indicator: cyan signature when on track (set via copy/i18n). */
+.hud-track {
+  font-size: 11px;
+  font-weight: 300;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #5ad7ff;
+}
+
+/* Nudge controls: bottom-center, three steer axes + a budget line. */
+.nudge-controls {
+  left: 50%;
+  bottom: 16px;
+  transform: translateX(-50%);
+  align-items: stretch;
+  text-align: center;
+}
+
+.nudge-row {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+
+/* Each steer button: ≥44px touch target (Reddit mobile hit-area floor), wide
+ * light-sans label, secondary substrate. The disabled state mutes at budget 0. */
+.nudge-btn {
+  flex: 1 1 0;
+  min-height: 44px;
+  padding: 0 12px;
+  background: linear-gradient(#1c1636, #15102a);
+  color: var(--ink);
+  border: 1px solid var(--hair);
+  border-radius: 10px;
+  font-family: 'Space Grotesk', system-ui, sans-serif;
+  font-size: 13px;
+  font-weight: 300;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.nudge-btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.nudge-budget {
+  justify-content: center;
+}
+
+/* ── SUBCOSM brand mark (D-07) ────────────────────────────────────────────────
+ * A small, static corner wordmark so the post reads as the SUBCOSM brand (the
+ * logo as a brand mark). Wide-tracked light caps in the warm-white core hue, set
+ * low-contrast so it signs the cosmos without competing with it. game.html may
+ * carry an `#brand-mark` element; absent that, this also styles a `.brand-mark`. */
+.brand-mark,
+#brand-mark {
+  position: absolute;
+  z-index: 2;
+  right: 12px;
+  bottom: 12px;
+  margin: 0;
+  font-family: 'Space Grotesk', system-ui, sans-serif;
+  font-weight: 300;
+  font-size: 12px;
+  letter-spacing: 0.42em; /* the wide wordmark tracking from docs/subcosm.png */
+  text-transform: uppercase;
+  /* Warm-white core hue at low alpha — present but never loud. */
+  color: rgba(255, 247, 230, 0.34);
+  pointer-events: none;
+  user-select: none;
+}
+
 /* ── First-run coachmark (D-02 / SUB-04) ──────────────────────────────────────
  * A one-time dismissible overlay that explains both loops over the populated
  * universe. Full-stage scrim + a centered panel reusing the locked `.hud`

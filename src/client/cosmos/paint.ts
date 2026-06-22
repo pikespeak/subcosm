@@ -18,7 +18,7 @@
 //     paint-only, zero synthesis change.
 import * as Phaser from 'phaser';
 import type { Scene as CosmosSceneData, Shell, StyleTemplate } from '../../engine/contracts';
-import { addFacetStar, addGlow, ensureGlowTexture } from './primitives';
+import { addBeam, addFacetStar, addGlow, ensureGlowTexture } from './primitives';
 import { bakeShell } from './bake';
 
 /** Texture key for the full-screen vignette (drawn last, NORMAL blend). */
@@ -288,6 +288,55 @@ function drawShell(
   return objects;
 }
 
+// ── Genesis-core cross-flare (D-07 / SUB-05) ──────────────────────────────────
+// The brand anchor (docs/subcosm.png) is a warm-white genesis core throwing a long
+// 4-point cross-flare: a dominant vertical+horizontal cross with shorter diagonal
+// spikes. These are GEOMETRY/RATIO constants (like REWARD_HUE) — they shape the
+// flare; the flare's COLOR is always read from the StyleTemplate ramp (coreStop /
+// hueToColor), never a hard-coded color literal (PNT-02). The flare is a PURE
+// function of the core glow radius — no rng (ENG-02 determinism, identical on every
+// client) — and it is part of the static REST frame (it does not animate, so it is
+// reduced-motion safe and reads on the iOS static first frame — RESEARCH Pitfall 5).
+//
+// Long axis vs the diagonal axis: the long cross beams reach far past the core
+// glow; the diagonals are a shorter accent, matching the logo's silhouette.
+/** Length of the dominant cross (vertical/horizontal) beams, ×core glow radius. */
+const FLARE_CROSS_LEN = 5.2;
+/** Length of the shorter diagonal accent beams, ×core glow radius. */
+const FLARE_DIAG_LEN = 2.6;
+/** Beam thickness, ×core glow radius — kept thin so the flare reads as a spike. */
+const FLARE_THICKNESS = 0.42;
+/** Additive energy of the dominant cross beams (the bright signature streak). */
+const FLARE_CROSS_ALPHA = 0.85;
+/** Additive energy of the diagonal accent beams (subtler than the cross). */
+const FLARE_DIAG_ALPHA = 0.5;
+
+/**
+ * Draw the bespoke genesis-core long cross-flare (D-07): four long cross beams +
+ * four shorter diagonal accents radiating from the core, all coloured from the
+ * warm core stop of the StyleTemplate ramp (PNT-02 — no hard-coded literal). A
+ * pure, deterministic function of the core glow radius (no rng — ENG-02). Drawn as
+ * additive beams so they read as light over the core glow; static (no animation).
+ */
+function drawCoreFlare(
+  scene: Phaser.Scene,
+  cx: number,
+  cy: number,
+  coreGlowR: number,
+  warm: number,
+): void {
+  const crossLen = coreGlowR * FLARE_CROSS_LEN;
+  const diagLen = coreGlowR * FLARE_DIAG_LEN;
+  const thick = Math.max(2, coreGlowR * FLARE_THICKNESS);
+  // Dominant cross: horizontal (0) + vertical (π/2) long beams.
+  addBeam(scene, cx, cy, crossLen, thick, 0, warm, FLARE_CROSS_ALPHA);
+  addBeam(scene, cx, cy, crossLen, thick, Math.PI / 2, warm, FLARE_CROSS_ALPHA);
+  // Shorter diagonal accents at ±45° (the logo's secondary spikes).
+  const q = Math.PI / 4;
+  addBeam(scene, cx, cy, diagLen, thick * 0.8, q, warm, FLARE_DIAG_ALPHA);
+  addBeam(scene, cx, cy, diagLen, thick * 0.8, -q, warm, FLARE_DIAG_ALPHA);
+}
+
 /** Draw the genesis core (mock l.255-263): big warm glow + bright dot (always live, cheap). */
 function drawCore(
   scene: Phaser.Scene,
@@ -301,6 +350,9 @@ function drawCore(
   const coreGlowR = Math.max(40, core.radius * rMax * 6);
   addGlow(scene, cx, cy, coreGlowR, warm, 0.9);
   addGlow(scene, cx, cy, coreGlowR * 0.45, hueToColor(ramp, core.hue), 0.7 + core.energy * 0.2);
+  // The bespoke long cross-flare (D-07) sits between the core glow and the bright
+  // dot so the dot reads as the brilliant origin of the flare (logo silhouette).
+  drawCoreFlare(scene, cx, cy, coreGlowR, warm);
   addGlow(scene, cx, cy, Math.max(6, core.radius * rMax), warm, 1);
 }
 

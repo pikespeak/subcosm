@@ -25,11 +25,20 @@ export const techno: StyleTemplate = StyleTemplateSchema.parse({
 
   palette: {
     space: 'oklch',
-    // The hue->color ramp paint maps Element.hue (0..1) through. Ordered cold
-    // -> hot -> core: deep-space indigo, electric indigo, cyan, magenta nebula,
-    // warm-white genesis core. The cyan #46e0d8 + warm-white #fff7e6 stops are
-    // the look the chrome harmonizes with (UI-SPEC).
-    ramp: ['#04030a', '#6366f1', '#46e0d8', '#d946ef', '#fff7e6'],
+    // The curated bespoke Techno signature (D-07): the hue->color ramp paint maps
+    // Element.hue (0..1) through. Ordered cold -> hot -> core to read as the
+    // SUBCOSM brand (docs/subcosm.png), NOT generic neon fractal:
+    //   #04030a deep-space ink (matches the stage bg, so cold/old shells recede)
+    //   #2b1f6b deep electric-violet (a richer cold bridge than a flat indigo —
+    //           lets the cyan and magenta poles read as the two signature hues
+    //           instead of muddying into a single blue)
+    //   #46e0d8 the SIGNATURE cyan pole (logo glints; chrome harmonizes here)
+    //   #d946ef the SIGNATURE magenta nebula pole (the counter-hue)
+    //   #fff7e6 the warm-white genesis core (the cross-flare + dot stop)
+    // The two-pole cyan<->magenta separation across a deep-violet bridge is the
+    // bespoke move: most days land cyan/violet, high-conflict redshift pushes
+    // toward magenta, and only the core reaches warm-white. (Look is DATA — PNT-02.)
+    ramp: ['#04030a', '#2b1f6b', '#46e0d8', '#d946ef', '#fff7e6'],
   },
 
   // Filament/arc stroke treatment (PNT-02 — the painter reads these, never

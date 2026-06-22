@@ -70,6 +70,43 @@ export function addGlow(
 }
 
 /**
+ * Add one additive light BEAM — a long, thin, soft-falloff streak built from the
+ * reused glow texture (the genesis-core cross-flare spike, D-07). Where addGlow is
+ * a square radial blob, a beam stretches the SAME soft texture into an anisotropic
+ * streak (`length` along its axis, `thickness` across) and rotates it to `angle`,
+ * so a deterministic cross/star flare is just four+ rotated beams. Additive, so it
+ * reads as light over the core. `color` is resolved from the StyleTemplate ramp by
+ * the caller (paint maps the core stop → color, never a hard-coded literal — PNT-02).
+ *
+ * @param scene     the owning scene.
+ * @param x         center x (px) — the core center the flare radiates from.
+ * @param y         center y (px).
+ * @param length    full length of the beam along its axis (px).
+ * @param thickness cross-axis thickness of the beam (px).
+ * @param angle     beam rotation in radians (0 = horizontal).
+ * @param color     resolved palette color (caller maps via the ramp — ENG-02/PNT-02).
+ * @param alpha     additive energy of the beam.
+ */
+export function addBeam(
+  scene: Phaser.Scene,
+  x: number,
+  y: number,
+  length: number,
+  thickness: number,
+  angle: number,
+  color: number,
+  alpha: number,
+): Phaser.GameObjects.Image {
+  const img = scene.add.image(x, y, GLOW_TEXTURE_KEY);
+  img.setBlendMode(Phaser.BlendModes.ADD);
+  img.setTint(color);
+  img.setAlpha(alpha);
+  img.setDisplaySize(length, thickness);
+  img.setRotation(angle);
+  return img;
+}
+
+/**
  * Add one faceted/angular star — the Crystalline 'facet' primitive (D-05).
  *
  * Where the default star is a soft round glow dot, Crystalline communities read

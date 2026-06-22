@@ -14,6 +14,12 @@
     <div id="app">
       <div id="game-container"></div>
 
+      <!-- SUBCOSM brand mark (D-07 / SUB-05): a small, static corner wordmark so
+           the post reads as the SUBCOSM brand. A FIXED brand string — never echoed
+           user text (Devvit-rules compliant) — present from load so it signs the
+           static first frame (RESEARCH Pitfall 5). aria-hidden: decorative chrome. -->
+      <p id="brand-mark" aria-hidden="true">Subcosm</p>
+
       <!-- S3 state overlays (UI-SPEC). Exactly one is visible at a time; game.ts
            toggles the [hidden] attribute. Copy carries its i18n key in
            data-i18n so the host can localise; the English source is the visible
