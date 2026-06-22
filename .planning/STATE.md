@@ -2,19 +2,19 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-current_phase: 04
-current_phase_name: live-game
-status: awaiting_uat
-stopped_at: Phase 4 code-complete (5/5 plans incl. GAME-03 gap closure 04-05; 246 tests green); criteria 4-6 require on-device devvit playtest UAT before the phase is marked complete
-last_updated: "2026-06-22T08:45:00.000Z"
+current_phase: 5
+current_phase_name: Submit
+status: ready
+stopped_at: Phase 4 COMPLETE (5/5 plans, 246 tests green, GAME-03 closed). On-device UAT (criteria 4-6 + 04-03 realtime) DEFERRED to Phase 5 demo per user decision. Phase 5 (Submit) not started — next: /gsd-discuss-phase 5 or /gsd-plan-phase 5
+last_updated: "2026-06-22T07:21:18.740Z"
 last_activity: 2026-06-22
-last_activity_desc: GAME-03 gap closed by 04-05 (bounded steering→score, cap 0.15, I-5 bound proven); re-verified GAME-03 (score.test 32/32); criteria 4-6 on-device UAT pending
+last_activity_desc: Phase 04 complete, transitioned to Phase 5
 progress:
   total_phases: 6
-  completed_phases: 4
+  completed_phases: 5
   total_plans: 20
   completed_plans: 20
-  percent: 67
+  percent: 83
 ---
 
 # Project State
@@ -24,14 +24,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-06-19)
 
 **Core value:** The community's real activity becomes a beautiful, legible, deterministic universe — one engine, provably different worlds from different data + config
-**Current focus:** Phase 04 — live-game
+**Current focus:** Phase 5 — Submit (Phase 4 complete; on-device UAT deferred to Phase 5 demo)
 
 ## Current Position
 
-Phase: 04 (live-game) — CODE-COMPLETE, AWAITING UAT
-Plan: 5 of 5 (incl. GAME-03 gap closure 04-05)
-Status: All plans executed + green (246 tests); GAME-03 closed + re-verified. Criteria 4-6 (reveal post / reward glyph / cross-client parity) need on-device devvit playtest UAT — run /gsd-verify-work 4.
-Last activity: 2026-06-22 — GAME-03 gap closed by 04-05; re-verified
+Phase: 5 — Submit
+Plan: Not started
+Status: Phase 4 COMPLETE (5/5 plans, 246 tests green; GAME-03 closed). On-device UAT for criteria 4-6 + realtime deferred to Phase 5 demo (user decision). Phase 5 (Submit) not started — next: /gsd-discuss-phase 5 or /gsd-plan-phase 5.
+Last activity: 2026-06-22 — Phase 04 complete, transitioned to Phase 5
 
 Progress: [██████████] 100%
 
@@ -39,7 +39,7 @@ Progress: [██████████] 100%
 
 **Velocity:**
 
-- Total plans completed: 20
+- Total plans completed: 25
 - Average duration: ~12min
 - Total execution time: ~1.3 hours
 
@@ -51,6 +51,7 @@ Progress: [██████████] 100%
 | 02 | 5 | - | - |
 | 02.1 | 3 | - | - |
 | 03 | 5 | - | - |
+| 04 | 5 | - | - |
 
 **Recent Trend:**
 
@@ -140,6 +141,7 @@ None yet.
 
 | Category | Item | Status | Deferred At |
 |----------|------|--------|-------------|
+| UAT → Phase 5 | Phase-4 on-device UAT — criteria 4-6 (reveal-post ~1min timing, persistent reward glyph, two-client/mobile frozen-render parity) + 04-03 realtime propagation — needs a live tick on a real sub; validate during Phase 5's public demo post (D-03b reload fallback covers realtime). Substrate unit-verified. | Deferred → Phase 5 | 04-UAT (2026-06-22) |
 | Polish/Follow-up | VIS-DEPTH — rework shell radius/spacing geometry so earlier/frozen days read distinctly (radius=pow(0.85,idx) crushes old shells into a faint central blob) | Planned-next | 02-05 |
 | Polish/Follow-up | VIS-ANIM — make the frontier ignite pulse data-driven from day metrics (conflict/energy/momentum) instead of a uniform StyleTemplate-constant sine | Planned-next | 02-05 |
 | Stretch | Comic + Pixel StyleTemplates | Stretch only | Roadmap |

@@ -4,6 +4,7 @@ verified: 2026-06-22T04:13:20Z
 status: human_needed
 score: criteria 1-3 code-verified (incl. GAME-03 closed by 04-05); criteria 4-6 on-device UAT pending
 reverified: 2026-06-22T08:45:00Z (GAME-03 gap closed by 04-05; score.test.ts 32/32 green — borderline flip both directions, I-5 bound under extreme steering, determinism)
+ondevice_uat: deferred-to-phase-5 (user decision 2026-06-22 — criteria 4-6 + 04-03 realtime validated during Phase 5's public demo-post; see 04-UAT.md. Substrate unit-verified; realtime degrades via D-03b)
 behavior_unverified: 0
 overrides_applied: 0
 requirements_coverage:
