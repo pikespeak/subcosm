@@ -1,10 +1,25 @@
+/* splash.css — the D-09 in-feed card.
+ *
+ * The dark cosmos palette + wide light-sans wordmark so the card reads as
+ * Subcosm (not the starter template). Deep-space ink background matches the
+ * game stage (#04030a). The teaser is a static inline SVG (no canvas / no rAF) —
+ * D-09 forbids a live mini-render, and iOS throttles cross-origin-iframe rAF, so
+ * the card is intentionally motion-free. Palette mirrors styles/techno.ts:
+ * deep-space #04030a, indigo #6366f1, cyan #46e0d8, magenta #d946ef, warm-white
+ * #fff7e6. */
+:root {
+  --space: #04030a;
+  --ink: #f4f1fb;
+  --muted: #b9b3d6;
+  --cyan: #46e0d8;
+  --magenta: #d946ef;
+  --warm: #fff7e6;
+}
+
 * {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica,
-    Arial, sans-serif;
-  color: #000000;
 }
 
 .app {
@@ -14,73 +29,108 @@
   justify-content: center;
   align-items: center;
   height: 100vh;
+  /* dvh tracks the real mobile viewport better where supported. */
+  height: 100dvh;
   margin: 0;
-  gap: 16px;
+  gap: 18px;
+  padding: 24px;
+  background:
+    radial-gradient(
+      circle at 50% 42%,
+      rgba(70, 224, 216, 0.10),
+      rgba(217, 70, 239, 0.06) 38%,
+      var(--space) 72%
+    ),
+    var(--space);
+  color: var(--ink);
+  font-family: 'Space Grotesk', system-ui, -apple-system, BlinkMacSystemFont,
+    'Segoe UI', Roboto, sans-serif;
+  overflow: hidden;
 }
 
-.snoo {
-  object-fit: contain;
-  width: 50%;
-  max-width: 250px;
-  margin: 0 auto;
+/* Static teaser motif. Sized to scale with the card but capped so it never
+ * dominates a small in-feed viewport. */
+.teaser {
+  width: min(58vw, 220px);
+  max-width: 60%;
+  aspect-ratio: 1 / 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.teaser-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
 }
 
 .content {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
-}
-
-.title {
-  font-size: 1.5em;
-  font-weight: bold;
+  gap: 6px;
   text-align: center;
 }
 
-.description {
-  font-size: 1em;
-  text-align: center;
-  color: #5c6c74;
+/* Wide light-sans wordmark (the brand mark from docs/subcosm.png). */
+.wordmark {
+  font-size: clamp(1.6em, 7vw, 2.4em);
+  font-weight: 300;
+  letter-spacing: 0.42em;
+  /* the trailing letter-spacing pushes text right; pull it back for centering. */
+  text-indent: 0.42em;
+  line-height: 1;
+  color: var(--warm);
+  text-shadow: 0 0 18px rgba(255, 247, 230, 0.35);
 }
 
-.code {
-  background-color: #e5ebee;
-  padding: 2px 4px;
-  border-radius: 4px;
+.hook {
+  font-size: clamp(0.85em, 3.4vw, 1.05em);
+  font-weight: 400;
+  line-height: 1.4;
+  letter-spacing: 0.02em;
+  color: var(--muted);
+  max-width: 32ch;
 }
 
+/* Open/play CTA: the cyan↔magenta accent, a comfortable mobile touch target
+ * (≥44px), legible on the deep-space substrate. */
 .start-button {
-  background-color: #d93900;
-  color: #ffffff;
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
+  min-height: 44px;
+  padding: 0 28px;
+  border: 1px solid rgba(70, 224, 216, 0.45);
+  border-radius: 999px;
+  background: linear-gradient(
+    100deg,
+    rgba(70, 224, 216, 0.22),
+    rgba(217, 70, 239, 0.22)
+  );
+  color: var(--ink);
+  font-family: inherit;
+  font-size: 1.02em;
+  font-weight: 600;
+  letter-spacing: 0.02em;
   line-height: 1;
-  border: none;
-  padding: 6px 16px;
-  height: 28px;
-  font-size: 1.1em;
-  border-radius: 12px;
   cursor: pointer;
-  transition: background-color 0.2s ease;
+  transition: border-color 0.2s ease, transform 0.12s ease;
 }
 
-.footer {
-  position: absolute;
-  bottom: 16px;
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-  gap: 12px;
-  font-size: 0.8em;
-  color: #666666;
+.start-button:hover {
+  border-color: rgba(217, 70, 239, 0.6);
 }
 
-.docs-link {
-  cursor: pointer;
+.start-button:active {
+  transform: scale(0.98);
 }
 
-.divider {
-  color: rgba(0, 0, 0, 0.1);
+/* Reduced motion: the card is already fully static (no animation declared). This
+ * block documents intent — nothing here pulses, strobes, or auto-plays. */
+@media (prefers-reduced-motion: reduce) {
+  .start-button {
+    transition: none;
+  }
 }
