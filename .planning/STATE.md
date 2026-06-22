@@ -4,17 +4,17 @@ milestone: v1.0
 milestone_name: milestone
 current_phase: 04
 current_phase_name: live-game
-status: executing
-stopped_at: Completed 04-03-PLAN.md (realtime live-steer broadcast/subscribe)
-last_updated: "2026-06-22T04:06:52.672Z"
+status: gaps_found
+stopped_at: Phase 4 executed (4/4 plans, green); verification gaps_found (4/6) — GAME-03 blocker (steering not scored) + criteria 4-6 on-device UAT pending
+last_updated: "2026-06-22T06:30:00.000Z"
 last_activity: 2026-06-22
-last_activity_desc: Completed 04-03 (realtime live-steer broadcast/subscribe; D-03a on-device check UAT-deferred)
+last_activity_desc: Phase 4 verification gaps_found (4/6); GAME-03 gap-closure pending (user chose "make steering matter")
 progress:
   total_phases: 6
-  completed_phases: 5
+  completed_phases: 4
   total_plans: 19
-  completed_plans: 20
-  percent: 83
+  completed_plans: 19
+  percent: 67
 ---
 
 # Project State
