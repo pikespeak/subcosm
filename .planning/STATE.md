@@ -6,15 +6,15 @@ current_phase: 04
 current_phase_name: live-game
 status: planned
 stopped_at: GAME-03 gap plan 04-05 created + plan-checked PASS; ready for `/gsd-execute-phase 4 --gaps-only`. (Criteria 4-6 on-device UAT still pending after gap closure.)
-last_updated: "2026-06-22T06:45:00.000Z"
+last_updated: "2026-06-22T06:36:37.848Z"
 last_activity: 2026-06-22
-last_activity_desc: GAME-03 gap-closure plan (04-05) created + verified (PASS); bounded steering→score, cap 0.15
+last_activity_desc: Completed 04-03 (realtime live-steer broadcast/subscribe; D-03a on-device check UAT-deferred)
 progress:
   total_phases: 6
-  completed_phases: 4
-  total_plans: 19
-  completed_plans: 19
-  percent: 67
+  completed_phases: 5
+  total_plans: 20
+  completed_plans: 21
+  percent: 83
 ---
 
 # Project State
@@ -76,6 +76,7 @@ Progress: [██████████] 100%
 | Phase 04 P02 | ~10min | 3 tasks | 13 files |
 | Phase 04 P03 | 4min | 3 tasks | 6 files |
 | Phase 04 P04 | 10min | 3 tasks | 8 files |
+| Phase 04 P05 | 25min | 3 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -122,6 +123,8 @@ Recent decisions affecting current work:
 - [Phase ?]: 04-03: Task 3 on-device two-client (incl. mobile) devvit-playtest realtime check (D-03a) AUTO-APPROVED under auto-mode and DEFERRED to UAT — NOT performed on a device; realtime API existence verified via @devvit/realtime d.ts (HIGH), mobile delivery MEDIUM until UAT; D-03b reload fallback is the safety net
 - [Phase ?]: Reveal post: subredditName resolved inside runTick from trusted subId; exactly-once via atomic revealDone nx-set
 - [Phase ?]: Reward glyph: per-shell goalAchieved wired in synthesis from outcome.achieved; paint-only accent (stable max-energy element, constant REWARD_HUE, no rng) baked with the frozen shell — pure function of the record, identical on every client
+- [Phase ?]: 04-05: score() reads the already-folded day.steering as a bounded contribution (STEER_BIAS_CAP=0.15 × goal span); GAME-03 steering→outcome link is now real — SUPERSEDES the 04-02 'scored measure does not depend on steering' decision
+- [Phase ?]: 04-05: I-5 enforced by saturate-then-clamp — extreme steering can never exceed the cap, so steering moves only borderline days, never flips a clear day
 
 ### Pending Todos
 
@@ -147,6 +150,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-06-22T04:06:07.621Z
+Last session: 2026-06-22T06:36:16.830Z
 Stopped at: Completed 04-03-PLAN.md (realtime live-steer broadcast/subscribe)
 Resume file: None
