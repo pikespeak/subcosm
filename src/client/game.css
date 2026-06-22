@@ -288,6 +288,84 @@ body {
   justify-content: center;
 }
 
+/* ── In-session reveal preview (SUB-02 demo hook) ──────────────────────────────
+ * The viewer-facing "See tonight's reveal" trigger sits top-right (out of the
+ * bottom-center nudge thumb-zone) so a judge spots the payoff affordance; the
+ * resolved preview panel reuses the locked `.hud` chrome and sits just below it.
+ * The panel states clearly it is a PREVIEW (the real reveal is overnight) so it is
+ * never mistaken for advancing the community (T-05-10). No animation here — the
+ * resolved frame + reward glyph (04-04) are static, so it is reduced-motion safe. */
+.reveal-trigger {
+  position: absolute;
+  z-index: 2;
+  top: 12px;
+  right: 12px;
+  min-height: 44px; /* Reddit mobile hit-area floor */
+  padding: 0 16px;
+  background: linear-gradient(#241a44, #181030);
+  color: var(--ink);
+  border: 1px solid var(--hair);
+  border-radius: 10px;
+  font-family: 'Space Grotesk', system-ui, sans-serif;
+  font-size: 13px;
+  font-weight: 300;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.reveal-trigger[hidden] {
+  display: none;
+}
+
+/* The resolved preview panel: top-right, under the trigger. */
+.reveal-preview {
+  top: 64px;
+  right: 12px;
+  max-width: min(86vw, 320px);
+}
+
+/* The preview disclaimer — muted ink, so it reads as a quiet "this isn't live" note. */
+.reveal-preview-note {
+  color: var(--muted);
+  font-style: italic;
+}
+
+.reveal-verdict {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 2px 0;
+}
+
+/* The verdict glyph: gold when achieved (the goal-met signature), muted when missed. */
+.reveal-result {
+  margin-right: 8px;
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--muted);
+}
+.reveal-result[data-state='achieved'] {
+  color: var(--gold);
+}
+
+/* Reset: secondary substrate, ≥44px touch target — back to the live frontier. */
+.reveal-reset {
+  align-self: stretch;
+  min-height: 44px;
+  margin-top: 4px;
+  padding: 0 16px;
+  background: linear-gradient(#1c1636, #15102a);
+  color: var(--ink);
+  border: 1px solid var(--hair);
+  border-radius: 10px;
+  font-family: 'Space Grotesk', system-ui, sans-serif;
+  font-size: 13px;
+  font-weight: 300;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+}
+
 /* ── SUBCOSM brand mark (D-07) ────────────────────────────────────────────────
  * A small, static corner wordmark so the post reads as the SUBCOSM brand (the
  * logo as a brand mark). Wide-tracked light caps in the warm-white core hue, set

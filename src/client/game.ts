@@ -23,6 +23,7 @@
 import * as Phaser from 'phaser';
 import { AUTO, Game } from 'phaser';
 import { render, type RenderHandle } from '../engine/render';
+import { score } from '../engine/score';
 import { calm, chaotic, crystalline } from '../engine/genomes';
 import type { Genome, StyleTemplate, RingRecord } from '../engine/contracts';
 import { techno } from '../styles/techno';
@@ -42,6 +43,7 @@ import { connectRealtime, disconnectRealtime, context } from '@devvit/web/client
 import { PhaserPainter } from './cosmos/PhaserPainter';
 import { updateHud } from './cosmos/hud';
 import { showCoachmarkOnce } from './cosmos/coachmark';
+import { revealPreviewSteps } from './cosmos/revealPreview';
 
 // The post webroot stage (game.html parent div).
 const PARENT = 'game-container';
@@ -184,6 +186,15 @@ let handle: RenderHandle | null = null;
 // here so the post-nudge HUD refresh and the budget gate share one source of truth.
 let frontier: RingRecord | null = null;
 let activeGenome: Genome | null = null;
+// The active style (held so the reveal-preview re-mount uses the same look).
+let activeStyle: StyleTemplate | null = null;
+// The full frontier-first day array currently rendered — held so the CLIENT-LOCAL
+// reveal preview can re-synthesize a frozen-frontier copy (and reset back to the
+// live frontier) WITHOUT a server round-trip (T-05-09). Never sent anywhere.
+let currentDays: RingRecord[] = [];
+// Whether the in-session reveal preview is currently showing its frozen end-state
+// (so the toggle button resets back to the live frontier on the next press).
+let previewActive = false;
 // Whether the acting user still has budget — gates the nudge controls (D-04a).
 let nudgesRemaining = Infinity;
 
@@ -225,6 +236,11 @@ function teardown(): void {
   game = null;
   frontier = null;
   activeGenome = null;
+  activeStyle = null;
+  currentDays = [];
+  // Drop any preview state + hide its panel so a re-mount starts on the live frontier.
+  previewActive = false;
+  setPreviewPanel(false);
 }
 
 /**
@@ -261,6 +277,8 @@ function mountUniverse(data: OrganismResponse): void {
   // frontier (frontierFirst reversed oldest→newest); on cold start there is no ring.
   frontier = days[0] ?? null;
   activeGenome = genome;
+  activeStyle = style;
+  currentDays = days;
 
   // Goal-tracking readout from the SAME measure the scorer freezes (GAME-03). Only
   // shown when a frontier exists (a 0-ring genesis renders no readout, never broken).
@@ -272,6 +290,10 @@ function mountUniverse(data: OrganismResponse): void {
   // starts at the cap so the first tap is never wrongly suppressed.
   setNudgeControlsVisible(frontier != null);
   if (frontier != null) setNudgeBudget(genome.actionCap);
+
+  // The reveal-preview trigger is live only once a frontier exists to preview
+  // (cold start has nothing to freeze/score). NOT mod-gated — any viewer (D-09 demo).
+  setRevealTriggerVisible(frontier != null);
 
   setOverlay(data.rings.length === 0 ? 'coldstart' : 'none');
 
@@ -484,6 +506,109 @@ async function sendNudge(param: SteerParam): Promise<void> {
   }
 }
 
+// ── In-session reveal preview (SUB-02 demo hook) ──────────────────────────────
+// ANY viewer (no mod rights) can press "See tonight's reveal" to play a LOCAL
+// freeze → score → reward-glyph sequence on the current frontier, so a judge feels
+// the full goal→steer→reveal payoff in one session instead of waiting for the
+// overnight, mod-gated tick. It is CLIENT-LOCAL ONLY (T-05-09): it NEVER calls
+// /steer, the tick, createRevealPost, or any server/Redis path — it re-synthesizes
+// a FROZEN copy of the in-memory frontier (with its honest score() outcome) via the
+// existing render handle, surfacing the deterministic reward glyph paint (04-04) on
+// an achieved day. It is clearly labelled a preview, and a reset restores the live
+// frontier. The shown verdict is score()-backed, so it is the REAL outcome the tick
+// would produce — a preview, not a fake (T-05-10).
+
+/** Toggle the labelled preview panel (the "this is a preview" chrome + readout). */
+function setPreviewPanel(visible: boolean): void {
+  const panel = document.getElementById('reveal-preview');
+  if (panel) panel.hidden = !visible;
+}
+
+/** Show/hide the reveal-preview trigger button (hidden on cold start). */
+function setRevealTriggerVisible(visible: boolean): void {
+  const trigger = document.getElementById('reveal-preview-trigger');
+  if (trigger) trigger.hidden = !visible;
+}
+
+/** Reflect the resolved verdict into the preview panel's value nodes (T-02-11: values only). */
+function setPreviewVerdict(achieved: boolean, measured: number, threshold: number): void {
+  const result = document.getElementById('reveal-result');
+  if (result) {
+    // A neutral glyph + a data-state hook the CSS/i18n styles — never language text.
+    result.textContent = achieved ? '✓' : '·';
+    result.dataset.state = achieved ? 'achieved' : 'missed';
+  }
+  const fmt = (n: number): string => (Number.isInteger(n) ? String(n) : n.toFixed(2));
+  const m = document.getElementById('reveal-measured');
+  if (m) m.textContent = fmt(measured);
+  const t = document.getElementById('reveal-threshold');
+  if (t) t.textContent = fmt(threshold);
+}
+
+/**
+ * Play the CLIENT-LOCAL reveal preview on the current frontier. Freezes the live
+ * frontier by re-synthesizing a copy that carries its honest score() outcome
+ * (so synthesis surfaces goalAchieved → paint bakes the reward glyph on success,
+ * 04-04), shows the resolved verdict, and labels it a preview. NO server call. Under
+ * prefers-reduced-motion the end-state is applied in one shot (no staged timing,
+ * no strobe — PNT-04); otherwise the panel reveals first, then the freeze settles.
+ */
+function playRevealPreview(): void {
+  if (!handle || !activeGenome || !activeStyle || !frontier) return;
+  const liveFrontier = currentDays[0];
+  if (!liveFrontier) return;
+
+  // The HONEST verdict (the SAME score() the overnight tick freezes — T-05-10).
+  const steps = revealPreviewSteps(liveFrontier, activeGenome);
+  const outcome = score(liveFrontier, activeGenome);
+
+  // Build the FROZEN frontier copy: identical day, now carrying its outcome so
+  // synthesis surfaces goalAchieved (→ the deterministic reward glyph on success).
+  // PURELY local — this never leaves the client (T-05-09).
+  const frozenFrontier: RingRecord = { ...liveFrontier, outcome };
+
+  // Reflect the resolved verdict + show the labelled preview panel.
+  setPreviewVerdict(steps.achieved, steps.measured, outcome.goal.threshold);
+  setPreviewPanel(true);
+  previewActive = true;
+
+  // Re-synthesize the scene with the frozen frontier (frozen shells + the now-frozen
+  // frontier). regenerate() goes through the engine render seam — no server. The
+  // reward glyph bakes on an achieved frontier via the unchanged paint path (04-04).
+  handle.regenerate([frozenFrontier, ...currentDays.slice(1)], activeGenome);
+
+  // reduced-motion already gets the static end-state above (regenerate paints the
+  // resolved frame once; the reward glyph is a static accent — 04-04 PNT-04). No
+  // staged timers/strobe are needed; the sequence phases (steps.phases) are reflected
+  // by the panel label + the resolved readout, not by any animation here.
+}
+
+/** Reset the preview back to the LIVE frontier (re-synthesize without the outcome). */
+function resetRevealPreview(): void {
+  if (!handle || !activeGenome) return;
+  const liveFrontier = currentDays[0];
+  if (liveFrontier) {
+    // The live frontier carries no frozen outcome → no reward glyph, the live
+    // frontier animates again. Purely local (T-05-09).
+    handle.regenerate([liveFrontier, ...currentDays.slice(1)], activeGenome);
+  }
+  setPreviewPanel(false);
+  previewActive = false;
+}
+
+/** Wire the reveal-preview toggle (NOT mod-gated — any viewer) + its reset. */
+function wireRevealPreview(): void {
+  const trigger = document.getElementById('reveal-preview-trigger');
+  trigger?.addEventListener('click', () => {
+    if (previewActive) resetRevealPreview();
+    else playRevealPreview();
+  });
+  const reset = document.getElementById('reveal-preview-reset');
+  reset?.addEventListener('click', () => {
+    resetRevealPreview();
+  });
+}
+
 /** Wire each nudge button to its param once (DOMContentLoaded). */
 function wireNudgeControls(): void {
   for (const [param, id] of Object.entries(NUDGE_BUTTON_IDS) as Array<
@@ -542,6 +667,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Wire the live-nudge controls once (the buttons persist across re-renders).
   wireNudgeControls();
+
+  // Wire the in-session reveal preview (SUB-02) once — NOT mod-gated, any viewer.
+  wireRevealPreview();
 
   void loadCosmos();
 });

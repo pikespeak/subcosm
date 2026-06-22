@@ -108,6 +108,50 @@
         </p>
       </div>
 
+      <!-- In-session reveal-preview trigger (SUB-02 demo hook). NOT mod-gated: any
+           viewer can press it to play a CLIENT-LOCAL freeze → score → reward-glyph
+           sequence on the current frontier, so a judge feels the whole goal→steer→
+           reveal loop in one session. game.ts toggles it visible once a frontier
+           exists and swaps it to a reset on the next press. Copy is i18n-keyed; JS
+           injects no language text (T-02-11). Hidden until a frontier exists. -->
+      <button
+        id="reveal-preview-trigger"
+        type="button"
+        class="reveal-trigger"
+        data-i18n="reveal.trigger"
+        hidden
+      >
+        See tonight's reveal
+      </button>
+
+      <!-- Reveal-preview readout panel (SUB-02). Shown while the local preview is
+           active: it states clearly this is a PREVIEW (the real reveal happens
+           overnight — T-05-10, never mistaken for advancing the community), shows the
+           resolved verdict (achieved glyph + measured vs threshold), and offers a
+           reset back to the live frontier. CLIENT-LOCAL only — no server mutation
+           (T-05-09). Reuses the locked `.hud` chrome. Copy is i18n-keyed; game.ts
+           substitutes only the numeric VALUES + the verdict glyph (T-02-11). -->
+      <div id="reveal-preview" class="hud reveal-preview" role="status" aria-live="polite" hidden>
+        <p class="hud-line reveal-preview-note" data-i18n="reveal.note">
+          Preview — the real reveal happens overnight.
+        </p>
+        <p class="hud-line reveal-verdict">
+          <span id="reveal-result" class="reveal-result" data-i18n="reveal.result.label"></span>
+          <span class="hud-k" data-i18n="reveal.measured.label">Scored</span>
+          <span id="reveal-measured" class="hud-v"></span>
+          <span class="hud-k" data-i18n="reveal.goal.label">Goal</span>
+          <span id="reveal-threshold" class="hud-v"></span>
+        </p>
+        <button
+          id="reveal-preview-reset"
+          type="button"
+          class="reveal-reset"
+          data-i18n="reveal.reset"
+        >
+          Back to the live frontier
+        </button>
+      </div>
+
       <!-- First-run coachmark (D-02 / SUB-04). A one-time, dismissible overlay
            that explains BOTH loops to a brand-new visitor: depth = time (genesis
            core → day-shells → live frontier), the goal line, the nudge/steer
