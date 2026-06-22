@@ -19,7 +19,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 2: Visual Engine + Simulator** - Techno Canvas2D paint at mock parity, camera + depth scrubber + legibility readout (including day's goal), steering nudges, data simulator, and the dev harness — the complete standalone visual demo (completed 2026-06-19)
 - [x] **Phase 2.1: Visual Depth & Animation Polish** (INSERTED) - Rework shell depth/spacing geometry so earlier/frozen days read distinctly (no central blob), make the frontier ignite data-driven from day metrics, and make every ring read visibly populated — the deferred visual-quality pass from 02-05, before any Reddit code (completed 2026-06-20)
 - [x] **Phase 3: Devvit Scaffold + Data Layer** - Devvit Web app scaffold, Reddit triggers → Redis aggregation, hourly UTC scheduler tick, genome at install via settings — the Reddit wiring (completed 2026-06-21)
-- [ ] **Phase 4: Live Game** - Live frontier fills during the day, freezes overnight irreversibly, the tick scores the day against its goal (GAME-02/03/04), and a pinned reveal post shows what the community's universe became — the full retention loop
+- [x] **Phase 4: Live Game** - Live frontier fills during the day, freezes overnight irreversibly, the tick scores the day against its goal (GAME-02/03/04), and a pinned reveal post shows what the community's universe became — the full retention loop (completed 2026-06-22)
 - [ ] **Phase 5: Submit** - Mobile polish, onboarding (including goal→steer→reveal loop legibility), published app listing, public playable demo post, Devpost write-up — the submission package
 
 ## Phase Details
@@ -161,7 +161,7 @@ Plans:
   5. When the goal is achieved, the frozen ring carries a persistent visual reward (special star glyph / era badge) that is visible when scrubbing to that ring in the universe — and it renders identically on every client from the same Ring record
   6. Loading the post on a second client after the tick renders an identical frozen ring to the first client, confirming determinism holds across the Redis → engine seam
 
-**Plans**: 3/4 plans executed
+**Plans**: 4/4 plans complete
 **Mode:** mvp
 
 **Wave 1**
@@ -178,7 +178,7 @@ Plans:
 
 **Wave 4** *(blocked on Wave 1 + Wave 3 completion)*
 
-- [ ] 04-04-PLAN.md — Retention-hook slice: exactly-once pinned reveal post + paint-only deterministic reward glyph + blocking cross-client determinism check (LIVE-02, GAME-04, LIVE-03)
+- [x] 04-04-PLAN.md — Retention-hook slice: exactly-once pinned reveal post + paint-only deterministic reward glyph + blocking cross-client determinism check (LIVE-02, GAME-04, LIVE-03)
 
 ### Phase 5: Submit
 
@@ -204,5 +204,5 @@ Plans:
 | 2. Visual Engine + Simulator | 5/5 | Complete    | 2026-06-19 |
 | 2.1. Visual Depth & Animation Polish | 3/2 | Complete    | 2026-06-20 |
 | 3. Devvit Scaffold + Data Layer | 5/5 | Complete    | 2026-06-21 |
-| 4. Live Game | 3/4 | In Progress|  |
+| 4. Live Game | 4/4 | Complete   | 2026-06-22 |
 | 5. Submit | 0/TBD | Not started | - |

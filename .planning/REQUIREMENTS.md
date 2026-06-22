@@ -82,7 +82,7 @@
 #### Live Front & Reveal (LIVE)
 
 - [x] **LIVE-01**: The live frontier fills during the day and renders nudges in near-real-time (realtime channel names use `-`, no colons); nudges aggregate into a Redis steer hash.
-- [ ] **LIVE-02**: At the tick the frontier **freezes irreversibly** and a pinned **reveal/update post** is created ("what your universe became overnight").
+- [x] **LIVE-02**: At the tick the frontier **freezes irreversibly** and a pinned **reveal/update post** is created ("what your universe became overnight").
 - [x] **LIVE-03**: Client and server render identically from the same Ring record (determinism holds across the seam).
 
 ### B2. Game / Daily Loop (GAME) — MVP core (staged)
@@ -92,7 +92,7 @@
 - [x] **GAME-01**: Each day carries a **goal** ("genome quest") as data on the Genome/day (e.g. high symmetry, low conflict, ignite a specific rare gene). It is legible to players at dawn (shown in the readout).
 - [x] **GAME-02**: At the tick the day's shell is **scored against its goal deterministically** (from the DayVector/outcome); achieved ✓/✗ (+ degree) is recorded on the Ring and surfaced in the reveal.
 - [ ] **GAME-03**: Steering nudges measurably move the day toward/away from the goal — the contribution → outcome link is legible (steering still biases the mean only, never dictates; invariant I-5).
-- [ ] **GAME-04**: An achieved goal leaves a **persistent reward** on the ring (special star / era badge), visible permanently in the universe.
+- [x] **GAME-04**: An achieved goal leaves a **persistent reward** on the ring (special star / era badge), visible permanently in the universe.
 - [x] **GAME-05**: Daily player actions (nudges, and later guesses) are a **budgeted, countable per-user resource** (cap/day) on a **personal layer** kept separate from the shared community universe — so fair/cosmetic monetization and ethical retention can bolt on later without reworking synthesis.
 
 ### C. Submission & Polish (required to enter)
@@ -183,11 +183,11 @@
 | DEV-05 | Phase 3: Devvit Scaffold + Data Layer | Complete |
 | DEV-06 | Phase 3: Devvit Scaffold + Data Layer | Complete |
 | LIVE-01 | Phase 4: Live Game | Complete |
-| LIVE-02 | Phase 4: Live Game | Pending |
+| LIVE-02 | Phase 4: Live Game | Complete |
 | LIVE-03 | Phase 4: Live Game | Complete |
 | GAME-02 | Phase 4: Live Game | Complete |
 | GAME-03 | Phase 4: Live Game | Pending |
-| GAME-04 | Phase 4: Live Game | Pending |
+| GAME-04 | Phase 4: Live Game | Complete |
 | SUB-01 | Phase 5: Submit | Pending |
 | SUB-02 | Phase 5: Submit | Pending |
 | SUB-03 | Phase 5: Submit | Pending |

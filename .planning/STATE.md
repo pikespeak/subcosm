@@ -6,15 +6,15 @@ current_phase: 04
 current_phase_name: live-game
 status: executing
 stopped_at: Completed 04-03-PLAN.md (realtime live-steer broadcast/subscribe)
-last_updated: "2026-06-22T03:53:55.424Z"
+last_updated: "2026-06-22T04:06:52.672Z"
 last_activity: 2026-06-22
-last_activity_desc: Completed 04-03 (realtime live-steer broadcast/subscribe; D-03a UAT-deferred)
+last_activity_desc: Completed 04-03 (realtime live-steer broadcast/subscribe; D-03a on-device check UAT-deferred)
 progress:
   total_phases: 6
-  completed_phases: 4
+  completed_phases: 5
   total_plans: 19
-  completed_plans: 19
-  percent: 67
+  completed_plans: 20
+  percent: 83
 ---
 
 # Project State
@@ -75,6 +75,7 @@ Progress: [██████████] 100%
 | Phase 04 P01 | 12min | 3 tasks | 12 files |
 | Phase 04 P02 | ~10min | 3 tasks | 13 files |
 | Phase 04 P03 | 4min | 3 tasks | 6 files |
+| Phase 04 P04 | 10min | 3 tasks | 8 files |
 
 ## Accumulated Context
 
@@ -119,6 +120,8 @@ Recent decisions affecting current work:
 - [Phase 04]: 04-01: OutcomeSchema firmed (goal/measured/achieved/degree in [0,1]); DayVector.outcome typed; score(day,genome) PURE re-using synthesis starCount/deriveArms (golden snapshot unchanged); DENSITY_NORM_CAP=55 + symmetry posts>300 path make each goal reachable-but-not-automatic (OQ1) without touching locked D-01 thresholds; 'outcome' in ring JSON_FIELDS for lossless round-trip; runTick scores every frozen ring deterministically (GAME-02/LIVE-03)
 - [Phase ?]: 04-03: D-03 realtime live-steer wired — colon-free steerChannel(postId) shared client+server; server realtime.send ABSOLUTE aggregate after each accepted nudge (best-effort guarded, never 500s the nudge); client connectRealtime subscribes synchronously, safeParses onMessage (T-04-09), reconciles-to-absolute via appliedMean baseline so viewers converge and acting user never double-applies own echo; disconnectRealtime on teardown; layer optional -> degrades to D-03b reload fallback no rewrite
 - [Phase ?]: 04-03: Task 3 on-device two-client (incl. mobile) devvit-playtest realtime check (D-03a) AUTO-APPROVED under auto-mode and DEFERRED to UAT — NOT performed on a device; realtime API existence verified via @devvit/realtime d.ts (HIGH), mobile delivery MEDIUM until UAT; D-03b reload fallback is the safety net
+- [Phase ?]: Reveal post: subredditName resolved inside runTick from trusted subId; exactly-once via atomic revealDone nx-set
+- [Phase ?]: Reward glyph: per-shell goalAchieved wired in synthesis from outcome.achieved; paint-only accent (stable max-energy element, constant REWARD_HUE, no rng) baked with the frozen shell — pure function of the record, identical on every client
 
 ### Pending Todos
 
@@ -144,6 +147,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-06-22T03:53:55.417Z
+Last session: 2026-06-22T04:06:07.621Z
 Stopped at: Completed 04-03-PLAN.md (realtime live-steer broadcast/subscribe)
 Resume file: None
