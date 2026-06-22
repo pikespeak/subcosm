@@ -84,7 +84,7 @@ The build is real and green: the engine and contracts ship with a full unit suit
 
 - **App listing (developers.reddit.com):** https://developers.reddit.com/apps/subcosm-universe *(live; goes installable once review is approved)*
 - **Demo post (public subreddit running the game):** `[TODO — required; judging is primarily based on this — fill after install on the demo sub]`
-- **Source code (optional):** `[TODO — GitHub link if we open-source]`
+- **Source code:** https://github.com/pikespeak/subcosm *(open source, BSD-3-Clause)*
 
 ---
 
