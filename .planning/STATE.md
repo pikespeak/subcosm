@@ -4,11 +4,11 @@ milestone: v1.0
 milestone_name: milestone
 current_phase: 04
 current_phase_name: live-game
-status: gaps_found
-stopped_at: Phase 4 executed (4/4 plans, green); verification gaps_found (4/6) — GAME-03 blocker (steering not scored) + criteria 4-6 on-device UAT pending
-last_updated: "2026-06-22T06:30:00.000Z"
+status: planned
+stopped_at: GAME-03 gap plan 04-05 created + plan-checked PASS; ready for `/gsd-execute-phase 4 --gaps-only`. (Criteria 4-6 on-device UAT still pending after gap closure.)
+last_updated: "2026-06-22T06:45:00.000Z"
 last_activity: 2026-06-22
-last_activity_desc: Phase 4 verification gaps_found (4/6); GAME-03 gap-closure pending (user chose "make steering matter")
+last_activity_desc: GAME-03 gap-closure plan (04-05) created + verified (PASS); bounded steering→score, cap 0.15
 progress:
   total_phases: 6
   completed_phases: 4

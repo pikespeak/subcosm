@@ -180,6 +180,10 @@ Plans:
 
 - [x] 04-04-PLAN.md — Retention-hook slice: exactly-once pinned reveal post + paint-only deterministic reward glyph + blocking cross-client determinism check (LIVE-02, GAME-04, LIVE-03)
 
+**Wave 5** *(gap closure — from 04-VERIFICATION.md, plan-checked PASS)*
+
+- [ ] 04-05-PLAN.md — GAME-03 gap closure: `score.ts` `measure()` reads the already-folded `day.steering` as a bounded (STEER_BIAS_CAP=0.15), direction-aware term so a nudge measurably moves achieved/degree on borderline days, hard-clamped so steering never dictates clearly-decided days (invariant I-5); proven by held-out max-steering + determinism tests (GAME-03)
+
 ### Phase 5: Submit
 
 **Goal**: The app is published on developer.reddit.com, a public demo post runs the full game on a real subreddit, the experience is polished on mobile, onboarding makes the goal→steer→reveal loop self-explanatory to a new visitor, and the Devpost submission is complete — every mandatory artifact for the hackathon exists before the 2026-07-15 18:00 PDT deadline
