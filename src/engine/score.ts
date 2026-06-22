@@ -41,7 +41,36 @@ export const DENSITY_NORM_CAP = 55;
  */
 const SYMMETRY_DEGREE_SPAN = 2;
 
+/**
+ * STEER_BIAS_CAP — [ASSUMED] = 0.15. The maximum absolute shift the aggregated
+ * steering may apply to `measured`, expressed as a FRACTION of the goal's per-goal
+ * degree span (`degreeBounds(targetParam, threshold).max - .min`). For conflict /
+ * density the span is 1.0 (the 0..1 axis) → max shift ±0.15; for symmetry the span
+ * is `2 × SYMMETRY_DEGREE_SPAN` = 4 arms → max shift ±0.6 arms.
+ *
+ * This is the encoding of invariant I-5 — steering BIASES the mean, it NEVER
+ * dictates the outcome. The cap is a true BIAS, not a DICTATE:
+ *   - A BORDERLINE day sits within the cap of the threshold (e.g. conflict 0.45 vs
+ *     goal <0.40), so full toward-goal steering can pull it across — the GAME-03
+ *     positive link.
+ *   - A CLEARLY-FAILED day sits MORE than the cap past the threshold (e.g. conflict
+ *     0.95 vs <0.40), so even MAXIMUM toward-goal steering cannot reach it — it stays
+ *     failed. Symmetrically a CLEARLY-ACHIEVED day cannot be thrown by away-from-goal
+ *     steering. Proven by the prohibition (never-dictates) test in score.test.ts.
+ *
+ * The contribution reads the ALREADY-FOLDED `day.steering` directly (the tick's
+ * foldSteering applied the per-param steer gain exactly once before score() runs);
+ * it is NOT re-multiplied by that gain here (re-applying would double-count, breaking
+ * the single-fold OQ3/D-08 guarantee). The lever is first saturated to [-1, 1] so an
+ * extreme folded value can NEVER exceed the cap.
+ */
+export const STEER_BIAS_CAP = 0.15;
+
 const clamp01 = (v: number): number => (v < 0 ? 0 : v > 1 ? 1 : v);
+
+/** Hard-clamp a value into [lo, hi]. */
+const clampTo = (v: number, lo: number, hi: number): number =>
+  v < lo ? lo : v > hi ? hi : v;
 
 /** The targetParam-specific bounds [min, max] for the normalized degree scale. */
 function degreeBounds(targetParam: string, threshold: number): {
@@ -63,6 +92,54 @@ function degreeBounds(targetParam: string, threshold: number): {
     default:
       return { min: 0, max: 1 };
   }
+}
+
+/**
+ * steerContribution — the bounded, direction-aware steering offset for a goal,
+ * derived PURELY from the ALREADY-FOLDED `day.steering` (GAME-03, within I-5).
+ *
+ * Lever mapping (the player's nudge → the scored axis):
+ *   - symmetry goal → `day.steering.symmetry` (the "make it more faceted" lever)
+ *   - density  goal → `day.steering.branch`   (structural spread populates the frontier)
+ *   - conflict goal → `day.steering.branch`   (branch loosens/tightens structure)
+ *   - any other     → 0 (safe fallback; hue is never a scored lever)
+ *
+ * The lever is read DIRECTLY (the tick's foldSteering already applied the steer
+ * gain once — it is NOT re-applied) and saturated to [-1, 1] so an extreme value can never
+ * exceed the cap. It is scaled by the per-goal cap and made direction-aware: a
+ * positive (toward-goal) lever always moves `measured` in the goal-FAVORABLE
+ * direction (ADD for 'above', SUBTRACT for 'below'); a negative (away-from-goal)
+ * lever always hurts. The signed offset is hard-clamped to [-cap, +cap].
+ */
+function steerContribution(
+  goal: { targetParam: string; threshold: number; direction: 'above' | 'below' },
+  day: DayVector,
+): number {
+  let lever: number;
+  switch (goal.targetParam) {
+    case 'symmetry':
+      lever = day.steering.symmetry;
+      break;
+    case 'density':
+    case 'conflict':
+      lever = day.steering.branch;
+      break;
+    default:
+      return 0; // hue / unknown params are never a scored lever
+  }
+
+  // Saturate the (already-folded) lever to [-1, 1] — the clamp guarantees the
+  // contribution can never exceed the per-goal cap, regardless of input size.
+  const saturated = clampTo(lever, -1, 1);
+
+  const { min, max } = degreeBounds(goal.targetParam, goal.threshold);
+  const cap = STEER_BIAS_CAP * (max - min);
+
+  // Direction-aware: a positive lever helps the goal. For 'above' that means
+  // ADDING to measured; for 'below' that means SUBTRACTING from it.
+  const signedOffset = (goal.direction === 'above' ? 1 : -1) * saturated * cap;
+
+  return clampTo(signedOffset, -cap, cap);
 }
 
 /**
@@ -100,7 +177,18 @@ export function measure(targetParam: string, day: DayVector, genome: Genome): nu
  */
 export function score(day: DayVector, genome: Genome): Outcome {
   const goal = genome.dailyGoal;
-  const measured = measure(goal.targetParam, day, genome);
+  // Activity base (unchanged) + the bounded, direction-aware steering offset
+  // (GAME-03). The offset reads the already-folded day.steering and is hard-clamped
+  // to a fraction of the goal span (I-5: biases the mean, never dictates).
+  const base = measure(goal.targetParam, day, genome);
+  const offset = steerContribution(goal, day);
+  const shifted = base + offset;
+  // Re-clamp to the metric's own axis: conflict/density to [0,1]; symmetry stays a
+  // real number on the arm axis (degree tolerates non-integers).
+  const measured =
+    goal.targetParam === 'conflict' || goal.targetParam === 'density'
+      ? clamp01(shifted)
+      : shifted;
   const threshold = goal.threshold;
   const { min, max } = degreeBounds(goal.targetParam, threshold);
 
