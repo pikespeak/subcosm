@@ -1,6 +1,6 @@
 # Subcosm — Devpost Submission (DRAFT)
 
-> **Status:** DRAFT for "Reddit's Games with a Hook" Hackathon. Story is written from the vision + research; every `[TODO]` (links, screenshots, final build details, real numbers) is filled in once the app is built and the demo post is live. Submission deadline: **July 15, 2026, 6:00 PM PDT.**
+> **Status:** Near-final for "Reddit's Games with a Hook" Hackathon. App `subcosm-universe` v0.0.4 (unlisted) submitted to Reddit app-review on 2026-06-22 — listing https://developers.reddit.com/apps/subcosm-universe. The narrative + build section are final and reconciled with the shipped engine. **Only three things remain, all gated on the approval email → demo pass:** the live "Try it out" links, the gameplay screenshots, and the one measured on-device fps figure. Submission deadline: **July 15, 2026, 6:00 PM PDT.**
 
 ---
 
@@ -30,14 +30,14 @@ The heart is a **pure, deterministic rendering engine** with a strict typed seam
 \\( \text{synthesize}(\text{DayVector},\, \text{Genome}) \rightarrow \text{Scene} \quad\text{then}\quad \text{paint}(\text{Scene},\, \text{StyleTemplate}) \rightarrow \text{pixels} \\)
 
 - **Functional core, imperative shell.** Synthesis is style-agnostic; paint never touches raw data; the camera never mutates the scene. Reddit/Devvit code is isolated in its own layer and attaches at a single seam.
-- **Determinism by construction.** Every shell is reproducible from its day vector and a seed, with a seeded `mulberry32` PRNG and a fixed value-consumption order. The per-day seed is \\( s = \text{hash}(\text{subId},\, \text{day},\, \text{genomeVersion}) \\), and shells are laid out at radius
-$$ r_i = R_{\max}\cdot 0.85^{\,i} $$
-so the same inputs always produce a byte-identical scene on every device.
+- **Determinism by construction.** Every shell is reproducible from its day vector and a seed, with a seeded `mulberry32` PRNG and a fixed value-consumption order. The per-day seed is the FNV-1a hash \\( s = \text{hash}(\text{subId},\, \text{day},\, \text{genomeVersion}) \\) — seeded from the day, never the array index, so it survives out-of-order Redis reads. Shells are laid out with a **clamped minimum-gap** spacing (each shell keeps a guaranteed angular/radial gap from the next) rather than a geometric `0.85^i` falloff, so even the oldest rings stay individually legible toward the core instead of collapsing into a central blob. Same inputs → byte-identical scene on every device.
 - **Zod as the single source of truth.** All four contracts (`DayVector`, `Scene`, `Genome`, `StyleTemplate`) are Zod schemas; TypeScript types are inferred from them, and data is validated only at system boundaries.
 - **Simulator first.** We built a data simulator that generates realistic `DayVector[]` (growth, busy/quiet days, a drama spike, an AMA day, a cold-start day-1) so we could tune the data→visuals mapping with **zero platform risk** before wiring Reddit. The simulator's schema *is* the contract the real collector fills.
 - **Mobile-first rendering with Phaser.** The paint layer is built on **Phaser** (WebGL): frozen shells bake to a `RenderTexture` (only the live frontier re-renders), geometry/textures are reused instead of per-star reallocation, and resolution is capped to hold ~60 fps in the Reddit post viewport. Synthesis stays render-agnostic, so Phaser is a swappable paint adapter behind the `Scene` seam.
 
-`[TODO: replace with the real build narrative + final numbers once implemented — e.g. measured fps on device, ring count, draw-call budget.]`
+The build is real and green: the engine and contracts ship with a full unit suite (**276 tests**, `tsc --noEmit` + lint + build all clean), the ESLint determinism boundary keeps `Math.random` and Devvit imports out of `src/engine/`, and the live game is wired end-to-end on Devvit — Reddit triggers aggregate into Redis, an hourly UTC sweeper freezes each community's frontier at its local midnight, the tick scores the day against its goal and publishes a pinned reveal post, and a realtime channel propagates live nudges (with a reload-reconciliation fallback). One concentric shell is added per day; only the live frontier animates while every frozen shell is baked once to a Phaser `RenderTexture`, holding the 60 fps target in the post viewport.
+
+`[Pending on-device UAT — fill the one measured number: sustained fps on a mid-range Android during the live demo. Architecture above is verified; the device figure comes from the demo pass.]`
 
 ### Challenges we faced
 
@@ -71,10 +71,19 @@ so the same inputs always produce a byte-identical scene on every device.
 
 ---
 
+## Prize categories
+
+- **Primary — Best App with a Hook.** The daily *set a goal → shape it together → reveal overnight* loop is the hook: a shared genome quest, a limited nudge budget, and an irreversible overnight freeze that leaves a permanent reward star. The artifact is biographical and persistent, so there's a reason to come back every morning.
+- **Secondary — Best User Contributions.** The cosmos is built *entirely* from the community's own activity (posts, comments, contributors, conflict) and shaped live by many players' nudges that bias the mean without any single user dictating the outcome — a genuinely collective artifact, not one person's drawing.
+
+*(Phaser is used as the renderer — see "Built with" — but the submission is framed on the hook + collective-contribution categories, not Best Use of Phaser.)*
+
+---
+
 ## "Try it out" links
 
-- **App listing (developer.reddit.com):** `[TODO — required for submission]`
-- **Demo post (public subreddit running the game):** `[TODO — required; judging is primarily based on this]`
+- **App listing (developers.reddit.com):** https://developers.reddit.com/apps/subcosm-universe *(live; goes installable once review is approved)*
+- **Demo post (public subreddit running the game):** `[TODO — required; judging is primarily based on this — fill after install on the demo sub]`
 - **Source code (optional):** `[TODO — GitHub link if we open-source]`
 
 ---

@@ -5,8 +5,8 @@ milestone_name: milestone
 current_phase: 05
 current_phase_name: submit
 status: executing
-stopped_at: "Phase 5 autonomous CODE complete (05-02 tooling, 05-03 onboarding, 05-04 mobile+aesthetic; 276 tests/type-check/lint/build green). 05-01 Tasks1-2 done (README+toolchain). REMAINING = user, on finished build: seed demo sub (mod menu) + on-device UAT + devvit publish + public demo post + Devpost. Then I write 05-05 + 05-01 SUMMARYs + complete Phase 5."
-last_updated: "2026-06-22T19:10:20.155Z"
+stopped_at: "Phase 5: app PUBLISHED to review (devvit upload v0.0.3 + devvit publish v0.0.4 UNLISTED, submitted 2026-06-22) — Reddit app-review pending (reason: creates custom posts; approval comes by email, no ETA, EXTERNAL gate). 05-01 Task 3 (publish) DONE pending approval. REMAINING (all blocked on the approval email): install on demo sub + seed via mod-menu backfill/force-tick (05-02) + on-device UAT (04-UAT four items, 05-05) + public demo post + Devpost links/media. Then write 05-05 + 05-01 SUMMARYs + complete Phase 5. UAT checklist prepared in 04-UAT.md."
+last_updated: "2026-06-22T19:30:00.000Z"
 last_activity: 2026-06-22
 last_activity_desc: Phase 05 execution started
 progress:
@@ -29,9 +29,9 @@ See: .planning/PROJECT.md (updated 2026-06-19)
 ## Current Position
 
 Phase: 05 (submit) — EXECUTING
-Plan: 05-06 complete (demo hook); 05-01 + 05-05 still incomplete
-Status: Executing
-Last activity: 2026-06-22 — 05-06 complete (in-session reveal preview + live goal meter)
+Plan: 05-06 complete; 05-01 publish DONE→awaiting Reddit review approval; 05-05 blocked on approval
+Status: Executing — app submitted to review (v0.0.4 unlisted), external email gate
+Last activity: 2026-06-22 — devvit upload (0.0.3) + devvit publish (0.0.4 unlisted) submitted for review
 
 Progress: [████████░░] 83%
 
@@ -164,6 +164,7 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-06-22T19:09:50.413Z
-Stopped at: Phase 5 autonomous CODE complete (05-02 tooling, 05-03 onboarding, 05-04 mobile+aesthetic; 276 tests/type-check/lint/build green). 05-01 Tasks1-2 done (README+toolchain). REMAINING = user, on finished build: seed demo sub (mod menu) + on-device UAT + devvit publish + public demo post + Devpost. Then I write 05-05 + 05-01 SUMMARYs + complete Phase 5.
+Last session: 2026-06-22T19:30:00.000Z
+Stopped at: App submitted to Reddit app-review — `devvit upload` (v0.0.3) then `devvit publish` (v0.0.4, UNLISTED) on 2026-06-22. Review pending because the app creates custom posts; approval arrives by EMAIL (no ETA, external gate, cannot expedite). Everything remaining is blocked on that approval: install on a demo sub I moderate → mod-menu "Seed demo history" (backfill) + "Force tick" → run the four deferred 04-UAT items on-device → create the public pinned demo post → fill Devpost links/media. Then write 05-05 + 05-01 SUMMARYs + complete Phase 5.
+NEXT ACTION (on approval email): install app on demo sub, then run the UAT script in 04-UAT.md.
 Resume file: .planning/phases/05-submit/05-05-PLAN.md
