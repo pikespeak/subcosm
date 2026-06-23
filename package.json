@@ -20,11 +20,11 @@
     "node": ">=22.2.0"
   },
   "dependencies": {
-    "@devvit/start": "0.13.4",
-    "@devvit/web": "0.13.4",
+    "@devvit/start": "0.13.5",
+    "@devvit/web": "0.13.5",
     "@eslint/plugin-kit": "^0.7.2",
     "@hono/node-server": "^2.0.5",
-    "devvit": "0.13.4",
+    "devvit": "0.13.5",
     "hono": "^4.12.26",
     "phaser": "^4.2.0",
     "zod": "4.4.3"
